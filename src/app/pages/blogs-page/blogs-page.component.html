@@ -1,0 +1,104 @@
+    <section class="blogs-page">
+      <div class="blogs-hero">
+        <div class="blogs-hero-copy">
+          <div class="breadcrumb">
+            <a href="/">Home</a>
+            <span><op-icon name="chevron-right"></op-icon></span>
+            <strong>Blog</strong>
+          </div>
+          <h1>Blog & <span>Tips</span></h1>
+          <p>Expert advice, repair guides, and the latest updates to keep your devices running like new.</p>
+          <label class="blog-search">
+            <op-icon name="search"></op-icon>
+            <input type="search" placeholder="Search for articles..." aria-label="Search for articles" />
+          </label>
+        </div>
+
+        <div class="blogs-hero-art" aria-hidden="true">
+          <span class="blog-orbit orbit-a"></span>
+          <span class="blog-orbit orbit-b"></span>
+          <div class="blog-document">
+            <strong>BLOG</strong>
+            <i></i><i></i><i></i>
+            <span></span>
+          </div>
+          <div class="blog-pen"></div>
+        </div>
+      </div>
+
+      <div class="blogs-layout">
+        <aside class="blogs-sidebar" aria-label="Blog filters">
+          <section class="sidebar-card">
+            <h2>Categories</h2>
+            <div class="category-list">
+              @for (category of categories; track category[0]; let index = $index) {
+                <a [class.active]="index === 0" href="/blogs">
+                  <span><op-icon [name]="index === 0 ? 'grid' : index === 1 ? 'sparkles' : index === 2 ? 'tools' : index === 3 ? 'shield' : index === 4 ? 'calendar' : 'star'"></op-icon></span>
+                  {{ category[0] }}
+                  <strong>{{ category[1] }}</strong>
+                </a>
+              }
+            </div>
+          </section>
+
+          <section class="sidebar-card">
+            <h2>Popular Tags</h2>
+            <div class="tag-list">
+              @for (tag of popularTags; track tag; let index = $index) {
+                <a [class]="'tone-' + (index % 6 === 0 ? 'violet' : index % 6 === 1 ? 'green' : index % 6 === 2 ? 'pink' : index % 6 === 3 ? 'blue' : index % 6 === 4 ? 'orange' : 'cyan')" href="/blogs">{{ tag }}</a>
+              }
+            </div>
+          </section>
+
+          <section class="sidebar-card newsletter-card">
+            <h2>Newsletter</h2>
+            <p>Subscribe to get the latest tips and offers.</p>
+            <input type="email" placeholder="Enter your email" aria-label="Email address" />
+            <button class="btn btn-primary" type="button">Subscribe</button>
+          </section>
+
+          <section class="sidebar-card help-card">
+            <h2>Need Help?</h2>
+            <p>Still have questions? We are here to help.</p>
+            <a class="btn btn-secondary" href="mailto:hello@omarphone.test">Contact Us <op-icon name="arrow-right"></op-icon></a>
+          </section>
+        </aside>
+
+        <section class="blogs-results" aria-label="Blog posts">
+          <div class="blogs-toolbar">
+            <p>Showing 1-12 of 48 articles</p>
+            <button type="button">Latest First <op-icon name="arrow-right"></op-icon></button>
+          </div>
+
+          <div class="blogs-post-grid">
+            @for (post of allBlogPosts; track post.title) {
+              <article class="blog-card compact" [class]="'tone-' + post.tone">
+                <div class="blog-art">
+                  <img [src]="post.image" [alt]="post.title" />
+                </div>
+                <div class="blog-body">
+                  <div class="blog-meta">
+                    <span>{{ post.date }}</span>
+                    <strong>{{ post.tag }}</strong>
+                  </div>
+                  <h3>{{ post.title }}</h3>
+                  <p>{{ post.copy }}</p>
+                  <a [href]="'/blogs/' + post.slug">Read More <op-icon name="arrow-right"></op-icon></a>
+                </div>
+              </article>
+            }
+          </div>
+
+          <nav class="pagination" aria-label="Blog pages">
+            <a href="/blogs"><op-icon name="chevron-right"></op-icon></a>
+            <a class="active" href="/blogs">1</a>
+            <a href="/blogs">2</a>
+            <a href="/blogs">3</a>
+            <a href="/blogs">4</a>
+            <span>...</span>
+            <a href="/blogs">8</a>
+            <a href="/blogs"><op-icon name="chevron-right"></op-icon></a>
+          </nav>
+        </section>
+      </div>
+    </section>

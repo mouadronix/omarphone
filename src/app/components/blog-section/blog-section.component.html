@@ -1,0 +1,33 @@
+    <section class="section blog-section" id="blog">
+      <div class="blog-heading">
+        <span class="eyebrow">Blog & Tips</span>
+        <h2>Latest Tips & <span>Insights</span></h2>
+        <p>Expert advice, repair guides, and the latest updates to keep your devices running like new.</p>
+        <i aria-hidden="true"></i>
+      </div>
+
+      <div class="blog-grid">
+        @for (post of blogPosts; track post.title) {
+          <article class="blog-card" [class]="'tone-' + post.tone">
+            <div class="blog-art">
+              <img [src]="post.image" [alt]="post.title" />
+            </div>
+            <div class="blog-body">
+              <div class="blog-meta">
+                <span><op-icon name="calendar"></op-icon> {{ post.date }}</span>
+                <strong>{{ post.tag }}</strong>
+              </div>
+              <h3>{{ post.title }}</h3>
+              <p>{{ post.copy }}</p>
+              <a [href]="'/blogs/' + post.slug">Read More <op-icon name="arrow-right"></op-icon></a>
+            </div>
+          </article>
+        }
+      </div>
+
+      <a class="btn blog-button" href="/blogs">
+        <op-icon name="file-text"></op-icon>
+        View All Blog Posts
+        <op-icon name="arrow-right"></op-icon>
+      </a>
+    </section>

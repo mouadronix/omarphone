@@ -1,0 +1,795 @@
+<main class="site-shell">
+  <nav class="navbar" aria-label="Primary navigation">
+    <a class="brand" href="/#home" aria-label="OmarPhone home">
+      <span class="op-logo" aria-hidden="true">
+        <span class="op-phone"></span>
+        <span class="op-pipe op-pipe-o"></span>
+        <span class="op-pipe op-pipe-p"></span>
+      </span>
+      <span class="brand-word">Omar<span>Phone</span></span>
+    </a>
+
+    <div class="nav-links">
+      <a [class.active]="isHome()" href="/#home">Home</a>
+      <a [class.active]="isServices()" href="/services">Repair Services</a>
+      <a href="/#how">How It Works</a>
+      <a href="/#why">Why Us</a>
+      <a [class.active]="isPricing()" href="/pricing">Pricing</a>
+      <a [class.active]="isAbout()" href="/about">About Us</a>
+      <a [class.active]="isSupportCenter()" href="/support-center">Support</a>
+    </div>
+
+    <div class="nav-actions">
+      <button class="theme-toggle" type="button" (click)="toggleTheme()" [attr.aria-label]="isDark() ? 'Switch to light mode' : 'Switch to dark mode'">
+        <op-icon [name]="isDark() ? 'sun' : 'moon'"></op-icon>
+      </button>
+      <a class="phone-link" href="tel:+15559871234">+1 (555) 987-1234</a>
+      <a class="btn btn-primary" href="/book">Book a Repair <op-icon name="arrow-right"></op-icon></a>
+    </div>
+  </nav>
+
+  @if (isBlogDetail()) {
+    <app-blog-detail-page></app-blog-detail-page>
+  } @else if (isBlogs()) {
+    <app-blogs-page></app-blogs-page>
+  } @else if (isServices()) {
+    <app-services-page></app-services-page>
+  } @else if (isSupportCenter()) {
+    <app-support-center-page></app-support-center-page>
+  } @else if (isPricing()) {
+    <section class="pricing-page">
+      <div class="pricing-hero">
+        <div class="pricing-hero-copy">
+          <div class="breadcrumb">
+            <a href="/">Home</a>
+            <span><op-icon name="chevron-right"></op-icon></span>
+            <strong>Pricing & Options</strong>
+          </div>
+          <h1>Transparent Pricing.<br /><span>Flexible Options.</span></h1>
+          <p>Choose the best service option that fits your needs and budget. We will take care of the rest.</p>
+        </div>
+
+        <div class="pricing-hero-art" aria-hidden="true">
+          <span class="price-orbit orbit-a"></span>
+          <span class="price-orbit orbit-b"></span>
+          <span class="price-icon rocket"><op-icon name="zap"></op-icon></span>
+          <span class="price-icon home"><op-icon name="home"></op-icon></span>
+          <span class="price-icon box"><op-icon name="box"></op-icon></span>
+          <div class="price-tag">
+            <i></i>
+            <strong>$</strong>
+          </div>
+        </div>
+      </div>
+
+      <section class="pricing-summary" aria-label="Selected repair summary">
+        <div class="summary-device">
+          <img src="/images/phones/apple/iphone-15-pro-max.png" alt="iPhone 15 Pro Max" />
+          <div>
+            <small>Your Device</small>
+            <strong>iPhone 15 Pro Max</strong>
+            <span>256GB - Natural Titanium</span>
+            <a href="/book">Change</a>
+          </div>
+        </div>
+        <div class="pricing-summary-item tone-green">
+          <op-icon name="arrow-right"></op-icon>
+          <small>Issue</small>
+          <strong>Screen Repair</strong>
+          <p>Cracked front screen</p>
+          <a href="/book">Change</a>
+        </div>
+        <div class="pricing-summary-item tone-violet">
+          <op-icon name="arrow-right"></op-icon>
+          <small>Estimated Time</small>
+          <strong>1.5 - 2 Hours</strong>
+          <a href="/book">Change</a>
+        </div>
+        <div class="pricing-summary-item tone-blue">
+          <op-icon name="arrow-right"></op-icon>
+          <small>Warranty</small>
+          <strong>90-Day Warranty</strong>
+          <p>On all repairs</p>
+        </div>
+      </section>
+
+      <section class="pricing-options-section">
+        <div class="pricing-section-title">
+          <h2>Choose Your Service Option</h2>
+          <p>Pick the service that works best for you.</p>
+        </div>
+        <div class="pricing-options-grid">
+          @for (option of pricingOptions; track option.title) {
+            <article class="pricing-option-card" [class]="'tone-' + option.tone" [class.popular]="option.popular">
+              @if (option.popular) {
+                <b>Most Popular</b>
+              }
+              <i><op-icon [name]="option.icon === 'rocket' ? 'zap' : option.icon"></op-icon></i>
+              <em></em>
+              <div class="pricing-card-heading">
+                <h3>{{ option.title }}</h3>
+                <strong>{{ option.fee }}</strong>
+              </div>
+              <p>{{ option.copy }}</p>
+              <ul>
+                @for (perk of option.perks; track perk) {
+                  <li>{{ perk }}</li>
+                }
+              </ul>
+              <div class="eta-row">
+                <op-icon name="arrow-right"></op-icon>
+                <strong>Estimated Time</strong>
+                <small>{{ option.eta }}</small>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+
+      <section class="pricing-reasons">
+        <h2>Why Different Pricing?</h2>
+        <div>
+          @for (reason of pricingReasons; track reason.title) {
+            <article [class]="'tone-' + reason.tone">
+              <span><op-icon [name]="reason.icon"></op-icon></span>
+              <div>
+                <h3>{{ reason.title }}</h3>
+                <p>{{ reason.copy }}</p>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+
+      <section class="included-repair">
+        <h2>What's Included in Every Repair</h2>
+        <div>
+          @for (item of includedRepairs; track item[0]; let index = $index) {
+            <article [class]="'tone-' + (index === 1 ? 'blue' : index === 4 ? 'pink' : 'violet')">
+              <span><op-icon [name]="item[2]"></op-icon></span>
+              <div>
+                <h3>{{ item[0] }}</h3>
+                <p>{{ item[1] }}</p>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+
+      <section class="pricing-help">
+        <div>
+          <h2>Not Sure Which Option to Choose?</h2>
+          <p>Our support team is here to help you pick the best option for your situation.</p>
+          <a class="btn btn-secondary" href="mailto:hello@omarphone.test"><op-icon name="headphones"></op-icon> Chat with an Expert</a>
+        </div>
+        <div class="support-agent" aria-hidden="true">
+          <span></span>
+        </div>
+        <div class="online-card">
+          <strong>We're online!</strong>
+          <p>Ask us anything, we are happy to help.</p>
+          <small><op-icon name="check"></op-icon> Online Now</small>
+        </div>
+        <ul>
+          <li>Get expert advice</li>
+          <li>Compare options</li>
+          <li>Find the best solution</li>
+        </ul>
+      </section>
+
+      <section class="pricing-cta">
+        <div>
+          <h2>Ready to get your device fixed?</h2>
+          <p>Choose your option and let our experts handle the rest.</p>
+        </div>
+        <a class="btn btn-primary btn-large" href="/book">Book a Repair Now <op-icon name="arrow-right"></op-icon></a>
+        <img src="/assets/cutouts/rocket-phone.png" alt="" />
+      </section>
+    </section>
+  } @else if (isAbout()) {
+    <section class="about-page">
+      <div class="about-hero">
+        <div class="about-hero-copy">
+          <div class="breadcrumb">
+            <a href="/">Home</a>
+            <span><op-icon name="chevron-right"></op-icon></span>
+            <a href="/about">About Us</a>
+            <span><op-icon name="chevron-right"></op-icon></span>
+            <strong>Our Technicians</strong>
+          </div>
+          <h1>Meet Our<br /><span>Expert Technicians</span></h1>
+          <p>Skilled. Certified. Passionate about tech. Your device is in the best hands.</p>
+        </div>
+
+        <div class="about-hero-art" aria-hidden="true">
+          <span class="about-orbit orbit-a"></span>
+          <span class="about-orbit orbit-b"></span>
+          <div class="about-phone-art"></div>
+          <div class="about-wrench"><op-icon name="wrench"></op-icon></div>
+          <div class="about-award"><op-icon name="badge"></op-icon></div>
+        </div>
+      </div>
+
+      <section class="technicians-section">
+        <div class="page-section-title">
+          <h2>Our Repair Experts</h2>
+          <span></span>
+        </div>
+        <div class="technician-grid">
+          @for (tech of technicians; track tech.name) {
+            <article class="technician-card" [class]="'tone-' + tech.tone">
+              <b>{{ tech.role }}</b>
+              <div class="technician-top">
+                <div class="tech-avatar" [class]="tech.avatar">
+                  <span></span>
+                </div>
+                <div>
+                  <h3>{{ tech.name }}</h3>
+                  <strong>{{ tech.experience }}</strong>
+                  <small>{{ tech.credential }}</small>
+                  <p>{{ tech.copy }}</p>
+                </div>
+              </div>
+
+              <div class="tech-block">
+                <h4>Specializations</h4>
+                <div class="tech-tags">
+                  @for (spec of tech.specs; track spec; let index = $index) {
+                    <span [class]="'tone-' + (index % 3 === 0 ? 'violet' : index % 3 === 1 ? 'blue' : 'orange')">{{ spec }}</span>
+                  }
+                </div>
+              </div>
+
+              <div class="tech-block">
+                <h4>Certifications</h4>
+                <div class="cert-grid">
+                  @for (cert of tech.certs; track cert; let index = $index) {
+                    <span>{{ index === 0 ? 'AP' : index === 1 ? 'AD' : 'IPC' }} <em>{{ cert }}</em></span>
+                  }
+                </div>
+              </div>
+
+              <div class="tech-meta">
+                <div><small>Rating</small><strong>★★★★★</strong><p>{{ tech.rating }} ({{ tech.reviews }})</p></div>
+                <div><small>Completed Repairs</small><strong>{{ tech.repairs }}</strong></div>
+                <div><small>Languages</small><strong>{{ tech.languages }}</strong></div>
+              </div>
+            </article>
+          }
+        </div>
+      </section>
+
+      <section class="about-stats">
+        @for (stat of aboutStats; track stat[0]) {
+          <article [class]="'tone-' + stat[4]">
+            <span><op-icon [name]="stat[3]"></op-icon></span>
+            <strong>{{ stat[0] }}</strong>
+            <p>{{ stat[1] }}<br />{{ stat[2] }}</p>
+          </article>
+        }
+      </section>
+
+      <section class="shop-section">
+        <div class="page-section-title">
+          <h2>Visit Our Repair Shop</h2>
+          <span></span>
+        </div>
+        <div class="shop-card">
+          <div class="storefront-art" role="img" aria-label="OmarPhone repair shop storefront"></div>
+          <div class="shop-info">
+            <h3>Our Location</h3>
+            <p>123 Tech Avenue<br />Casablanca, 20000<br />Morocco</p>
+            <ul>
+              <li>Mon - Sat: 9:00 AM - 7:00 PM</li>
+              <li>Sunday: Closed</li>
+              <li>+212 6 12 34 56 78</li>
+              <li>hello@omarphone.com</li>
+            </ul>
+            <a class="btn btn-secondary" href="https://maps.google.com">Get Directions <op-icon name="arrow-right"></op-icon></a>
+          </div>
+          <div class="map-art" aria-hidden="true">
+            <span class="road road-a"></span>
+            <span class="road road-b"></span>
+            <span class="road road-c"></span>
+            <i>OmarPhone<br />Repair Shop</i>
+          </div>
+        </div>
+      </section>
+
+      <section class="about-contact-cta">
+        <div>
+          <h2>Have a Question?</h2>
+          <p>Chat with our experts or book a repair today.</p>
+        </div>
+        <a class="btn btn-secondary" href="mailto:hello@omarphone.com"><op-icon name="headphones"></op-icon> Chat with Us</a>
+        <a class="btn btn-primary" href="/book">Book a Repair <op-icon name="arrow-right"></op-icon></a>
+      </section>
+    </section>
+  } @else if (isBeforeAfter()) {
+    <app-before-after-page></app-before-after-page>
+  } @else if (isDetails()) {
+    <section class="details-page">
+      <div class="details-hero">
+        <div class="details-hero-copy">
+          <div class="breadcrumb">
+            <a href="/">Home</a>
+            <span><op-icon name="chevron-right"></op-icon></span>
+            <a href="/book">Book a Repair</a>
+            <span><op-icon name="chevron-right"></op-icon></span>
+            <strong>Details</strong>
+          </div>
+          <h1>Complete Your <span>Booking</span></h1>
+          <p>Just a few details and we will take care of the rest.</p>
+        </div>
+
+        <div class="details-hero-art" aria-hidden="true">
+          <span class="book-orbit orbit-a"></span>
+          <span class="book-orbit orbit-b"></span>
+          <img class="details-art-laptop" src="/assets/cutouts/laptop-repair.png" alt="" />
+          <img class="details-art-phone" [src]="selectedBookDevice()?.image ?? '/images/phones/apple/iphone-15-pro-max.png'" alt="" />
+          <img class="details-art-watch" src="/assets/cutouts/battery-repair.png" alt="" />
+          <span class="details-bubble bubble-calendar"><op-icon name="calendar"></op-icon></span>
+          <span class="details-bubble bubble-pin"><op-icon name="map-pin"></op-icon></span>
+        </div>
+      </div>
+
+      <nav class="booking-progress" aria-label="Booking progress">
+        <span><b>1</b> Choose Device <i><op-icon name="check"></op-icon></i></span>
+        <em><op-icon name="arrow-right"></op-icon></em>
+        <span><b>2</b> Choose Issue <i><op-icon name="check"></op-icon></i></span>
+        <em><op-icon name="arrow-right"></op-icon></em>
+        <span><b>3</b> Service Type <i><op-icon name="check"></op-icon></i></span>
+        <em><op-icon name="arrow-right"></op-icon></em>
+        <span class="active"><b>4</b> Details</span>
+        <em><op-icon name="arrow-right"></op-icon></em>
+        <span><b>5</b> Confirm</span>
+      </nav>
+
+      <div class="details-layout">
+        <div class="details-flow">
+          <section class="detail-panel">
+            <div class="booking-title">
+              <span>1</span>
+              <div>
+                <h2>Personal Information</h2>
+                <p>Enter your contact details</p>
+              </div>
+            </div>
+            <div class="form-stack">
+              <label class="field-line tone-violet">
+                <op-icon name="user"></op-icon>
+                <input type="text" placeholder="Full Name" aria-label="Full name" />
+                <small>Enter your full name</small>
+              </label>
+              <label class="field-line tone-violet">
+                <op-icon name="phone"></op-icon>
+                <input type="tel" placeholder="Phone Number" aria-label="Phone number" />
+                <small>Enter your phone number</small>
+              </label>
+              <label class="field-line tone-violet">
+                <op-icon name="mail"></op-icon>
+                <input type="email" placeholder="Email Address" aria-label="Email address" />
+                <small>Enter your email address</small>
+              </label>
+            </div>
+          </section>
+
+          <section class="detail-panel">
+            <div class="booking-title">
+              <span>2</span>
+              <div>
+                <h2>Address for Pickup & Delivery</h2>
+                <p>Where should we pick up and deliver your device?</p>
+              </div>
+            </div>
+            <div class="form-grid">
+              <label class="field-line tone-pink full">
+                <op-icon name="map-pin"></op-icon>
+                <select aria-label="Select your city">
+                  <option>Select your city</option>
+                  <option>Rome</option>
+                  <option>Milan</option>
+                  <option>Naples</option>
+                </select>
+                <small>City</small>
+              </label>
+              <label class="field-line tone-violet full">
+                <op-icon name="map-pin"></op-icon>
+                <input type="text" placeholder="Address" aria-label="Address" />
+                <small>Enter your full address</small>
+              </label>
+              <label class="field-line tone-pink">
+                <op-icon name="home"></op-icon>
+                <input type="text" placeholder="ZIP / Postal Code" aria-label="ZIP or postal code" />
+                <small>Enter ZIP code</small>
+              </label>
+              <label class="field-line tone-blue">
+                <op-icon name="file-text"></op-icon>
+                <input type="text" placeholder="Additional Notes (Optional)" aria-label="Additional address notes" />
+                <small>Apartment, suite, gate code, etc.</small>
+              </label>
+            </div>
+          </section>
+
+          <section class="detail-panel">
+            <div class="booking-title">
+              <span>3</span>
+              <div>
+                <h2>Preferred Date & Time</h2>
+                <p>Choose a convenient date and time for pickup</p>
+              </div>
+            </div>
+            <div class="date-grid">
+              <label class="field-line tone-pink">
+                <op-icon name="calendar"></op-icon>
+                <input type="text" placeholder="Select Date" aria-label="Select date" />
+                <small>Choose a date</small>
+              </label>
+              <label class="field-line tone-pink">
+                <op-icon name="clock"></op-icon>
+                <select aria-label="Select time slot">
+                  <option>Select Time Slot</option>
+                  <option>Morning</option>
+                  <option>Afternoon</option>
+                  <option>Evening</option>
+                </select>
+                <small>Choose a time slot</small>
+              </label>
+            </div>
+            <div class="time-options">
+              <article class="tone-orange"><op-icon name="sun"></op-icon><strong>Morning</strong><small>9AM - 12PM</small></article>
+              <article class="tone-violet active"><op-icon name="clock"></op-icon><strong>Afternoon</strong><small>12PM - 4PM</small></article>
+              <article class="tone-violet"><op-icon name="moon"></op-icon><strong>Evening</strong><small>4PM - 8PM</small></article>
+            </div>
+          </section>
+
+          <section class="detail-panel">
+            <div class="booking-title">
+              <span>4</span>
+              <div>
+                <h2>Additional Notes <small>(Optional)</small></h2>
+                <p>Anything else we should know about your device?</p>
+              </div>
+            </div>
+            <label class="issue-textarea">
+              <textarea maxlength="500" placeholder="Tell us anything important about your device..." aria-label="Additional notes"></textarea>
+              <span>0/500</span>
+            </label>
+          </section>
+
+          <div class="book-actions">
+            <a class="btn btn-secondary" href="/book"><op-icon name="arrow-left"></op-icon> Back</a>
+          </div>
+        </div>
+
+        <aside class="details-side">
+          <section class="checkout-card repair-summary-final">
+            <h2>Repair Summary</h2>
+            <div class="summary-device">
+              <img [src]="selectedBookDevice()?.image ?? '/images/phones/apple/iphone-15-pro-max.png'" [alt]="selectedBookDevice()?.name ?? 'iPhone 15 Pro Max'" />
+              <div>
+                <strong>{{ selectedBookDevice()?.name ?? 'iPhone 15 Pro Max' }}</strong>
+                <a href="/book">Change</a>
+              </div>
+            </div>
+            <div class="summary-list final-summary-list">
+              <div>
+                <span class="tone-green"><op-icon name="smartphone"></op-icon></span>
+                <strong>Issue</strong>
+                <small>{{ selectedRepairIssue()?.title ?? 'Screen Repair' }}</small>
+                <a href="/book">Change</a>
+              </div>
+              <div>
+                <span class="tone-orange"><op-icon name="truck"></op-icon></span>
+                <strong>Service Type</strong>
+                <small>{{ selectedServiceOption()?.title ?? 'Pickup & Delivery' }}</small>
+                <a href="/book">Change</a>
+              </div>
+            </div>
+            <div class="price-list">
+              <p><span>{{ selectedRepairIssue()?.title ?? 'Screen Repair' }}</span><strong>${{ selectedRepairIssue() ? selectedIssuePrice() : 79 }}</strong></p>
+              <p><span>Service Fee</span><strong>${{ selectedServiceOption() ? selectedServiceFee() : 10 }}</strong></p>
+              <p><span>Discount</span><strong>- $0</strong></p>
+              <p class="total"><span>Total</span><strong>${{ canContinueBooking() ? selectedTotalPrice() : 89 }}</strong></p>
+            </div>
+            <div class="eta-card">
+              <op-icon name="clock"></op-icon>
+              <div>
+                <strong>Estimated Time</strong>
+                <b>{{ selectedServiceOption() ? selectedEta() : '24 - 48 Hours' }}</b>
+                <small>We will notify you once the repair is done.</small>
+              </div>
+            </div>
+            <div class="summary-trust compact-trust">
+              <div class="tone-violet"><op-icon name="shield"></op-icon><strong>90-Day Warranty</strong><small>On all repairs</small></div>
+              <div class="tone-violet"><op-icon name="badge"></op-icon><strong>Genuine Parts</strong><small>100% original</small></div>
+              <div class="tone-violet"><op-icon name="users"></op-icon><strong>Expert Technicians</strong><small>Certified professionals</small></div>
+              <div class="tone-pink"><op-icon name="lock"></op-icon><strong>Secure & Safe</strong><small>Your data is always protected</small></div>
+            </div>
+          </section>
+
+          <section class="checkout-card payment-card">
+            <h2>Payment Option</h2>
+            <label class="payment-option active">
+              <span></span>
+              <strong>Pay Online</strong>
+              <small>Pay securely with card or other methods</small>
+              <b>VISA</b><b>MC</b><b>AMEX</b><b>Pay</b>
+            </label>
+            <label class="payment-option">
+              <span></span>
+              <strong>Pay on Delivery</strong>
+              <small>Pay when we deliver your device back</small>
+            </label>
+          </section>
+
+          <a class="btn btn-primary btn-large confirm-booking" href="mailto:hello@omarphone.test">Confirm Booking <op-icon name="arrow-right"></op-icon></a>
+          <p class="secure-note"><op-icon name="lock"></op-icon> Your information is secure and encrypted.</p>
+        </aside>
+      </div>
+
+      <section class="support-strip">
+        <article class="tone-pink"><op-icon name="headphones"></op-icon><div><strong>Need Help?</strong><p>We are here to help you 24/7</p><a href="mailto:hello@omarphone.test">Contact Support <op-icon name="arrow-right"></op-icon></a></div></article>
+        <article class="tone-violet"><op-icon name="phone"></op-icon><div><strong>Call Us</strong><p>+1 (555) 987-1234<br />Mon - Sun (9AM - 8PM)</p></div></article>
+        <article class="tone-green"><op-icon name="mail"></op-icon><div><strong>Live Chat</strong><p>Chat with our team</p><a href="/details">Start Live Chat <op-icon name="arrow-right"></op-icon></a></div></article>
+      </section>
+    </section>
+  } @else if (isBook()) {
+    <section class="book-page">
+      <div class="book-hero">
+        <div class="book-hero-copy">
+          <div class="breadcrumb">
+            <a href="/">Home</a>
+            <span><op-icon name="chevron-right"></op-icon></span>
+            <strong>Book a Repair</strong>
+          </div>
+          <h1>Select Your <span>Service</span></h1>
+          <p>Choose your device, select the issue, and we will take care of the rest.</p>
+        </div>
+
+        <div class="book-hero-art" aria-hidden="true">
+          <span class="book-orbit orbit-a"></span>
+          <span class="book-orbit orbit-b"></span>
+          <img class="book-art-laptop" src="/assets/cutouts/laptop-repair.png" alt="" />
+          <img class="book-art-phone" src="/assets/cutouts/iphone.png" alt="" />
+          <img class="book-art-watch" src="/assets/cutouts/battery-repair.png" alt="" />
+          <span class="book-check"><op-icon name="check"></op-icon></span>
+        </div>
+      </div>
+
+      <div class="booking-layout">
+        <div class="booking-flow">
+          <section class="booking-panel choose-device">
+            <div class="booking-title">
+              <span>1</span>
+              <div>
+                <h2>Choose Your Device</h2>
+              </div>
+            </div>
+
+            <div class="device-picker">
+              <aside class="device-filter">
+                <label>
+                  <op-icon name="grid"></op-icon>
+                  <input type="search" placeholder="Search your device..." aria-label="Search your device" />
+                </label>
+                <div class="device-nav">
+                  <a class="active" href="/book">
+                    <op-icon name="arrow-right"></op-icon>
+                    All Devices
+                    <strong>54</strong>
+                  </a>
+
+                  <details class="brand-dropdown" open>
+                    <summary>
+                      <op-icon name="smartphone"></op-icon>
+                      Phones
+                      <strong>54</strong>
+                      <i><op-icon name="chevron-right"></op-icon></i>
+                    </summary>
+                    <div class="brand-list">
+                      @for (brand of phoneBrands; track brand[0]) {
+                        <a class="brand-active" href="/book">
+                          <op-icon name="smartphone"></op-icon>
+                          {{ brand[0] }}
+                          <strong>{{ brand[1] }}</strong>
+                        </a>
+                      }
+                    </div>
+                  </details>
+
+                  <details class="brand-dropdown">
+                    <summary>
+                      <op-icon name="laptop"></op-icon>
+                      Laptops
+                      <strong>8</strong>
+                      <i><op-icon name="chevron-right"></op-icon></i>
+                    </summary>
+                    <div class="brand-list">
+                      @for (brand of laptopBrands; track brand[0]) {
+                        <a href="/book">
+                          <op-icon name="laptop"></op-icon>
+                          {{ brand[0] }}
+                          <strong>{{ brand[1] }}</strong>
+                        </a>
+                      }
+                    </div>
+                  </details>
+
+                  <a href="/book">
+                    <op-icon name="tablet"></op-icon>
+                    Tablets
+                    <strong>2</strong>
+                  </a>
+                  <a href="/book">
+                    <op-icon name="watch"></op-icon>
+                    Smartwatches
+                    <strong>1</strong>
+                  </a>
+                </div>
+              </aside>
+
+              <div class="device-grid">
+                @for (device of bookDevices; track device.name) {
+                  <article class="device-card" [class]="'tone-' + device.tone" [class.selected]="selectedBookDeviceName() === device.name" (click)="selectBookDevice(device)">
+                    <img [src]="device.image" [alt]="device.name" />
+                    <h3>{{ device.name }}</h3>
+                    <button type="button" (click)="selectBookDevice(device); $event.stopPropagation()">
+                      {{ selectedBookDeviceName() === device.name ? 'Selected' : 'Select' }}
+                    </button>
+                  </article>
+                }
+                <a class="find-device" href="mailto:hello@omarphone.test">
+                  <op-icon name="arrow-right"></op-icon>
+                  Cannot find your device?
+                  <strong>Contact Us</strong>
+                  <op-icon name="arrow-right"></op-icon>
+                </a>
+              </div>
+            </div>
+          </section>
+
+          <section class="booking-panel">
+            <div class="booking-title">
+              <span>2</span>
+              <div>
+                <h2>Choose the Issue</h2>
+                <p>Select the problem you are experiencing with your device.</p>
+              </div>
+            </div>
+
+            <div class="issue-grid">
+              @for (issue of repairIssues; track issue.title) {
+                <article class="issue-card" [class]="'tone-' + issue.tone" [class.selected]="selectedRepairIssueTitle() === issue.title" (click)="selectRepairIssue(issue)" role="button" tabindex="0">
+                  <i><op-icon [name]="issue.icon"></op-icon></i>
+                  <b><op-icon name="check"></op-icon></b>
+                  <h3>{{ issue.title }}</h3>
+                  <p>{{ issue.copy }}</p>
+                </article>
+              }
+            </div>
+          </section>
+
+          <section class="booking-panel">
+            <div class="booking-title">
+              <span>3</span>
+              <div>
+                <h2>Select Service Type</h2>
+                <p>How would you like us to handle your repair?</p>
+              </div>
+            </div>
+
+            <div class="service-type-grid">
+              @for (option of serviceOptions; track option.title) {
+                <article class="service-type-card" [class]="'tone-' + option.tone" [class.recommended]="option.recommended" [class.selected]="selectedServiceOptionTitle() === option.title" (click)="selectServiceOption(option)" role="button" tabindex="0">
+                  @if (option.recommended) {
+                    <strong>Recommended</strong>
+                  }
+                  <i><op-icon [name]="option.icon"></op-icon></i>
+                  <b><op-icon name="check"></op-icon></b>
+                  <div>
+                    <h3>{{ option.title }}</h3>
+                    <p>{{ option.copy }}</p>
+                  </div>
+                </article>
+              }
+            </div>
+          </section>
+
+          <section class="booking-panel">
+            <div class="booking-title">
+              <span>4</span>
+              <div>
+                <h2>Describe the Issue <small>(Optional)</small></h2>
+                <p>Tell us more about the problem so we can assist you better.</p>
+              </div>
+            </div>
+            <label class="issue-textarea">
+              <textarea maxlength="500" placeholder="Describe the issue in detail..." aria-label="Describe the issue in detail"></textarea>
+              <span>0/500</span>
+            </label>
+          </section>
+
+          <div class="book-actions">
+            <a class="btn btn-secondary" href="/"><op-icon name="arrow-left"></op-icon> Back</a>
+            <a class="btn btn-primary btn-large" href="/details" [class.disabled]="!canContinueBooking()" [attr.aria-disabled]="!canContinueBooking()" (click)="continueToDetails($event)">Continue to Details <op-icon name="arrow-right"></op-icon></a>
+          </div>
+        </div>
+
+        <aside class="repair-summary" aria-label="Repair summary">
+          <h2>Repair Summary</h2>
+          <div class="summary-device">
+            <img [src]="selectedBookDevice()?.image ?? '/assets/cutouts/iphone.png'" [alt]="selectedBookDevice()?.name ?? 'Choose your device'" />
+            <div>
+              <strong>{{ selectedBookDevice()?.name ?? 'Choose your device' }}</strong>
+              <a href="/book">Change</a>
+            </div>
+          </div>
+
+          <div class="summary-list">
+            <div>
+              <span class="tone-green"><op-icon name="smartphone"></op-icon></span>
+              <strong>Issue</strong>
+              <small>{{ selectedRepairIssue()?.title ?? 'Not selected' }}</small>
+            </div>
+            <div>
+              <span class="tone-blue"><op-icon name="box"></op-icon></span>
+              <strong>Service Type</strong>
+              <small>{{ selectedServiceOption()?.title ?? 'Not selected' }}</small>
+            </div>
+            <div>
+              <span class="tone-pink"><op-icon name="credit-card"></op-icon></span>
+              <strong>Estimated Price</strong>
+              <small>{{ selectedRepairIssue() ? ('$' + selectedTotalPrice()) : '-' }}</small>
+            </div>
+            <div>
+              <span class="tone-cyan"><op-icon name="clock"></op-icon></span>
+              <strong>Estimated Time</strong>
+              <small>{{ selectedServiceOption() ? selectedEta() : '-' }}</small>
+            </div>
+          </div>
+
+          <div class="summary-trust">
+            @for (item of trust; track item; let index = $index) {
+              <div [class]="'tone-' + (index === 0 ? 'violet' : index === 1 ? 'blue' : index === 2 ? 'violet' : 'orange')">
+                <span><op-icon [name]="index === 0 ? 'shield' : index === 1 ? 'badge' : index === 2 ? 'users' : 'clock'"></op-icon></span>
+                <strong>{{ item }}</strong>
+                <small>{{ item === 'Genuine Parts' ? '100% original' : item === 'Expert Technicians' ? 'Certified professionals' : item === 'Same Day Repair' ? 'On most devices' : 'On all repairs' }}</small>
+              </div>
+            }
+          </div>
+
+          <div class="summary-help">
+            <h3>Need Help?</h3>
+            <p>Chat with our support team. We are here to help.</p>
+            <a class="btn btn-secondary" href="mailto:hello@omarphone.test">Contact Support <op-icon name="arrow-right"></op-icon></a>
+          </div>
+        </aside>
+      </div>
+    </section>
+  } @else if (isHome()) {
+    <app-home-page [isDark]="isDark()"></app-home-page>
+  } @else {
+    <app-not-found-page></app-not-found-page>
+  }
+
+  <footer class="footer">
+    <a class="brand" href="/#home" aria-label="OmarPhone home">
+      <span class="op-logo" aria-hidden="true">
+        <span class="op-phone"></span>
+        <span class="op-pipe op-pipe-o"></span>
+        <span class="op-pipe op-pipe-p"></span>
+      </span>
+      <span class="brand-word">Omar<span>Phone</span></span>
+    </a>
+    <p>Premium phone, laptop and tablet repair with glowing results.</p>
+    <div class="footer-links">
+      <a href="/before-after">Before & After</a>
+      <a href="/blogs">Blog</a>
+      <a href="/services">Services</a>
+      <a href="/support-center">Support</a>
+      <a href="/book">Book</a>
+    </div>
+    <small>&copy; 2026 OmarPhone. All rights reserved.</small>
+  </footer>
+</main>

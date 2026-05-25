@@ -1,0 +1,168 @@
+@if (article(); as article) {
+  <section class="blog-detail-page">
+    <div class="breadcrumb">
+      <a href="/">Home</a>
+      <span><op-icon name="chevron-right"></op-icon></span>
+      <a href="/blogs">Blog</a>
+      <span><op-icon name="chevron-right"></op-icon></span>
+      <strong>{{ article.title }}</strong>
+    </div>
+
+    <div class="blog-detail-layout">
+      <article class="article-shell" [class]="'tone-' + article.tone">
+        <header class="article-hero">
+          <div class="article-hero-copy">
+            <div class="article-meta-row">
+              <span class="article-category">{{ article.category }}</span>
+              <i></i>
+              <span>{{ article.date }}</span>
+              <i></i>
+              <span>{{ article.readTime }}</span>
+            </div>
+            <h1>{{ article.title }}</h1>
+            <p>{{ article.description }}</p>
+          </div>
+
+          <figure class="article-hero-image">
+            <img [src]="article.image" [alt]="article.title" />
+          </figure>
+        </header>
+
+        <section class="article-author-card" aria-label="Article author and sharing">
+          <div class="author-mark">OP</div>
+          <div>
+            <span>By <strong>{{ article.author }}</strong></span>
+            <small>{{ article.authorRole }}</small>
+          </div>
+          <div class="share-actions" aria-label="Share this article">
+            <span>Share this article:</span>
+            <a href="#" aria-label="Share on X">x</a>
+            <a href="#" aria-label="Share on Facebook">f</a>
+            <a href="#" aria-label="Share on LinkedIn">in</a>
+            <a href="#" aria-label="Copy article link">link</a>
+          </div>
+        </section>
+
+        <section class="article-content">
+          @for (section of article.sections; track section.heading) {
+            <section class="content-block">
+              <h2>{{ section.heading }}</h2>
+              @for (paragraph of section.paragraphs; track paragraph) {
+                <p>{{ paragraph }}</p>
+              }
+
+              @if (section.bullets) {
+                <ul class="article-list">
+                  @for (bullet of section.bullets; track bullet) {
+                    <li>{{ bullet }}</li>
+                  }
+                </ul>
+              }
+
+              @if (section.tip) {
+                <aside class="article-tip">
+                  <span><op-icon name="alert-circle"></op-icon></span>
+                  <div>
+                    <strong>{{ section.tip.title }}</strong>
+                    <p>{{ section.tip.copy }}</p>
+                  </div>
+                </aside>
+              }
+
+              @if (section.steps) {
+                <ol class="article-steps">
+                  @for (step of section.steps; track step; let index = $index) {
+                    <li>
+                      <span>{{ index + 1 }}</span>
+                      {{ step }}
+                    </li>
+                  }
+                </ol>
+              }
+            </section>
+          }
+
+          <aside class="article-repair-cta">
+            <span><op-icon name="tools"></op-icon></span>
+            <div>
+              <strong>Need Professional Repair?</strong>
+              <p>Our experts are ready to help you get your device back to perfect condition.</p>
+            </div>
+            <a class="btn btn-primary" href="/book">Book a Repair <op-icon name="arrow-right"></op-icon></a>
+          </aside>
+        </section>
+
+        <footer class="article-footer">
+          <div class="article-helpful">
+            <strong>Was this article helpful?</strong>
+            <button type="button" aria-label="Yes">+</button>
+            <button type="button" aria-label="No">-</button>
+          </div>
+          <div class="article-tags">
+            <strong>Tags:</strong>
+            @for (tag of article.tags; track tag; let index = $index) {
+              <a [class]="'tone-' + (index === 0 ? 'violet' : index === 1 ? 'orange' : 'blue')" href="/blogs">{{ tag }}</a>
+            }
+          </div>
+        </footer>
+      </article>
+
+      <aside class="article-sidebar" aria-label="Blog sidebar">
+        <label class="article-search">
+          <input type="search" placeholder="Search articles..." aria-label="Search articles" />
+          <span>⌕</span>
+        </label>
+
+        <section class="article-side-card">
+          <h2>Categories</h2>
+          <div class="category-list">
+            @for (category of categories; track category[0]; let index = $index) {
+              <a [class.active]="category[0] === article.category" href="/blogs">
+                <span>{{ index + 1 }}</span>
+                {{ category[0] }}
+                <strong>{{ category[1] }}</strong>
+              </a>
+            }
+          </div>
+          <a class="side-link" href="/blogs">View All Categories <op-icon name="arrow-right"></op-icon></a>
+        </section>
+
+        <section class="article-side-card">
+          <h2>Popular Tags</h2>
+          <div class="tag-list">
+            @for (tag of popularTags; track tag; let index = $index) {
+              <a [class]="'tone-' + (index % 6 === 0 ? 'violet' : index % 6 === 1 ? 'pink' : index % 6 === 2 ? 'blue' : index % 6 === 3 ? 'orange' : index % 6 === 4 ? 'green' : 'cyan')" href="/blogs">{{ tag }}</a>
+            }
+          </div>
+          <a class="side-link" href="/blogs">View All Tags <op-icon name="arrow-right"></op-icon></a>
+        </section>
+
+        <section class="article-side-card latest-card">
+          <h2>Latest Articles</h2>
+          @for (latest of latestArticles(); track latest.slug) {
+            <a class="latest-article" [href]="'/blogs/' + latest.slug">
+              <img [src]="latest.image" [alt]="latest.title" />
+              <span>
+                <strong>{{ latest.title }}</strong>
+                <small>{{ latest.date }}</small>
+              </span>
+            </a>
+          }
+          <a class="side-link" href="/blogs">View All Articles <op-icon name="arrow-right"></op-icon></a>
+        </section>
+
+        <section class="article-book-card">
+          <h2>Get Your Device Repaired Today!</h2>
+          <p>Fast, reliable, and professional repair services you can trust.</p>
+          <ul>
+            <li>Genuine Parts</li>
+            <li>Expert Technicians</li>
+            <li>90-Day Warranty</li>
+            <li>Fast Turnaround</li>
+          </ul>
+          <a class="btn btn-primary" href="/book">Book a Repair <op-icon name="arrow-right"></op-icon></a>
+        </section>
+      </aside>
+    </div>
+  </section>
+}

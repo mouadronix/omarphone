@@ -1,0 +1,164 @@
+<section class="support-center-page">
+  <div class="support-hero">
+    <div class="support-copy">
+      <div class="breadcrumb">
+        <a href="/">Home</a>
+        <span><op-icon name="chevron-right"></op-icon></span>
+        <strong>Support Center</strong>
+      </div>
+      <h1>Support Center<br /><span>We're Here to Help</span></h1>
+      <p>Find answers, get support, or chat with our team. Fast, friendly, and reliable support you can trust.</p>
+      <label class="support-search">
+        <op-icon name="search"></op-icon>
+        <input type="search" placeholder="Search for help topics, issues..." aria-label="Search support topics" />
+      </label>
+    </div>
+
+    <div class="support-hero-art" aria-hidden="true">
+      <span class="support-orbit orbit-a"></span>
+      <span class="support-orbit orbit-b"></span>
+      <span class="support-spark spark-a"></span>
+      <span class="support-spark spark-b"></span>
+      <div class="support-headset">
+        <op-icon name="headphones"></op-icon>
+        <div class="support-bubble">
+          <i></i><i></i><i></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="support-grid">
+    <section class="support-card faq-card">
+      <div class="support-card-head">
+        <h2>Frequently Asked Questions</h2>
+        <a href="/support-center">View All FAQs <op-icon name="arrow-right"></op-icon></a>
+      </div>
+
+      <div class="faq-list">
+        @for (faq of faqs; track faq.question) {
+          <details>
+            <summary>
+              <span><op-icon name="alert-circle"></op-icon></span>
+              <div>
+                <strong>{{ faq.question }}</strong>
+                <small>{{ faq.answer }}</small>
+              </div>
+              <op-icon name="chevron-right"></op-icon>
+            </summary>
+            <p>{{ faq.answer }}</p>
+          </details>
+        }
+      </div>
+    </section>
+
+    <aside class="support-side">
+      <section class="support-card compact-card">
+        <h2>Quick Actions</h2>
+        <div class="quick-list">
+          @for (action of quickActions; track action.title) {
+            <a [class]="'tone-' + action.tone" [href]="action.href">
+              <span><op-icon [name]="action.icon"></op-icon></span>
+              <div>
+                <strong>{{ action.title }}</strong>
+                <small>{{ action.copy }}</small>
+              </div>
+              <op-icon name="chevron-right"></op-icon>
+            </a>
+          }
+        </div>
+      </section>
+
+      <section class="support-card compact-card">
+        <h2>Contact Information</h2>
+        <div class="contact-list">
+          @for (item of contactInfo; track item.title) {
+            <a [href]="item.href">
+              <op-icon [name]="item.icon"></op-icon>
+              <span>
+                <strong>{{ item.title }}</strong>
+                <small>{{ item.copy }}</small>
+              </span>
+            </a>
+          }
+        </div>
+      </section>
+    </aside>
+
+    <section class="support-card help-card-wide">
+      <h2>Other Ways to Get Help</h2>
+      <div class="help-channel-grid">
+        @for (channel of helpChannels; track channel.title) {
+          <article [class]="'tone-' + channel.tone">
+            <span><op-icon [name]="channel.icon"></op-icon></span>
+            <h3>{{ channel.title }}</h3>
+            <p>{{ channel.copy }}</p>
+            <a [href]="channel.href">
+              {{ channel.title === 'Call Us' ? 'Call Now' : channel.title === 'Messenger' ? 'Message' : channel.title === 'WhatsApp' ? 'Chat Now' : 'Send Email' }}
+              <op-icon name="arrow-right"></op-icon>
+            </a>
+          </article>
+        }
+      </div>
+    </section>
+
+    <aside class="support-card live-chat-card">
+      <div class="chat-head">
+        <h2>Live Chat <small><i></i> Online</small></h2>
+        <div>
+          <button type="button" aria-label="Expand chat"><op-icon name="external-link"></op-icon></button>
+          <button type="button" aria-label="Minimize chat"><op-icon name="minus"></op-icon></button>
+        </div>
+      </div>
+
+      <div class="chat-agent">
+        <div class="agent-avatar"></div>
+        <div>
+          <strong>Omar Support</strong>
+          <small>Support Agent</small>
+          <em><i></i> Online</em>
+        </div>
+      </div>
+
+      <div class="chat-thread">
+        @for (message of chatMessages; track message.text) {
+          <div [class.user]="message.from === 'user'">
+            @if (message.from === 'agent') {
+              <span class="chat-mini"></span>
+            }
+            <p>{{ message.text }}</p>
+            <small>{{ message.time }}</small>
+          </div>
+        }
+      </div>
+
+      <label class="chat-input">
+        <input type="text" placeholder="Type your message..." aria-label="Type your message" />
+        <button type="button" aria-label="Attach file"><op-icon name="paperclip"></op-icon></button>
+        <button type="button" aria-label="Send message"><op-icon name="send"></op-icon></button>
+      </label>
+      <p class="chat-safe"><op-icon name="shield"></op-icon> We're here to help 24/7</p>
+    </aside>
+
+    <section class="support-card still-help">
+      <span><op-icon name="shield"></op-icon></span>
+      <div>
+        <h2>Still Need Help?</h2>
+        <p>Our support team is available 24/7 to assist you with any questions or concerns.</p>
+      </div>
+      <a class="btn btn-primary" href="mailto:support@omarphone.com">Contact Us Now <op-icon name="arrow-right"></op-icon></a>
+    </section>
+  </div>
+
+  <section class="support-trust-bar">
+    @for (item of trustItems; track item.title) {
+      <article [class]="'tone-' + item.tone">
+        <span><op-icon [name]="item.icon"></op-icon></span>
+        <div>
+          <strong>{{ item.title }}</strong>
+          <small>{{ item.copy }}</small>
+        </div>
+      </article>
+    }
+  </section>
+</section>

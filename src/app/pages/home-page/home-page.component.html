@@ -1,0 +1,182 @@
+    <section class="hero" id="home">
+      <div class="hero-copy">
+        <div class="trust-pill">
+          <span class="avatar-stack" aria-hidden="true">
+            <i></i><i></i><i></i><i></i>
+          </span>
+          <strong>20K+ Happy Customers</strong>
+          <span class="stars">★★★★★</span>
+          <span>4.9/5</span>
+        </div>
+          <h1 class="hero-pills">We fix it <span>fast.</span><br />You love it <em>more.</em></h1>
+        
+          <p>Professional repair services for phones, laptops and tablets. Fast, reliable and guaranteed.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary btn-large" href="/book">Book a Repair <op-icon name="arrow-right"></op-icon></a>
+          <a class="btn btn-secondary btn-large" href="#how"><span class="play-dot"><op-icon name="play"></op-icon></span> See How It Works</a>
+        </div>
+
+        <div class="trust-row">
+          @for (item of trust; track item) {
+            <div>
+              <span class="mini-icon">
+                <op-icon [name]="item === 'Genuine Parts' ? 'badge' : item === 'Expert Technicians' ? 'users' : item === 'Same Day Repair' ? 'clock' : 'shield'"></op-icon>
+              </span>
+              <strong>{{ item }}</strong>
+              <small>{{ item === 'Genuine Parts' ? '100% original' : item === 'Expert Technicians' ? 'Certified pros' : item === 'Same Day Repair' ? 'On most devices' : 'On all repairs' }}</small>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="hero-visual" aria-label="OmarPhone repaired devices">
+        <div class="orbit orbit-one"></div>
+        <div class="orbit orbit-two"></div>
+        <div class="glow-ring"></div>
+
+        <img class="hero-device hero-laptop" src="/assets/cutouts/laptop-repair.png" alt="Laptop screen repair" />
+        <img class="hero-device hero-phone" src="/assets/cutouts/screen-repair.png" alt="Broken iPhone screen repair" />
+        <img class="hero-device hero-battery" src="/assets/cutouts/battery-repair.png" alt="Phone battery replacement" />
+        <img class="hero-device hero-camera" src="/assets/cutouts/iphone.png" alt="Phone camera repair" />
+
+        <div class="floating-card card-top">
+          <span class="line-icon laptop-icon"></span>
+          <strong>Laptop Screen Repair</strong>
+          <small>From $129</small>
+        </div>
+
+        <div class="floating-card card-bottom">
+          <span class="line-icon battery-icon"></span>
+          <strong>Phone Battery Replacement</strong>
+          <small>From $49</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="brand-strip" aria-label="Brands we repair">
+      <div class="strip-title">We repair<br />all <span>major brands</span></div>
+      @for (brand of brands; track brand) {
+        <strong>{{ brand }}</strong>
+      }
+    </section>
+
+    <section class="section" id="services">
+      <div class="section-heading centered">
+        <span></span>
+        <h2>{{ isDark ? 'Popular Repair Services' : 'What can we fix for you?' }}</h2>
+        <span></span>
+      </div>
+
+      <div class="services-grid">
+        @for (service of services; track service.title) {
+          <article class="service-card" [class]="'tone-' + service.tone">
+            <div class="service-art" [class]="service.icon">
+              <img [src]="service.image" [alt]="service.title" />
+            </div>
+            <div class="service-badge">
+              <op-icon [name]="service.icon === 'screen' ? 'smartphone' : service.icon === 'battery' ? 'battery' : service.icon === 'laptop' ? 'laptop' : service.icon === 'chip' ? 'settings' : service.icon === 'camera' ? 'camera' : 'tablet'"></op-icon>
+            </div>
+            <h3>{{ service.title }}</h3>
+            <p>{{ service.copy }}</p>
+            <div class="card-bottom-row">
+              <strong>{{ service.price }}</strong>
+              <a href="#book" aria-label="Book {{ service.title }}"><op-icon name="arrow-right"></op-icon></a>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="why-band" id="why">
+      <div class="why-copy">
+        <h2>Why choose<br />Omar<span>Phone</span>?</h2>
+        <p>We go the extra mile to give you the best experience.</p>
+        <a class="btn btn-secondary" href="#about">Learn More About Us <op-icon name="arrow-right"></op-icon></a>
+      </div>
+      <div class="feature-grid">
+        @for (feature of features; track feature.title) {
+          <article class="feature-card" [class]="'tone-' + feature.tone">
+            <span><op-icon [name]="feature.icon === 'shield' ? 'shield' : feature.icon === 'badge' ? 'badge' : feature.icon === 'user' ? 'users' : 'clock'"></op-icon></span>
+            <div>
+              <h3>{{ feature.title }}</h3>
+              <p>{{ feature.copy }}</p>
+            </div>
+          </article>
+        }
+      </div>
+      <div class="repair-tech">
+        <img src="/assets/cutouts/satisfaction-guaranteed.png" alt="OmarPhone technician repairing a phone" />
+      </div>
+    </section>
+
+    <section class="stats-bar" id="pricing">
+      @for (stat of stats; track stat[0]) {
+        <div class="stat">
+          <span><op-icon [name]="stat[2] === 'people' ? 'users' : stat[2] === 'tools' ? 'tools' : stat[2] === 'star' ? 'star' : 'shield'"></op-icon></span>
+          <strong>{{ stat[0] }}</strong>
+          <small>{{ stat[1] }}</small>
+        </div>
+      }
+    </section>
+
+    <section class="section how-section" id="how">
+      <div class="section-heading centered">
+        <span></span>
+        <h2>How it works</h2>
+        <span></span>
+      </div>
+      <div class="steps-grid">
+        @for (step of steps; track step.title; let index = $index) {
+          <article class="step-card" [class]="'tone-' + step.tone">
+            <div class="step-orb">
+              <b>{{ index + 1 }}</b>
+              <img [src]="step.image" [alt]="step.title" />
+            </div>
+            <div class="step-copy">
+              <h3>{{ step.title }}</h3>
+              <p>{{ step.copy }}</p>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="section testimonials" id="about">
+      <div class="section-heading spread">
+        <h2>What our customers say</h2>
+        <a class="btn btn-secondary" href="#reviews">View All Reviews</a>
+      </div>
+      <div class="testimonial-grid">
+        @for (testimonial of testimonials; track testimonial[0]) {
+          <article class="testimonial-card">
+            <div class="stars">★★★★★</div>
+            <p>"{{ testimonial[2] }}"</p>
+            <div class="person">
+              <span>{{ testimonial[0].slice(0, 1) }}</span>
+              <div>
+                <strong>{{ testimonial[0] }}</strong>
+                <small>{{ testimonial[1] }}</small>
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+
+    <app-before-after></app-before-after>
+
+    <app-blog-section></app-blog-section>
+
+    <section class="final-cta" id="book">
+      <div>
+        <h2>Ready to fix your device?</h2>
+        <p>Book a repair today and experience the OmarPhone difference.</p>
+      </div>
+      <ul>
+        <li>Free Diagnostics</li>
+        <li>No Fix, No Fee</li>
+        <li>90-Day Warranty</li>
+      </ul>
+        <a class="btn btn-primary btn-large" href="/book">Book a Repair Now <op-icon name="arrow-right"></op-icon></a>
+      <img class="rocket-card" src="/assets/cutouts/rocket-phone.png" alt="Phone repair launch illustration" />
+    </section>

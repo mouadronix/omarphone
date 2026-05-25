@@ -1,0 +1,108 @@
+<section class="services-page">
+  <section class="services-hero">
+    <div class="services-hero-copy">
+      <span class="services-eyebrow"><op-icon name="sparkles"></op-icon> Our Services</span>
+      <h1>Expert Repairs.<br /><span>Premium Care.</span></h1>
+      <p>
+        From screen replacements to complex motherboard repairs, we restore your
+        devices with precision, quality and care.
+      </p>
+
+      <div class="services-trust-row">
+        @for (item of heroTrust; track item.title) {
+          <article [class]="'tone-' + item.tone">
+            <span><op-icon [name]="item.icon"></op-icon></span>
+            <strong>{{ item.title }}</strong>
+          </article>
+        }
+      </div>
+    </div>
+
+    <div class="services-hero-art" aria-hidden="true">
+      <span class="service-orbit orbit-a"></span>
+      <span class="service-orbit orbit-b"></span>
+      <span class="service-spark spark-a"></span>
+      <span class="service-spark spark-b"></span>
+      <img src="/images/robot.png" alt="" />
+    </div>
+  </section>
+
+  <section class="services-panel popular-services" id="repair-services">
+    <div class="services-section-title">
+      <span>Popular Repair Services</span>
+      <h2>What We <em>Fix</em> Most</h2>
+      <div class="services-arrows" aria-hidden="true">
+        <button type="button"><op-icon name="arrow-left"></op-icon></button>
+        <button type="button"><op-icon name="arrow-right"></op-icon></button>
+      </div>
+    </div>
+
+    <div class="services-card-grid">
+      @for (service of services; track service.title) {
+        <article class="service-page-card" [class]="'tone-' + service.tone">
+          <div class="service-card-art">
+            <img [src]="service.image" [alt]="service.title" />
+            <span><op-icon [name]="service.icon"></op-icon></span>
+          </div>
+          <h3>{{ service.title }}</h3>
+          <p>{{ service.copy }}</p>
+          <div>
+            <strong>{{ service.price }}</strong>
+            <a href="/book" [attr.aria-label]="'Book ' + service.title">
+              <op-icon name="arrow-right"></op-icon>
+            </a>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="services-panel quality-section">
+    <div class="services-section-title">
+      <span>Why Choose Us</span>
+      <h2>Quality You Can <em>Trust</em></h2>
+    </div>
+
+    <div class="quality-grid">
+      @for (feature of trustFeatures; track feature.title) {
+        <article [class]="'tone-' + feature.tone">
+          <span><op-icon [name]="feature.icon"></op-icon></span>
+          <div>
+            <h3>{{ feature.title }}</h3>
+            <p>{{ feature.copy }}</p>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="services-panel process-section">
+    <div class="services-section-title">
+      <span>How It Works</span>
+      <h2>Our Simple <em>Repair Process</em></h2>
+    </div>
+
+    <div class="process-line">
+      @for (step of process; track step.title; let index = $index) {
+        <article>
+          <span><op-icon [name]="step.icon"></op-icon></span>
+          <b>{{ (index + 1).toString().padStart(2, '0') }}</b>
+          <h3>{{ step.title }}</h3>
+          <p>{{ step.copy }}</p>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="services-help">
+    <div class="services-help-art" aria-hidden="true">
+      <span class="service-orbit orbit-a"></span>
+      <img src="/images/robot.png" alt="" />
+    </div>
+    <div>
+      <h2>Need Help Choosing a Service?</h2>
+      <p>Not sure what your device needs? Our support team is here to help you.</p>
+      <a class="btn btn-secondary" href="/support-center">Contact Us <op-icon name="arrow-right"></op-icon></a>
+    </div>
+  </section>
+</section>
