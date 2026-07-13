@@ -113,6 +113,18 @@ export const CONTENT_RESOURCES = {
   'support-contact': 'support_contact_info',
 };
 
+export const CONTENT_RESOURCE_DEFINITIONS = CONTENT_TABLES.map((definition) => {
+  const resource = Object.entries(CONTENT_RESOURCES).find(([, table]) => table === definition.table)?.[0] ?? definition.table;
+  return {
+    key: resource,
+    endpoint: `/api/${resource}`,
+    section: definition.section,
+    property: definition.property,
+    table: definition.table,
+    columns: definition.columns,
+  };
+});
+
 export function postgresContentTableDdl(definition) {
   const columns = definition.columns.map((column) => `${toSnakeCase(column)} TEXT NOT NULL DEFAULT ''`).join(',\n          ');
   return `

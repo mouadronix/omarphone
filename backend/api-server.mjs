@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 import {
+  CONTENT_RESOURCE_DEFINITIONS,
   CONTENT_RESOURCES,
   CONTENT_TABLES,
   definitionForTable,
@@ -236,7 +237,7 @@ function getContentTableDefinition(tableName) {
 }
 
 function listContentTables() {
-  return CONTENT_TABLES.map(({ section, property, table, columns }) => ({ section, property, table, columns }));
+  return CONTENT_RESOURCE_DEFINITIONS;
 }
 
 async function readContentTableRows(database, tableName) {
@@ -1104,6 +1105,14 @@ const server = createServer(async (request, response) => {
         return;
       }
       sendJson(response, 200, { sections: await readContentSections(database) });
+      return;
+    }
+
+    if (request.method === 'GET' && url.pathname === '/api/content-resources') {
+      if (!requireAdmin(request, response)) {
+        return;
+      }
+      sendJson(response, 200, { resources: CONTENT_RESOURCE_DEFINITIONS });
       return;
     }
 

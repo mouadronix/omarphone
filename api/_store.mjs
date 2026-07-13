@@ -1,6 +1,7 @@
 import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 import { neon } from '@neondatabase/serverless';
 import {
+  CONTENT_RESOURCE_DEFINITIONS,
   CONTENT_TABLES,
   definitionForTable,
   definitionsForSection,
@@ -305,7 +306,7 @@ function getContentTableDefinition(tableName) {
 }
 
 export function listContentTables() {
-  return CONTENT_TABLES.map(({ section, property, table, columns }) => ({ section, property, table, columns }));
+  return CONTENT_RESOURCE_DEFINITIONS;
 }
 
 export async function readContentTableRows(tableName) {

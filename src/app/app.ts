@@ -9,7 +9,7 @@ import { ReviewsPageComponent } from './pages/reviews-page/reviews-page.componen
 import { ServicesPageComponent } from './pages/services-page/services-page.component';
 import { SupportCenterPageComponent } from './pages/support-center-page/support-center-page.component';
 import { Language } from './data/translations';
-import { ContentSection, ContentService } from './services/content.service';
+import { ContentResource, ContentResourceRow, ContentSection, ContentService } from './services/content.service';
 import { TranslationService } from './services/translation.service';
 
 type Theme = 'light' | 'dark';
@@ -514,6 +514,8 @@ export class App implements AfterViewInit, OnDestroy {
   readonly isAdminUnlocked = signal(this.getAdminSession());
   readonly adminActiveView = signal<AdminView>('dashboard');
   readonly adminContentSections = signal<ContentSection[]>([]);
+  readonly adminContentResources = signal<ContentResource[]>([]);
+  readonly adminDeletedResourceRowIds = signal<(string | number)[]>([]);
   readonly selectedAdminContentKey = signal('home');
   readonly selectedAdminGroupKey = signal('');
   readonly adminContentDraft = signal<unknown>({});
@@ -648,6 +650,17 @@ export class App implements AfterViewInit, OnDestroy {
     this.adminContentSections().find((section) => section.key === this.selectedAdminContentKey()) ?? null
   );
   readonly adminContentGroups = computed(() => {
+    const resources = this.adminContentResources().filter((resource) => resource.section === this.selectedAdminContentKey());
+    if (resources.length) {
+      const draft = this.adminContentDraft();
+      const record = draft && !Array.isArray(draft) && typeof draft === 'object' ? draft as Record<string, unknown> : {};
+      return resources.map((resource) => ({
+        key: resource.property,
+        count: Array.isArray(record[resource.property]) ? (record[resource.property] as unknown[]).length : 0,
+        resource,
+      }));
+    }
+
     const draft = this.adminContentDraft();
     if (!draft || Array.isArray(draft) || typeof draft !== 'object') {
       return [];
@@ -667,7 +680,15 @@ export class App implements AfterViewInit, OnDestroy {
     const value = (draft as Record<string, unknown>)[key];
     return Array.isArray(value) ? value : [];
   });
+  readonly selectedAdminResource = computed(() =>
+    this.adminContentResources().find((resource) => resource.section === this.selectedAdminContentKey() && resource.property === this.selectedAdminGroupKey()) ?? null
+  );
   readonly selectedAdminGroupFields = computed(() => {
+    const resource = this.selectedAdminResource();
+    if (resource) {
+      return [...resource.columns, 'sortOrder'];
+    }
+
     const fields = new Set<string>();
     for (const item of this.selectedAdminGroupItems()) {
       if (this.isAdminObjectItem(item)) {
@@ -1156,12 +1177,19 @@ export class App implements AfterViewInit, OnDestroy {
       return;
     }
 
-    this.selectAdminContentSection(key);
+    void this.selectAdminContentSection(key);
   }
 
-  selectAdminContentSection(key: string): void {
+  async selectAdminContentSection(key: string): Promise<void> {
     this.selectedAdminContentKey.set(key);
     this.adminContentError.set('');
+    this.adminDeletedResourceRowIds.set([]);
+    const resources = this.adminContentResources().filter((resource) => resource.section === key);
+    if (resources.length) {
+      await this.loadAdminResourceSection(key);
+      return;
+    }
+
     const section = this.adminContentSections().find((item) => item.key === key);
     this.setAdminContentDraft(section?.payload ?? {});
   }
@@ -1173,6 +1201,7 @@ export class App implements AfterViewInit, OnDestroy {
 
   selectAdminGroup(key: string): void {
     this.selectedAdminGroupKey.set(key);
+    this.adminDeletedResourceRowIds.set([]);
   }
 
   updateAdminField(index: number, field: string, value: string): void {
@@ -1276,6 +1305,13 @@ export class App implements AfterViewInit, OnDestroy {
 
     const record = draft as Record<string, unknown>;
     const items = Array.isArray(record[key]) ? [...record[key] as unknown[]] : [];
+    const current = items[index];
+    if (this.selectedAdminResource() && this.isAdminObjectItem(current)) {
+      const id = (current as Record<string, unknown>)['id'];
+      if (id !== undefined && id !== null && id !== '') {
+        this.adminDeletedResourceRowIds.update((ids) => [...ids, id as string | number]);
+      }
+    }
     items.splice(index, 1);
     record[key] = items;
     this.adminContentDraft.set(record);
@@ -1345,10 +1381,19 @@ export class App implements AfterViewInit, OnDestroy {
   async saveAdminContentSection(): Promise<void> {
     const key = this.selectedAdminContentKey();
     try {
+      const resource = this.selectedAdminResource();
+      if (resource) {
+        await this.saveSelectedAdminResource(resource);
+        await this.loadAdminResourceSection(key);
+        await this.loadBackendContent();
+        this.adminContentMessage.set(`${resource.key} saved to Postgres`);
+        return;
+      }
+
       const payload = this.cloneContentPayload(this.adminContentDraft());
       const sections = await this.contentService.saveSection(key, payload);
       this.adminContentSections.set(sections);
-      this.selectAdminContentSection(key);
+      await this.selectAdminContentSection(key);
       await this.loadBackendContent();
       this.adminContentMessage.set(`${key} saved to database`);
     } catch (error) {
@@ -1359,9 +1404,23 @@ export class App implements AfterViewInit, OnDestroy {
   async resetAdminContentSection(): Promise<void> {
     const key = this.selectedAdminContentKey();
     try {
+      const resource = this.selectedAdminResource();
+      if (resource) {
+        const rows = this.selectedAdminGroupItems().filter(this.isAdminObjectItem) as Record<string, unknown>[];
+        await Promise.all(rows.map((row) => {
+          const id = row['id'];
+          return id === undefined || id === null || id === '' ? Promise.resolve() : this.contentService.deleteResourceRow(resource, id as string | number);
+        }));
+        this.adminDeletedResourceRowIds.set([]);
+        await this.loadAdminResourceSection(key);
+        await this.loadBackendContent();
+        this.adminContentMessage.set(`${resource.key} table cleared`);
+        return;
+      }
+
       const sections = await this.contentService.resetSection(key);
       this.adminContentSections.set(sections);
-      this.selectAdminContentSection(key);
+      await this.selectAdminContentSection(key);
       await this.loadBackendContent();
       this.adminContentMessage.set(`${key} reset to code defaults`);
     } catch {
@@ -1448,6 +1507,8 @@ export class App implements AfterViewInit, OnDestroy {
     this.adminDataSource.set('local');
     this.adminSyncMessage.set('Admin locked');
     this.adminContentSections.set([]);
+    this.adminContentResources.set([]);
+    this.adminDeletedResourceRowIds.set([]);
     this.adminContentDraft.set({});
     this.selectedAdminGroupKey.set('');
     this.adminContentJson.set('');
@@ -1895,19 +1956,68 @@ export class App implements AfterViewInit, OnDestroy {
 
   private async syncAdminContentSections(): Promise<void> {
     try {
-      const sections = await this.contentService.loadSections();
+      const [sections, resources] = await Promise.all([
+        this.contentService.loadSections(),
+        this.contentService.loadResources(),
+      ]);
       this.adminContentSections.set(sections);
+      this.adminContentResources.set(resources);
       const selectedKey = sections.some((section) => section.key === this.selectedAdminContentKey())
         ? this.selectedAdminContentKey()
         : sections[0]?.key ?? 'home';
       this.selectedAdminContentKey.set(selectedKey);
-      this.setAdminContentDraft(sections.find((section) => section.key === selectedKey)?.payload ?? {});
+      if (resources.some((resource) => resource.section === selectedKey)) {
+        await this.loadAdminResourceSection(selectedKey);
+      } else {
+        this.setAdminContentDraft(sections.find((section) => section.key === selectedKey)?.payload ?? {});
+      }
       this.adminContentMessage.set(`Connected to content API · ${sections.length} section${sections.length === 1 ? '' : 's'}`);
       this.adminContentError.set('');
     } catch {
       this.adminContentMessage.set('Content service unavailable');
       this.adminContentError.set('Could not load editable content. Check the production database connection.');
     }
+  }
+
+  private async loadAdminResourceSection(sectionKey: string): Promise<void> {
+    const resources = this.adminContentResources().filter((resource) => resource.section === sectionKey);
+    const entries = await Promise.all(resources.map(async (resource) => {
+      const rows = await this.contentService.loadResourceRows(resource);
+      return [resource.property, rows] as const;
+    }));
+    this.setAdminContentDraft(Object.fromEntries(entries));
+    const currentGroup = this.selectedAdminGroupKey();
+    this.selectedAdminGroupKey.set(resources.some((resource) => resource.property === currentGroup) ? currentGroup : resources[0]?.property ?? '');
+    this.adminDeletedResourceRowIds.set([]);
+  }
+
+  private async saveSelectedAdminResource(resource: ContentResource): Promise<void> {
+    const draft = this.cloneContentPayload(this.adminContentDraft());
+    if (!draft || Array.isArray(draft) || typeof draft !== 'object') {
+      return;
+    }
+
+    const record = draft as Record<string, unknown>;
+    const rows = Array.isArray(record[resource.property])
+      ? (record[resource.property] as unknown[]).filter(this.isAdminObjectItem) as ContentResourceRow[]
+      : [];
+
+    await Promise.all(this.adminDeletedResourceRowIds().map((id) => this.contentService.deleteResourceRow(resource, id)));
+    for (const [index, row] of rows.entries()) {
+      const payload = {
+        ...row,
+        sortOrder: Number.isFinite(Number(row.sortOrder)) ? Number(row.sortOrder) : index,
+      };
+      const id = payload.id;
+      if (id === undefined || id === null || id === '') {
+        await this.contentService.createResourceRow(resource, payload);
+      } else {
+        await this.contentService.updateResourceRow(resource, id, payload);
+      }
+    }
+
+    this.adminDeletedResourceRowIds.set([]);
+    await this.contentService.refresh();
   }
 
   private normalizeAdminBlogPost(post: Record<string, unknown>, index: number): AdminBlogPost {

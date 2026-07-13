@@ -727,6 +727,9 @@
                 <div>
                   <small>Selected section</small>
                   <strong>{{ selectedAdminContentKey() }}</strong>
+                  @if (selectedAdminResource()) {
+                    <span>{{ selectedAdminResource()?.endpoint }} -> {{ selectedAdminResource()?.table }}</span>
+                  }
                   @if (selectedAdminContentSection()?.updatedAt) {
                     <span>Updated {{ selectedAdminContentSection()?.updatedAt }}</span>
                   }
@@ -757,6 +760,9 @@
                           <span>All Items: <strong>{{ selectedAdminGroupItems().length }}</strong></span>
                           <span>Section: <strong>{{ selectedAdminContentKey() }}</strong></span>
                           <span>Group: <strong>{{ selectedAdminGroupKey() }}</strong></span>
+                          @if (selectedAdminResource()) {
+                            <span>API: <strong>{{ selectedAdminResource()?.endpoint }}</strong></span>
+                          }
                         </div>
                         <button type="button" class="admin-settings-btn">
                           <op-icon name="settings"></op-icon>

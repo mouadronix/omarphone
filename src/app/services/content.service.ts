@@ -41,6 +41,20 @@ export type ContentSection = {
   defaultPayload: unknown;
 };
 
+export type ContentResource = {
+  key: string;
+  endpoint: string;
+  section: string;
+  property: string;
+  table: string;
+  columns: string[];
+};
+
+export type ContentResourceRow = Record<string, unknown> & {
+  id?: number | string;
+  sortOrder?: number;
+};
+
 export type MediaAsset = {
   id: string;
   filename: string;
@@ -111,6 +125,51 @@ export class ContentService {
 
     const payload = await response.json() as { sections?: ContentSection[] };
     return payload.sections ?? [];
+  }
+
+  async loadResources(): Promise<ContentResource[]> {
+    const response = await fetch(`${getApiBaseUrl()}/content-resources`, {
+      headers: getAdminAuthHeaders(),
+    });
+    if (!response.ok) {
+      throw new Error(`Content resources API responded with ${response.status}`);
+    }
+
+    const payload = await response.json() as { resources?: ContentResource[] };
+    return payload.resources ?? [];
+  }
+
+  async loadResourceRows(resource: ContentResource | string): Promise<ContentResourceRow[]> {
+    const key = typeof resource === 'string' ? resource : resource.key;
+    const response = await fetch(`${getApiBaseUrl()}/${encodeURIComponent(key)}`, {
+      headers: getAdminAuthHeaders(),
+    });
+    if (!response.ok) {
+      throw new Error(`Content resource API responded with ${response.status}`);
+    }
+
+    const payload = await response.json() as { rows?: ContentResourceRow[] };
+    return payload.rows ?? [];
+  }
+
+  async createResourceRow(resource: ContentResource | string, row: ContentResourceRow): Promise<ContentResourceRow> {
+    return this.writeResourceRow(resource, null, row, 'POST');
+  }
+
+  async updateResourceRow(resource: ContentResource | string, id: string | number, row: ContentResourceRow): Promise<ContentResourceRow> {
+    return this.writeResourceRow(resource, id, row, 'PUT');
+  }
+
+  async deleteResourceRow(resource: ContentResource | string, id: string | number): Promise<void> {
+    const key = typeof resource === 'string' ? resource : resource.key;
+    const response = await fetch(`${getApiBaseUrl()}/${encodeURIComponent(key)}/${encodeURIComponent(String(id))}`, {
+      method: 'DELETE',
+      headers: getAdminAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Delete content resource API responded with ${response.status}`);
+    }
   }
 
   async saveSection(key: string, payload: unknown): Promise<ContentSection[]> {
@@ -187,6 +246,30 @@ export class ContentService {
       this.content.set(null);
       return null;
     }
+  }
+
+  private async writeResourceRow(
+    resource: ContentResource | string,
+    id: string | number | null,
+    row: ContentResourceRow,
+    method: 'POST' | 'PUT',
+  ): Promise<ContentResourceRow> {
+    const key = typeof resource === 'string' ? resource : resource.key;
+    const url = id == null
+      ? `${getApiBaseUrl()}/${encodeURIComponent(key)}`
+      : `${getApiBaseUrl()}/${encodeURIComponent(key)}/${encodeURIComponent(String(id))}`;
+    const response = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json', ...getAdminAuthHeaders() },
+      body: JSON.stringify(row),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Write content resource API responded with ${response.status}`);
+    }
+
+    const payload = await response.json() as { row?: ContentResourceRow };
+    return payload.row ?? row;
   }
 
   private readFileAsDataUrl(file: File): Promise<string> {
