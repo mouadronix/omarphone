@@ -10,6 +10,15 @@
 /node_modules
 npm-debug.log
 yarn-error.log
+*.log
+api-server*.log
+dev-server.log
+devserver.log
+server/data/*.sqlite
+server/data/*.sqlite-*
+server/data/*.json
+backend/data/*.sqlite
+backend/data/*.sqlite-*
 
 # IDEs and editors
 .idea/
@@ -30,6 +39,9 @@ yarn-error.log
 .history/*
 
 # Miscellaneous
+.env
+.env.*
+!.env.example
 /.angular/cache
 .sass-cache/
 /connect.lock
@@ -38,7 +50,9 @@ yarn-error.log
 testem.log
 /typings
 __screenshots__/
+chrome-profile-debug/
 
 # System files
 .DS_Store
 Thumbs.db
+.vercel

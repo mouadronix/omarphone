@@ -1,0 +1,116 @@
+<section class="reviews-page">
+  <section class="reviews-hero">
+    <div class="reviews-hero-copy">
+      <span class="reviews-eyebrow"><op-icon name="star"></op-icon> Customer Reviews</span>
+      <h1>Trusted by Customers.<br /><span>Proven by Reviews.</span></h1>
+      <p>
+        We take pride in delivering top-quality repairs and excellent service.
+        Do not just take our word for it. See what customers say on Google Maps.
+      </p>
+    </div>
+
+    <div class="reviews-hero-art" aria-hidden="true">
+      <span class="review-orbit orbit-a"></span>
+      <span class="review-orbit orbit-b"></span>
+      <img src="/images/robot.png" alt="" />
+      <div class="review-bubble bubble-heart"><op-icon name="star"></op-icon></div>
+      <div class="review-bubble bubble-like"><op-icon name="thumbs-up"></op-icon></div>
+    </div>
+  </section>
+
+  <section class="reviews-stats" aria-label="Review statistics">
+    @for (stat of stats; track stat.label) {
+      <article [class]="'tone-' + stat.tone">
+        <span><op-icon [name]="stat.icon"></op-icon></span>
+        <div>
+          <strong>{{ stat.value }}</strong>
+          <h2>{{ stat.label }}</h2>
+          <p>{{ stat.copy }}</p>
+        </div>
+      </article>
+    }
+  </section>
+
+  <section class="reviews-list-section">
+    <div class="reviews-section-title">
+      <span>Google Maps feedback</span>
+      <h2>Customer <em>Reviews</em></h2>
+      <div class="reviews-arrows" aria-hidden="true">
+        <button type="button"><op-icon name="arrow-left"></op-icon></button>
+        <button type="button"><op-icon name="arrow-right"></op-icon></button>
+      </div>
+    </div>
+
+    <div class="reviews-grid">
+      @for (review of reviews; track review.name) {
+        <article class="review-card" [class]="'tone-' + review.tone">
+          <div class="review-card-head">
+            @if (review.avatar) {
+              <img [src]="review.avatar" [alt]="review.name" />
+            } @else {
+              <span class="review-avatar-fallback" aria-hidden="true">{{ reviewerInitials(review.name) }}</span>
+            }
+            <div>
+              <h3>{{ review.name }} <op-icon name="badge"></op-icon></h3>
+              <small>{{ review.date }}</small>
+              <div class="review-stars" [attr.aria-label]="review.stars + ' rating'">{{ review.stars }}</div>
+            </div>
+            <b>&rdquo;</b>
+          </div>
+          <p>{{ review.copy }}</p>
+          <div class="review-service">
+            <op-icon [name]="review.icon"></op-icon>
+            <span>{{ review.service }}</span>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="leave-review-panel">
+    <div class="leave-review-copy">
+      <span>Share your experience</span>
+      <h2>Leave a <em>Review</em></h2>
+      <p>Your feedback helps us improve and helps others choose the best repair service.</p>
+      <ul>
+        @for (perk of helpPerks; track perk) {
+          <li><op-icon name="check"></op-icon>{{ perk }}</li>
+        }
+      </ul>
+    </div>
+
+    <form class="review-form">
+      <label class="rating-picker">
+        <span>Overall Rating</span>
+        <div>
+          @for (star of [1, 2, 3, 4, 5]; track star) {
+            <button type="button" [class.active]="selectedRating() >= star" (click)="setRating(star)" [attr.aria-label]="'Rate ' + star + ' stars'">
+              <op-icon name="star"></op-icon>
+            </button>
+          }
+        </div>
+      </label>
+      <div class="review-form-row">
+        <input type="text" placeholder="Your Name" aria-label="Your name" />
+        <input type="email" placeholder="Email Address" aria-label="Email address" />
+      </div>
+      <textarea placeholder="Tell us about your experience..." aria-label="Your review"></textarea>
+      <button class="btn btn-primary" type="button">Submit Review <op-icon name="arrow-right"></op-icon></button>
+    </form>
+
+    <div class="review-pen-art" aria-hidden="true">
+      <span></span>
+      <op-icon name="file-text"></op-icon>
+    </div>
+  </section>
+
+  <section class="reviews-support">
+    <img src="/images/robot.png" alt="" />
+    <div>
+      <span>We are here for you</span>
+      <h2>Your Satisfaction is <em>Our Priority</em></h2>
+      <p>We are committed to providing the best repair experience possible. Have a question or feedback? We would love to hear from you.</p>
+      <a class="btn btn-secondary" href="/support-center">Contact Us <op-icon name="arrow-right"></op-icon></a>
+    </div>
+  </section>
+</section>

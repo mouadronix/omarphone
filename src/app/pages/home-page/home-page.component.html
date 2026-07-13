@@ -34,30 +34,31 @@
         <div class="orbit orbit-two"></div>
         <div class="glow-ring"></div>
 
-        <img class="hero-device hero-laptop" src="/assets/cutouts/laptop-repair.png" alt="Laptop screen repair" />
-        <img class="hero-device hero-phone" src="/assets/cutouts/screen-repair.png" alt="Broken iPhone screen repair" />
-        <img class="hero-device hero-battery" src="/assets/cutouts/battery-repair.png" alt="Phone battery replacement" />
-        <img class="hero-device hero-camera" src="/assets/cutouts/iphone.png" alt="Phone camera repair" />
+        <img class="hero-main-photo" src="/images/home.png" alt="OmarPhone phone, laptop and watch repair devices" />
 
         <div class="floating-card card-top">
           <span class="line-icon laptop-icon"></span>
           <strong>Laptop Screen Repair</strong>
-          <small>From $129</small>
+          <small>Free quote</small>
         </div>
 
         <div class="floating-card card-bottom">
           <span class="line-icon battery-icon"></span>
           <strong>Phone Battery Replacement</strong>
-          <small>From $49</small>
+          <small>Free quote</small>
         </div>
       </div>
     </section>
 
     <section class="brand-strip" aria-label="Brands we repair">
       <div class="strip-title">We repair<br />all <span>major brands</span></div>
-      @for (brand of brands; track brand) {
-        <strong>{{ brand }}</strong>
+      <div class="brand-logo-grid">
+      @for (brand of brands; track brand.name) {
+        <a class="brand-logo-card" href="/book" [attr.aria-label]="'Book a repair for ' + brand.name">
+          <img [src]="brand.logo" [alt]="brand.name + ' logo'" loading="lazy" />
+        </a>
       }
+      </div>
     </section>
 
     <section class="section" id="services">
@@ -79,7 +80,7 @@
             <h3>{{ service.title }}</h3>
             <p>{{ service.copy }}</p>
             <div class="card-bottom-row">
-              <strong>{{ service.price }}</strong>
+              <strong>Free quote</strong>
               <a href="#book" aria-label="Book {{ service.title }}"><op-icon name="arrow-right"></op-icon></a>
             </div>
           </article>
@@ -144,7 +145,7 @@
     <section class="section testimonials" id="about">
       <div class="section-heading spread">
         <h2>What our customers say</h2>
-        <a class="btn btn-secondary" href="#reviews">View All Reviews</a>
+        <a class="btn btn-secondary" href="/reviews">View All Reviews</a>
       </div>
       <div class="testimonial-grid">
         @for (testimonial of testimonials; track testimonial[0]) {

@@ -10,7 +10,7 @@
           <p>Expert advice, repair guides, and the latest updates to keep your devices running like new.</p>
           <label class="blog-search">
             <op-icon name="search"></op-icon>
-            <input type="search" placeholder="Search for articles..." aria-label="Search for articles" />
+            <input type="search" placeholder="Search for articles..." aria-label="Search for articles" [value]="searchQuery()" (input)="updateSearch($any($event.target).value)" />
           </label>
         </div>
 
@@ -31,12 +31,12 @@
           <section class="sidebar-card">
             <h2>Categories</h2>
             <div class="category-list">
-              @for (category of categories; track category[0]; let index = $index) {
-                <a [class.active]="index === 0" href="/blogs">
-                  <span><op-icon [name]="index === 0 ? 'grid' : index === 1 ? 'sparkles' : index === 2 ? 'tools' : index === 3 ? 'shield' : index === 4 ? 'calendar' : 'star'"></op-icon></span>
-                  {{ category[0] }}
-                  <strong>{{ category[1] }}</strong>
-                </a>
+              @for (category of categoryFilters(); track category.title) {
+                <button type="button" [class.active]="selectedCategory() === category.title" (click)="selectCategory(category.title)">
+                  <span><op-icon [name]="category.icon"></op-icon></span>
+                  {{ category.title }}
+                  <strong>{{ category.count }}</strong>
+                </button>
               }
             </div>
           </section>
@@ -44,8 +44,20 @@
           <section class="sidebar-card">
             <h2>Popular Tags</h2>
             <div class="tag-list">
-              @for (tag of popularTags; track tag; let index = $index) {
-                <a [class]="'tone-' + (index % 6 === 0 ? 'violet' : index % 6 === 1 ? 'green' : index % 6 === 2 ? 'pink' : index % 6 === 3 ? 'blue' : index % 6 === 4 ? 'orange' : 'cyan')" href="/blogs">{{ tag }}</a>
+              @for (tag of popularTags(); track tag.title) {
+                <button
+                  type="button"
+                  [class.tone-violet]="tag.tone === 'violet'"
+                  [class.tone-green]="tag.tone === 'green'"
+                  [class.tone-blue]="tag.tone === 'blue'"
+                  [class.tone-orange]="tag.tone === 'orange'"
+                  [class.tone-pink]="tag.tone === 'pink'"
+                  [class.tone-cyan]="tag.tone === 'cyan'"
+                  [class.active]="selectedTag() === tag.title"
+                  (click)="selectTag(tag.title)"
+                >
+                  {{ tag.title }} <strong>{{ tag.count }}</strong>
+                </button>
               }
             </div>
           </section>
@@ -66,13 +78,33 @@
 
         <section class="blogs-results" aria-label="Blog posts">
           <div class="blogs-toolbar">
-            <p>Showing 1-12 of 48 articles</p>
-            <button type="button">Latest First <op-icon name="arrow-right"></op-icon></button>
+            <p>Showing {{ resultStart() }}-{{ resultEnd() }} of {{ filteredPosts().length }} articles</p>
+            <div class="blog-filter-actions">
+              @if (hasActiveFilters()) {
+                <button class="clear-blog-filters" type="button" (click)="clearFilters()">Clear Filters</button>
+              }
+              <label>
+                <span>Sort articles</span>
+                <select class="blogs-sort-select" aria-label="Sort articles" [value]="sortBy()" (change)="updateSort($any($event.target).value)">
+                  <option value="latest">Latest First</option>
+                  <option value="oldest">Oldest First</option>
+                  <option value="title">Title A-Z</option>
+                </select>
+              </label>
+            </div>
           </div>
 
           <div class="blogs-post-grid">
-            @for (post of allBlogPosts; track post.title) {
-              <article class="blog-card compact" [class]="'tone-' + post.tone">
+            @for (post of pagedPosts(); track post.slug) {
+              <article
+                class="blog-card compact"
+                [class.tone-violet]="post.tone === 'violet'"
+                [class.tone-green]="post.tone === 'green'"
+                [class.tone-blue]="post.tone === 'blue'"
+                [class.tone-orange]="post.tone === 'orange'"
+                [class.tone-pink]="post.tone === 'pink'"
+                [class.tone-cyan]="post.tone === 'cyan'"
+              >
                 <div class="blog-art">
                   <img [src]="post.image" [alt]="post.title" />
                 </div>
@@ -86,19 +118,25 @@
                   <a [href]="'/blogs/' + post.slug">Read More <op-icon name="arrow-right"></op-icon></a>
                 </div>
               </article>
+            } @empty {
+              <div class="blog-empty-state">
+                <op-icon name="search"></op-icon>
+                <h2>No articles found</h2>
+                <p>Try another search, category, or tag.</p>
+                <button class="btn btn-secondary" type="button" (click)="clearFilters()">Reset Blog Filters</button>
+              </div>
             }
           </div>
 
-          <nav class="pagination" aria-label="Blog pages">
-            <a href="/blogs"><op-icon name="chevron-right"></op-icon></a>
-            <a class="active" href="/blogs">1</a>
-            <a href="/blogs">2</a>
-            <a href="/blogs">3</a>
-            <a href="/blogs">4</a>
-            <span>...</span>
-            <a href="/blogs">8</a>
-            <a href="/blogs"><op-icon name="chevron-right"></op-icon></a>
-          </nav>
+          @if (totalPages() > 1) {
+            <nav class="pagination" aria-label="Blog pages">
+              <button type="button" [disabled]="currentPage() === 1" (click)="goToPage(currentPage() - 1)"><op-icon name="chevron-left"></op-icon></button>
+              @for (page of pageNumbers(); track page) {
+                <button type="button" [class.active]="currentPage() === page" (click)="goToPage(page)">{{ page }}</button>
+              }
+              <button type="button" [disabled]="currentPage() === totalPages()" (click)="goToPage(currentPage() + 1)"><op-icon name="chevron-right"></op-icon></button>
+            </nav>
+          }
         </section>
       </div>
     </section>

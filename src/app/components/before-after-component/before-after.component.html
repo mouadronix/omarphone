@@ -9,32 +9,32 @@
 
   <div class="before-after-grid">
     @for (repair of beforeAfterRepairs; track repair.device) {
-      <article class="before-after-card" [class]="'tone-' + repair.tone + ' repair-' + repair.kind">
+      <article class="before-after-card" [class]="'tone-' + repair.tone + ' repair-' + repairKind(repair)">
         <div class="compare-stage" style="--compare: 50%">
           <span class="compare-label before">Before</span>
           <span class="compare-label after">After</span>
           <div class="compare-layer compare-before">
-            @if (repair.kind === 'watch') {
+            @if (repairKind(repair) === 'watch' || repairKind(repair) === 'smartwatch') {
               <div class="results-watch-mock damaged"></div>
             } @else {
               <img [src]="repair.beforeImage" [alt]="'Before ' + repair.device" />
             }
           </div>
           <div class="compare-layer compare-after">
-            @if (repair.kind === 'watch') {
+            @if (repairKind(repair) === 'watch' || repairKind(repair) === 'smartwatch') {
               <div class="results-watch-mock clean"></div>
             } @else {
               <img [src]="repair.afterImage" [alt]="'After ' + repair.device" />
             }
           </div>
-          @if (repair.kind !== 'watch') {
+          @if (repairKind(repair) !== 'watch' && repairKind(repair) !== 'smartwatch') {
             <span class="compare-divider"></span>
             <span class="compare-handle"><op-icon name="chevron-left"></op-icon><op-icon name="chevron-right"></op-icon></span>
             <input class="compare-range" type="range" min="0" max="100" value="50" [attr.aria-label]="'Slide to compare before and after ' + repair.device" (input)="setComparePosition($event)" />
           }
         </div>
         <div class="result-card-body">
-          <span><op-icon [name]="repair.kind === 'laptop' ? 'laptop' : repair.kind === 'watch' ? 'watch' : 'smartphone'"></op-icon></span>
+          <span><op-icon [name]="repairKind(repair) === 'laptop' ? 'laptop' : repairKind(repair) === 'watch' || repairKind(repair) === 'smartwatch' ? 'watch' : repairKind(repair) === 'tablet' ? 'tablet' : 'smartphone'"></op-icon></span>
           <div>
             <h2>{{ repair.device }}</h2>
             <strong>{{ repair.service }}</strong>

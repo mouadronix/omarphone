@@ -47,7 +47,7 @@
           <h3>{{ service.title }}</h3>
           <p>{{ service.copy }}</p>
           <div>
-            <strong>{{ service.price }}</strong>
+            <strong>Free quote</strong>
             <a href="/book" [attr.aria-label]="'Book ' + service.title">
               <op-icon name="arrow-right"></op-icon>
             </a>
@@ -76,7 +76,29 @@
     </div>
   </section>
 
-  <section class="services-panel process-section">
+  <section class="section how-section" id="how">
+      <div class="section-heading centered">
+        <span></span>
+        <h2>How it works</h2>
+        <span></span>
+      </div>
+      <div class="steps-grid">
+        @for (step of steps; track step.title; let index = $index) {
+          <article class="step-card" [class]="'tone-' + step.tone">
+            <div class="step-orb">
+              <b>{{ index + 1 }}</b>
+              <img [src]="step.image" [alt]="step.title" />
+            </div>
+            <div class="step-copy">
+              <h3>{{ step.title }}</h3>
+              <p>{{ step.copy }}</p>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+
+  <!-- <section class="services-panel process-section">
     <div class="services-section-title">
       <span>How It Works</span>
       <h2>Our Simple <em>Repair Process</em></h2>
@@ -92,7 +114,7 @@
         </article>
       }
     </div>
-  </section>
+  </section> -->
 
   <section class="services-help">
     <div class="services-help-art" aria-hidden="true">

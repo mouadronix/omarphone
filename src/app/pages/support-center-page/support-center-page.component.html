@@ -10,7 +10,7 @@
       <p>Find answers, get support, or chat with our team. Fast, friendly, and reliable support you can trust.</p>
       <label class="support-search">
         <op-icon name="search"></op-icon>
-        <input type="search" placeholder="Search for help topics, issues..." aria-label="Search support topics" />
+        <input type="search" placeholder="Search for help topics, issues..." aria-label="Search support topics" [value]="supportQuery()" (input)="updateSupportQuery($any($event.target).value)" />
       </label>
     </div>
 
@@ -19,12 +19,7 @@
       <span class="support-orbit orbit-b"></span>
       <span class="support-spark spark-a"></span>
       <span class="support-spark spark-b"></span>
-      <div class="support-headset">
-        <op-icon name="headphones"></op-icon>
-        <div class="support-bubble">
-          <i></i><i></i><i></i>
-        </div>
-      </div>
+      <img class="support-hero-image" src="/images/contact.png" alt="OmarPhone support headset" />
     </div>
   </div>
 
@@ -32,14 +27,14 @@
     <section class="support-card faq-card">
       <div class="support-card-head">
         <h2>Frequently Asked Questions</h2>
-        <a href="/support-center">View All FAQs <op-icon name="arrow-right"></op-icon></a>
+        <a href="/support-center" (click)="clearSupportQuery($event)">View All FAQs <op-icon name="arrow-right"></op-icon></a>
       </div>
 
       <div class="faq-list">
-        @for (faq of faqs; track faq.question) {
+        @for (faq of filteredFaqs(); track faq.question) {
           <details>
-            <summary>
-              <span><op-icon name="alert-circle"></op-icon></span>
+          <summary>
+              <span><op-icon name="help-circle"></op-icon></span>
               <div>
                 <strong>{{ faq.question }}</strong>
                 <small>{{ faq.answer }}</small>
@@ -48,6 +43,12 @@
             </summary>
             <p>{{ faq.answer }}</p>
           </details>
+        } @empty {
+          <div class="faq-empty">
+            <op-icon name="search"></op-icon>
+            <strong>No support answers found</strong>
+            <small>Try a different keyword or contact OmarPhone support directly.</small>
+          </div>
         }
       </div>
     </section>
@@ -112,7 +113,7 @@
       </div>
 
       <div class="chat-agent">
-        <div class="agent-avatar"></div>
+        <img class="agent-avatar" src="/images/robot.png" alt="OmarPhone support agent" />
         <div>
           <strong>Omar Support</strong>
           <small>Support Agent</small>
@@ -121,7 +122,7 @@
       </div>
 
       <div class="chat-thread">
-        @for (message of chatMessages; track message.text) {
+        @for (message of liveChatMessages(); track message.text + message.time) {
           <div [class.user]="message.from === 'user'">
             @if (message.from === 'agent') {
               <span class="chat-mini"></span>
@@ -133,15 +134,15 @@
       </div>
 
       <label class="chat-input">
-        <input type="text" placeholder="Type your message..." aria-label="Type your message" />
+        <input type="text" placeholder="Type your message..." aria-label="Type your message" [value]="chatDraft()" (input)="updateChatDraft($any($event.target).value)" (keydown.enter)="sendChatMessage()" />
         <button type="button" aria-label="Attach file"><op-icon name="paperclip"></op-icon></button>
-        <button type="button" aria-label="Send message"><op-icon name="send"></op-icon></button>
+        <button type="button" aria-label="Send message" (click)="sendChatMessage()"><op-icon name="send"></op-icon></button>
       </label>
       <p class="chat-safe"><op-icon name="shield"></op-icon> We're here to help 24/7</p>
     </aside>
 
     <section class="support-card still-help">
-      <span><op-icon name="shield"></op-icon></span>
+      <img class="still-help-robot" src="/images/robot.png" alt="OmarPhone support assistant" />
       <div>
         <h2>Still Need Help?</h2>
         <p>Our support team is available 24/7 to assist you with any questions or concerns.</p>

@@ -11,18 +11,39 @@
 
     <div class="nav-links">
       <a [class.active]="isHome()" href="/#home">Home</a>
-      <a [class.active]="isServices()" href="/services">Repair Services</a>
-      <a href="/#how">How It Works</a>
-      <a href="/#why">Why Us</a>
-      <a [class.active]="isPricing()" href="/pricing">Pricing</a>
-      <a [class.active]="isAbout()" href="/about">About Us</a>
-      <a [class.active]="isSupportCenter()" href="/support-center">Support</a>
+      <a [class.active]="isServices()" href="/services">Services</a>
+      <a [class.active]="isBeforeAfter()" href="/before-after">Before & After</a>
+      <a [class.active]="isBlogs() || isBlogDetail()" href="/blogs">Blogs</a>
+      <a [class.active]="isReviews()" href="/reviews">Reviews</a>
+      <a [class.active]="isSupportCenter()" href="/support-center">Contact</a>
     </div>
 
     <div class="nav-actions">
       <button class="theme-toggle" type="button" (click)="toggleTheme()" [attr.aria-label]="isDark() ? 'Switch to light mode' : 'Switch to dark mode'">
         <op-icon [name]="isDark() ? 'sun' : 'moon'"></op-icon>
       </button>
+      <div class="language-menu">
+        <button class="language-toggle" type="button" (click)="toggleLanguage()" aria-label="Switch language" [attr.aria-expanded]="isLanguageMenuOpen()">
+          <op-icon name="globe"></op-icon>
+          <span class="language-badge">{{ languageButtonLabel() }}</span>
+        </button>
+        @if (isLanguageMenuOpen()) {
+          <div class="language-dropdown" role="menu">
+            @for (language of languageOptions; track language.code) {
+              <button
+                type="button"
+                role="menuitemradio"
+                [class.active]="currentLanguage() === language.code"
+                [attr.aria-checked]="currentLanguage() === language.code"
+                (click)="selectLanguage(language.code)"
+              >
+                <span>{{ language.label }}</span>
+                <strong>{{ language.short }}</strong>
+              </button>
+            }
+          </div>
+        }
+      </div>
       <a class="phone-link" href="tel:+15559871234">+1 (555) 987-1234</a>
       <a class="btn btn-primary" href="/book">Book a Repair <op-icon name="arrow-right"></op-icon></a>
     </div>
@@ -34,6 +55,8 @@
     <app-blogs-page></app-blogs-page>
   } @else if (isServices()) {
     <app-services-page></app-services-page>
+  } @else if (isReviews()) {
+    <app-reviews-page></app-reviews-page>
   } @else if (isSupportCenter()) {
     <app-support-center-page></app-support-center-page>
   } @else if (isPricing()) {
@@ -307,6 +330,662 @@
     </section>
   } @else if (isBeforeAfter()) {
     <app-before-after-page></app-before-after-page>
+  } @else if (isBookingSuccess()) {
+    <section class="booking-success-page">
+      @if (lastBookingOrder(); as order) {
+        <div class="success-hero">
+          <div class="success-orb"><op-icon name="check"></op-icon></div>
+          <span class="eyebrow">Booking confirmed</span>
+          <h1>Your repair is <span>booked.</span></h1>
+          <p>We saved your repair order and the OmarPhone team can now review it from the admin dashboard.</p>
+          <div class="success-id">
+            <small>Order ID</small>
+            <strong>{{ order.id }}</strong>
+          </div>
+        </div>
+
+        <section class="success-summary-grid">
+          <article class="success-card">
+            <span class="tone-violet"><op-icon name="user"></op-icon></span>
+            <small>Customer</small>
+            <h2>{{ order.customer.fullName }}</h2>
+            <p>{{ order.customer.phone }}<br />{{ order.customer.email }}</p>
+          </article>
+          <article class="success-card device-card-success">
+            <img [src]="order.repair.deviceImage" [alt]="order.repair.device" />
+            <div>
+              <small>Repair</small>
+              <h2>{{ order.repair.device }}</h2>
+              <p>{{ order.repair.issue }} · {{ order.repair.service }}</p>
+            </div>
+          </article>
+          <article class="success-card">
+            <span class="tone-pink"><op-icon name="calendar"></op-icon></span>
+            <small>Schedule</small>
+            <h2>{{ order.schedule.date }}</h2>
+            <p>{{ order.schedule.timeSlot }} · {{ order.repair.eta }}</p>
+          </article>
+          <article class="success-card total-card">
+            <span class="tone-orange"><op-icon name="message-circle"></op-icon></span>
+            <small>Next step</small>
+            <h2>Quote by team</h2>
+            <p>We will confirm details before repair.</p>
+          </article>
+        </section>
+
+        <section class="success-details-panel">
+          <div>
+            <h2>What happens next?</h2>
+            <p>Your order is saved in the OmarPhone system. The repair team can review it and contact the customer to confirm the quote.</p>
+          </div>
+          <div class="success-timeline">
+            <article><b>1</b><strong>Order received</strong><small>{{ formatOrderDate(order.createdAt) }}</small></article>
+            <article><b>2</b><strong>Admin review</strong><small>Check customer and device details</small></article>
+            <article><b>3</b><strong>Confirmation</strong><small>Call or email customer</small></article>
+            <article><b>4</b><strong>Repair starts</strong><small>{{ order.repair.eta }}</small></article>
+          </div>
+        </section>
+
+        <section class="success-address-panel">
+          <div>
+            <h2>Pickup résumé</h2>
+            <p>{{ order.schedule.address }}, {{ order.schedule.city }} {{ order.schedule.zip }}</p>
+            <small>{{ order.schedule.addressNotes || 'No extra address notes' }}</small>
+          </div>
+          <div>
+            <h2>Customer notes</h2>
+            <p>{{ order.notes || 'No extra notes added.' }}</p>
+          </div>
+        </section>
+
+        <div class="success-actions">
+          <a class="btn btn-secondary" href="/"><op-icon name="arrow-left"></op-icon> Back Home</a>
+          <a class="btn btn-secondary" [href]="bookingOrderWhatsappHref(order)" target="_blank" rel="noopener noreferrer"><op-icon name="message-circle"></op-icon> Send to WhatsApp</a>
+          <a class="btn btn-secondary" [href]="bookingOrderMailtoHref(order)"><op-icon name="mail"></op-icon> Send Email Copy</a>
+          <a class="btn btn-primary" href="/book">Book Another Repair <op-icon name="arrow-right"></op-icon></a>
+        </div>
+      } @else {
+        <div class="success-hero empty-success">
+          <div class="success-orb"><op-icon name="alert-circle"></op-icon></div>
+          <span class="eyebrow">No booking found</span>
+          <h1>Start a new <span>repair.</span></h1>
+          <p>There is no saved order in this browser yet.</p>
+          <a class="btn btn-primary" href="/book">Book a Repair <op-icon name="arrow-right"></op-icon></a>
+        </div>
+      }
+    </section>
+  } @else if (isAdminDashboard()) {
+    <section class="admin-page">
+      @if (!isAdminUnlocked()) {
+        <section class="admin-lock-page">
+          <div class="admin-lock-card">
+            <div class="breadcrumb">
+              <a href="/">Home</a>
+              <span><op-icon name="chevron-right"></op-icon></span>
+              <strong>Admin Portal</strong>
+            </div>
+            <span class="eyebrow">Private access</span>
+            <h1>Admin Portal <span>Locked</span></h1>
+            <p>Enter the admin username and password to view repair orders.</p>
+
+            <form class="admin-login-form" (submit)="loginAdmin($event)">
+              <label>
+                <span>Username</span>
+                <input type="text" autocomplete="username" placeholder="Enter username" [value]="adminLoginUsername()" (input)="updateAdminLogin('username', $any($event.target).value)" />
+              </label>
+              <label>
+                <span>Password</span>
+                <input type="password" autocomplete="current-password" placeholder="Enter password" [value]="adminLoginPassword()" (input)="updateAdminLogin('password', $any($event.target).value)" />
+              </label>
+              @if (adminLoginError()) {
+                <strong class="admin-login-error"><op-icon name="alert-circle"></op-icon> {{ adminLoginError() }}</strong>
+              }
+              <button class="btn btn-primary btn-large" type="submit"><op-icon name="lock"></op-icon> Unlock Dashboard</button>
+            </form>
+            <a class="btn btn-secondary" href="/"><op-icon name="arrow-left"></op-icon> Back to Website</a>
+          </div>
+        </section>
+      } @else {
+      <div class="admin-dashboard-shell">
+        <aside class="admin-sidebar">
+          <a class="admin-back-link" href="/"><op-icon name="chevron-left"></op-icon></a>
+          <a class="admin-brand" href="/">
+            <span class="logo-mark">OP</span>
+            <strong>Omar<span>Phone</span></strong>
+          </a>
+          <nav>
+            <button type="button" [class.active]="adminActiveView() === 'dashboard'" (click)="openAdminView('dashboard')"><op-icon name="home"></op-icon> Dashboard</button>
+            <button type="button" [class.active]="adminActiveView() === 'orders'" (click)="openAdminView('orders')"><op-icon name="file-text"></op-icon> Repair Orders</button>
+            <a href="/book"><op-icon name="clipboard"></op-icon> Test Booking</a>
+            <button type="button" [class.active]="adminActiveView() === 'blogs'" (click)="openAdminView('blogs')"><op-icon name="file-text"></op-icon> Blogs</button>
+            <span class="admin-nav-label">Website Content</span>
+            <button type="button" [class.active]="adminActiveView() === 'content' && selectedAdminContentKey() === 'home'" (click)="openAdminContent('home')"><op-icon name="home"></op-icon> Home</button>
+            <button type="button" [class.active]="adminActiveView() === 'content' && selectedAdminContentKey() === 'services'" (click)="openAdminContent('services')"><op-icon name="tools"></op-icon> Services</button>
+            <button type="button" [class.active]="adminActiveView() === 'content' && selectedAdminContentKey() === 'beforeAfter'" (click)="openAdminContent('beforeAfter')"><op-icon name="grid"></op-icon> Before & After</button>
+            <button type="button" [class.active]="adminActiveView() === 'content' && selectedAdminContentKey() === 'blogs'" (click)="openAdminContent('blogs')"><op-icon name="file-text"></op-icon> Blog Content</button>
+            <button type="button" [class.active]="adminActiveView() === 'content' && selectedAdminContentKey() === 'booking'" (click)="openAdminContent('booking')"><op-icon name="calendar"></op-icon> Booking</button>
+            <button type="button" [class.active]="adminActiveView() === 'content' && selectedAdminContentKey() === 'reviews'" (click)="openAdminContent('reviews')"><op-icon name="star"></op-icon> Reviews</button>
+            <button type="button" [class.active]="adminActiveView() === 'content' && selectedAdminContentKey() === 'support'" (click)="openAdminContent('support')"><op-icon name="headphones"></op-icon> Support</button>
+            <button type="button" (click)="logoutAdmin()"><op-icon name="lock"></op-icon> Lock Admin</button>
+          </nav>
+          <div class="admin-upgrade">
+            <op-icon name="shield"></op-icon>
+            <strong>Database Connected</strong>
+            <p>{{ adminSyncMessage() }}</p>
+            <button type="button" (click)="refreshAdminOrders()">Refresh Now</button>
+          </div>
+          <div class="admin-user-mini">
+            <span>OP</span>
+            <div>
+              <strong>OmarPhone Admin</strong>
+              <small>Administrator</small>
+            </div>
+          </div>
+        </aside>
+
+        <main class="admin-main">
+          <header class="admin-topbar">
+            <div>
+              <h1>{{ adminViewTitle() }}</h1>
+              <p>{{ adminViewSubtitle() }}</p>
+            </div>
+            <div class="admin-top-actions">
+              <label class="admin-search">
+                <op-icon name="search"></op-icon>
+                <input type="search" [placeholder]="adminActiveView() === 'blogs' ? 'Search blogs...' : 'Search anything...'" [value]="adminActiveView() === 'blogs' ? adminBlogSearch() : ''" (input)="adminActiveView() === 'blogs' ? updateAdminBlogSearch($any($event.target).value) : null">
+                <kbd>Ctrl K</kbd>
+              </label>
+              @if (adminActiveView() === 'blogs') {
+                <button class="admin-new-order" type="button" (click)="addAdminBlog()"><op-icon name="plus"></op-icon> New Blog</button>
+              } @else {
+                <a class="admin-new-order" href="/book"><op-icon name="plus"></op-icon> New Order</a>
+              }
+              <button class="admin-bell" type="button"><op-icon name="bell"></op-icon><span>{{ adminPendingOrders() }}</span></button>
+            </div>
+          </header>
+
+          @if (adminActiveView() === 'dashboard') {
+          <section class="admin-kpis">
+            @for (metric of adminDashboardStats(); track metric.title) {
+              <article class="tone-{{ metric.tone }}">
+                <span><op-icon [name]="metric.icon"></op-icon></span>
+                <div>
+                  <small>{{ metric.title }}</small>
+                  <strong>{{ metric.value }}</strong>
+                  <p>{{ metric.delta }}</p>
+                </div>
+              </article>
+            }
+          </section>
+
+          <section class="admin-dashboard-grid" id="admin-orders">
+            <article class="admin-chart-panel">
+              <div class="admin-panel-head">
+                <h2>Orders Overview</h2>
+                <button type="button">This Month <op-icon name="chevron-down"></op-icon></button>
+              </div>
+              <div class="admin-line-chart" aria-label="Orders overview chart">
+                <svg viewBox="0 0 640 260" role="img">
+                  <defs>
+                    <linearGradient id="adminLineFill" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0%" stop-color="#8a42ff" stop-opacity=".55"></stop>
+                      <stop offset="100%" stop-color="#225dff" stop-opacity=".04"></stop>
+                    </linearGradient>
+                  </defs>
+                  <path d="M12 218 C55 145 82 128 116 146 S169 132 198 154 S250 123 282 106 S331 117 356 84 S405 122 439 95 S485 70 522 92 S577 28 628 64 L628 246 L12 246 Z" fill="url(#adminLineFill)"></path>
+                  <path d="M12 218 C55 145 82 128 116 146 S169 132 198 154 S250 123 282 106 S331 117 356 84 S405 122 439 95 S485 70 522 92 S577 28 628 64" fill="none" stroke="#8a42ff" stroke-width="4" stroke-linecap="round"></path>
+                  <circle cx="356" cy="84" r="7" fill="#fff" stroke="#8a42ff" stroke-width="5"></circle>
+                </svg>
+              </div>
+            </article>
+
+            <article class="admin-recent-panel">
+              <div class="admin-panel-head">
+                <h2>Recent Orders</h2>
+                <button type="button" (click)="openAdminView('orders')">View All</button>
+              </div>
+              <div class="admin-recent-list">
+                @for (order of adminRecentOrders(); track order.id) {
+                  <article>
+                    <img [src]="order.repair.deviceImage" [alt]="order.repair.device">
+                    <div>
+                      <strong>{{ order.repair.device }}</strong>
+                      <small>{{ order.repair.issue }}</small>
+                    </div>
+                    <code>#{{ order.id }}</code>
+                    <span class="status-{{ statusTone(order.status) }}">{{ order.status }}</span>
+                    <b>Quote</b>
+                    <small>{{ orderTimeAgo(order.createdAt) }}</small>
+                  </article>
+                } @empty {
+                  <p class="admin-mini-empty">No orders yet. Create a test booking to populate this panel.</p>
+                }
+              </div>
+            </article>
+
+            <article class="admin-services-panel">
+              <div class="admin-panel-head">
+                <h2>Top Services</h2>
+                <button type="button">View Report</button>
+              </div>
+              <div class="admin-donut-wrap">
+                <div class="admin-donut"><span>{{ adminOrders().length }}<small>Total</small></span></div>
+                <div class="admin-service-list">
+                  @for (service of adminServiceStats(); track service.title) {
+                    <div class="tone-{{ service.tone }}">
+                      <span></span>
+                      <strong>{{ service.title }}</strong>
+                      <b>{{ service.percent }}%</b>
+                      <small>({{ service.count }})</small>
+                    </div>
+                  }
+                </div>
+              </div>
+            </article>
+
+            <article class="admin-revenue-panel">
+              <div class="admin-panel-head">
+                <h2>Activity Overview</h2>
+                <button type="button">This Month <op-icon name="chevron-down"></op-icon></button>
+              </div>
+              <div class="admin-bars">
+                @for (height of [28, 52, 70, 56, 68, 86, 44, 72, 90, 62, 78, 96, 58, 82, 100]; track $index) {
+                  <span [style.height.%]="height"></span>
+                }
+              </div>
+            </article>
+          </section>
+          }
+
+          @if (adminActiveView() === 'blogs') {
+          <section class="admin-blog-page">
+            <section class="admin-kpis admin-blog-kpis">
+              @for (metric of adminBlogStats(); track metric.title) {
+                <article class="tone-{{ metric.tone }}">
+                  <span><op-icon [name]="metric.icon"></op-icon></span>
+                  <div>
+                    <small>{{ metric.title }}</small>
+                    <strong>{{ metric.value }}</strong>
+                    <p>{{ metric.delta }}</p>
+                  </div>
+                </article>
+              }
+            </section>
+
+            <section class="admin-blog-toolbar">
+              <div class="admin-blog-tabs" aria-label="Blog status filters">
+                @for (tab of adminBlogStatusTabs(); track tab.value) {
+                  <button type="button" [class.active]="adminBlogStatusFilter() === tab.value" (click)="updateAdminBlogStatusFilter(tab.value)">
+                    {{ tab.label }} <span>{{ tab.count }}</span>
+                  </button>
+                }
+              </div>
+              <div class="admin-blog-filters">
+                <select [value]="adminBlogCategoryFilter()" (change)="updateAdminBlogCategoryFilter($any($event.target).value)" aria-label="Filter by category">
+                  @for (category of adminBlogCategories(); track category) {
+                    <option [value]="category">{{ category }}</option>
+                  }
+                </select>
+                <select [value]="adminBlogAuthorFilter()" (change)="updateAdminBlogAuthorFilter($any($event.target).value)" aria-label="Filter by author">
+                  @for (author of adminBlogAuthors(); track author) {
+                    <option [value]="author">{{ author }}</option>
+                  }
+                </select>
+                <button type="button" (click)="openAdminBlogsEditor()"><op-icon name="settings"></op-icon> Manage Fields</button>
+                <button type="button" (click)="refreshAdminContent()"><op-icon name="refresh"></op-icon> Reload</button>
+              </div>
+            </section>
+
+            <section class="admin-blog-table-card">
+              <div class="admin-blog-table-wrap">
+                <table class="admin-blog-table">
+                  <thead>
+                    <tr>
+                      <th class="select-col"><span></span></th>
+                      <th>Blog Post</th>
+                      <th>Category</th>
+                      <th>Author</th>
+                      <th>Status</th>
+                      <th>Published At</th>
+                      <th>Views</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (post of filteredAdminBlogPosts(); track post.slug) {
+                      <tr>
+                        <td class="select-col"><span></span></td>
+                        <td class="blog-post-cell">
+                          <img [src]="post.image" [alt]="post.title">
+                          <div>
+                            <strong>{{ post.title }}</strong>
+                            <small>{{ post.copy }}</small>
+                          </div>
+                        </td>
+                        <td><span class="blog-pill tone-{{ post.tone }}">{{ post.category }}</span></td>
+                        <td class="blog-author-cell">
+                          <span>OP</span>
+                          <strong>{{ post.author }}</strong>
+                        </td>
+                        <td><span class="blog-status status-{{ post.status?.toLowerCase() }}">{{ post.status }}</span></td>
+                        <td class="blog-date-cell">
+                          <strong>{{ post.status === 'Draft' ? '-' : post.date }}</strong>
+                          <small>{{ post.status === 'Scheduled' ? 'Scheduled' : post.status === 'Draft' ? 'Not published' : 'Live' }}</small>
+                        </td>
+                        <td>{{ post.status === 'Draft' ? '-' : formatCompactNumber(post.views ?? 0) }}</td>
+                        <td>
+                          <div class="blog-row-actions">
+                            <button type="button" (click)="viewAdminBlog(post)" aria-label="View blog"><op-icon name="eye"></op-icon></button>
+                            <button type="button" (click)="openAdminBlogsEditor()" aria-label="Edit blog"><op-icon name="wrench"></op-icon></button>
+                            <button type="button" (click)="duplicateAdminBlog(post)" aria-label="Duplicate blog"><op-icon name="copy"></op-icon></button>
+                            <button class="danger" type="button" (click)="deleteAdminBlog(post)" aria-label="Delete blog"><op-icon name="trash"></op-icon></button>
+                          </div>
+                        </td>
+                      </tr>
+                    } @empty {
+                      <tr>
+                        <td colspan="8">
+                          <div class="admin-blog-empty">
+                            <op-icon name="search"></op-icon>
+                            <strong>No blog posts found</strong>
+                            <small>Try another filter or create a new blog post.</small>
+                          </div>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+              <footer class="admin-blog-footer">
+                <span>Rows per page <strong>10</strong></span>
+                <span>1-{{ filteredAdminBlogPosts().length }} of {{ adminBlogPosts().length }} items</span>
+                <nav aria-label="Blog pagination">
+                  <button type="button"><op-icon name="chevron-left"></op-icon></button>
+                  <button class="active" type="button">1</button>
+                  <button type="button">2</button>
+                  <button type="button">3</button>
+                  <button type="button"><op-icon name="chevron-right"></op-icon></button>
+                </nav>
+              </footer>
+            </section>
+          </section>
+          }
+
+      @if (adminActiveView() === 'content') {
+      <section class="admin-content-panel" id="admin-content">
+        <div class="section-heading compact-heading">
+          <span class="eyebrow">Website CRUD</span>
+          <h2>Editable Page Content</h2>
+          <p>{{ adminContentMessage() }}</p>
+        </div>
+
+        @if (adminContentSections().length) {
+          <div class="admin-content-layout">
+            <div class="admin-content-editor">
+              <div class="admin-content-toolbar">
+                <div>
+                  <small>Selected section</small>
+                  <strong>{{ selectedAdminContentKey() }}</strong>
+                  @if (selectedAdminContentSection()?.updatedAt) {
+                    <span>Updated {{ selectedAdminContentSection()?.updatedAt }}</span>
+                  }
+                </div>
+                <div>
+                  <button class="btn btn-secondary" type="button" (click)="refreshAdminContent()"><op-icon name="refresh"></op-icon> Reload</button>
+                  <button class="btn btn-secondary" type="button" (click)="addAdminItem()" [disabled]="!selectedAdminGroupKey()"><op-icon name="plus"></op-icon> Add Item</button>
+                  <button class="btn btn-secondary" type="button" (click)="resetAdminContentSection()"><op-icon name="trash"></op-icon> Reset</button>
+                  <button class="btn btn-primary" type="button" (click)="saveAdminContentSection()"><op-icon name="save"></op-icon> Save</button>
+                </div>
+              </div>
+
+              @if (adminContentGroups().length) {
+                <div class="admin-content-manager">
+                  <div class="admin-group-tabs" aria-label="Editable content groups">
+                    @for (group of adminContentGroups(); track group.key) {
+                      <button type="button" [class.active]="selectedAdminGroupKey() === group.key" (click)="selectAdminGroup(group.key)">
+                        <strong>{{ group.key }}</strong>
+                        <small>{{ group.count }} item{{ group.count === 1 ? '' : 's' }}</small>
+                      </button>
+                    }
+                  </div>
+
+                  @if (selectedAdminGroupItems().length) {
+                    <div class="admin-data-card">
+                      <div class="admin-data-head">
+                        <div>
+                          <span>All Items: <strong>{{ selectedAdminGroupItems().length }}</strong></span>
+                          <span>Section: <strong>{{ selectedAdminContentKey() }}</strong></span>
+                          <span>Group: <strong>{{ selectedAdminGroupKey() }}</strong></span>
+                        </div>
+                        <button type="button" class="admin-settings-btn">
+                          <op-icon name="settings"></op-icon>
+                          Table settings
+                        </button>
+                      </div>
+
+                      <div class="admin-data-actions">
+                        <button type="button" class="admin-add-row" (click)="addAdminItem()">
+                          <op-icon name="plus"></op-icon>
+                          Add new item
+                        </button>
+                        <div>
+                          <button type="button" (click)="refreshAdminContent()">Reload</button>
+                          <button type="button" (click)="resetAdminContentSection()">Reset all</button>
+                          <button type="button" (click)="saveAdminContentSection()">Save all</button>
+                        </div>
+                      </div>
+
+                      <div class="admin-table-wrap">
+                      @if (selectedAdminGroupFields().length) {
+                        <table class="admin-edit-table">
+                          <thead>
+                            <tr>
+                              <th class="select-col"><span></span></th>
+                              <th>Item</th>
+                              @for (field of selectedAdminGroupFields(); track field) {
+                                <th>{{ field }}</th>
+                              }
+                              <th>Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (item of selectedAdminGroupItems(); track $index; let itemIndex = $index) {
+                              <tr>
+                                <td class="select-col"><span></span></td>
+                                <td class="admin-row-title">
+                                  <strong>{{ getAdminItemTitle(item, itemIndex) }}</strong>
+                                  <small>#{{ itemIndex + 1 }}</small>
+                                </td>
+                                @for (field of selectedAdminGroupFields(); track field) {
+                                  <td [class.image-cell]="isAdminImageField(field)" [class.long-cell]="isAdminLongTextField(field) || isAdminListField(field)">
+                                    @if (isAdminImageField(field)) {
+                                      <img [src]="getAdminFieldValue(item, field) || '/images/error.png'" alt="">
+                                      <input type="text" [value]="getAdminFieldValue(item, field)" (input)="updateAdminField(itemIndex, field, $any($event.target).value)">
+                                    } @else if (isAdminListField(field)) {
+                                      <textarea [value]="getAdminFieldValue(item, field)" (input)="updateAdminArrayField(itemIndex, field, $any($event.target).value)" placeholder="Comma separated"></textarea>
+                                    } @else if (isAdminLongTextField(field)) {
+                                      <textarea [value]="getAdminFieldValue(item, field)" (input)="updateAdminField(itemIndex, field, $any($event.target).value)"></textarea>
+                                    } @else {
+                                      <input type="text" [value]="getAdminFieldValue(item, field)" (input)="updateAdminField(itemIndex, field, $any($event.target).value)">
+                                    }
+                                  </td>
+                                }
+                                <td>
+                                  <button class="admin-table-remove" type="button" (click)="removeAdminItem(itemIndex)" aria-label="Remove item"><op-icon name="trash"></op-icon></button>
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      } @else if (selectedAdminTupleColumns().length) {
+                        <table class="admin-edit-table">
+                          <thead>
+                            <tr>
+                              <th class="select-col"><span></span></th>
+                              <th>Item</th>
+                              @for (tupleIndex of selectedAdminTupleColumns(); track tupleIndex) {
+                                <th>Value {{ tupleIndex + 1 }}</th>
+                              }
+                              <th>Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (item of selectedAdminGroupItems(); track $index; let itemIndex = $index) {
+                              <tr>
+                                <td class="select-col"><span></span></td>
+                                <td class="admin-row-title">
+                                  <strong>{{ getAdminItemTitle(item, itemIndex) }}</strong>
+                                  <small>#{{ itemIndex + 1 }}</small>
+                                </td>
+                                @for (tupleIndex of selectedAdminTupleColumns(); track tupleIndex) {
+                                  <td class="long-cell">
+                                    <textarea [value]="getAdminTupleValue(item, tupleIndex)" (input)="updateAdminTupleField(itemIndex, tupleIndex, $any($event.target).value)"></textarea>
+                                  </td>
+                                }
+                                <td>
+                                  <button class="admin-table-remove" type="button" (click)="removeAdminItem(itemIndex)" aria-label="Remove item"><op-icon name="trash"></op-icon></button>
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      } @else {
+                        <table class="admin-edit-table">
+                          <thead>
+                            <tr>
+                              <th class="select-col"><span></span></th>
+                              <th>Item</th>
+                              <th>Value</th>
+                              <th>Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            @for (item of selectedAdminGroupItems(); track $index; let itemIndex = $index) {
+                              <tr>
+                                <td class="select-col"><span></span></td>
+                                <td class="admin-row-title">
+                                  <strong>Item {{ itemIndex + 1 }}</strong>
+                                </td>
+                                <td class="long-cell">
+                                  <textarea [value]="formatAdminPrimitiveItem(item)" (input)="updateAdminPrimitiveItem(itemIndex, $any($event.target).value)"></textarea>
+                                </td>
+                                <td>
+                                  <button class="admin-table-remove" type="button" (click)="removeAdminItem(itemIndex)" aria-label="Remove item"><op-icon name="trash"></op-icon></button>
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      }
+                      </div>
+
+                      <div class="admin-data-footer">
+                        <div>
+                          Rows per page
+                          <button type="button">10 <op-icon name="chevron-down"></op-icon></button>
+                          <strong>1-{{ selectedAdminGroupItems().length }} of {{ selectedAdminGroupItems().length }}</strong>
+                        </div>
+                        <nav aria-label="Admin table pagination">
+                          <button type="button"><op-icon name="chevron-left"></op-icon></button>
+                          <button type="button" class="active">1</button>
+                          <button type="button">2</button>
+                          <button type="button">3</button>
+                          <span>...</span>
+                          <button type="button">10</button>
+                          <button type="button"><op-icon name="chevron-right"></op-icon></button>
+                        </nav>
+                      </div>
+                    </div>
+                  } @else {
+                    <div class="admin-empty compact">
+                      <op-icon name="file-text"></op-icon>
+                      <h2>No items in this group</h2>
+                      <p>Add a first item, then save the section.</p>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="admin-empty compact">
+                  <op-icon name="file-text"></op-icon>
+                  <h2>This section has no editable lists</h2>
+                  <p>Select another content section such as home, blogs, booking, reviews, services, support, or beforeAfter.</p>
+                </div>
+              }
+              @if (adminContentError()) {
+                <strong class="admin-content-error"><op-icon name="alert-circle"></op-icon> {{ adminContentError() }}</strong>
+              }
+            </div>
+          </div>
+        } @else {
+          <div class="admin-empty compact">
+            <op-icon name="file-text"></op-icon>
+            <h2>No editable content loaded</h2>
+            <p>Refresh the content editor. If it stays empty, check the production database connection.</p>
+            <button class="btn btn-primary" type="button" (click)="refreshAdminContent()">Load Content <op-icon name="arrow-right"></op-icon></button>
+          </div>
+        }
+      </section>
+      }
+
+      @if (adminActiveView() === 'orders') {
+      <section class="admin-orders-panel" id="admin-orders">
+        <div class="section-heading compact-heading">
+          <span class="eyebrow">Admin inbox</span>
+          <h2>Latest Booking Orders</h2>
+        </div>
+
+        @if (adminOrders().length) {
+          <div class="admin-orders-list">
+            @for (order of adminOrders(); track order.id) {
+              <article class="admin-order-card">
+                <div class="admin-order-device">
+                  <img [src]="order.repair.deviceImage" [alt]="order.repair.device" />
+                  <div>
+                    <span>{{ order.status }}</span>
+                    <h3>{{ order.repair.device }}</h3>
+                    <p>{{ order.repair.issue }} · {{ order.repair.service }}</p>
+                  </div>
+                </div>
+                <div>
+                  <small>Customer</small>
+                  <strong>{{ order.customer.fullName }}</strong>
+                  <p>{{ order.customer.phone }}</p>
+                </div>
+                <div>
+                  <small>Schedule</small>
+                  <strong>{{ order.schedule.date }}</strong>
+                  <p>{{ order.schedule.timeSlot }} · {{ order.schedule.city }}</p>
+                </div>
+                <div>
+                  <small>Quote</small>
+                  <strong>To confirm</strong>
+                  <p>{{ order.payment }}</p>
+                </div>
+                <div class="admin-status-actions">
+                  <small>Status</small>
+                  <button type="button" [class.active]="order.status === 'New'" (click)="updateAdminOrderStatus(order, 'New')">New</button>
+                  <button type="button" [class.active]="order.status === 'In Review'" (click)="updateAdminOrderStatus(order, 'In Review')">Review</button>
+                  <button type="button" [class.active]="order.status === 'Confirmed'" (click)="updateAdminOrderStatus(order, 'Confirmed')">Done</button>
+                </div>
+                <a class="admin-mail" [href]="bookingOrderMailtoHref(order)" aria-label="Send order email"><op-icon name="mail"></op-icon></a>
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="admin-empty">
+            <op-icon name="box"></op-icon>
+            <h2>No orders yet</h2>
+            <p>Confirmed bookings will appear here automatically.</p>
+            <a class="btn btn-primary" href="/book">Create First Booking <op-icon name="arrow-right"></op-icon></a>
+          </div>
+        }
+      </section>
+      }
+        </main>
+      </div>
+      }
+    </section>
   } @else if (isDetails()) {
     <section class="details-page">
       <div class="details-hero">
@@ -358,17 +1037,17 @@
             <div class="form-stack">
               <label class="field-line tone-violet">
                 <op-icon name="user"></op-icon>
-                <input type="text" placeholder="Full Name" aria-label="Full name" />
+                <input type="text" placeholder="Full Name" aria-label="Full name" [value]="customerName()" (input)="updateCustomerDetails('fullName', $any($event.target).value)" />
                 <small>Enter your full name</small>
               </label>
               <label class="field-line tone-violet">
                 <op-icon name="phone"></op-icon>
-                <input type="tel" placeholder="Phone Number" aria-label="Phone number" />
+                <input type="tel" placeholder="Phone Number" aria-label="Phone number" [value]="customerPhone()" (input)="updateCustomerDetails('phone', $any($event.target).value)" />
                 <small>Enter your phone number</small>
               </label>
               <label class="field-line tone-violet">
                 <op-icon name="mail"></op-icon>
-                <input type="email" placeholder="Email Address" aria-label="Email address" />
+                <input type="email" placeholder="Email Address" aria-label="Email address" [value]="customerEmail()" (input)="updateCustomerDetails('email', $any($event.target).value)" />
                 <small>Enter your email address</small>
               </label>
             </div>
@@ -385,27 +1064,28 @@
             <div class="form-grid">
               <label class="field-line tone-pink full">
                 <op-icon name="map-pin"></op-icon>
-                <select aria-label="Select your city">
-                  <option>Select your city</option>
+                <select aria-label="Select your city" [value]="customerCity()" (change)="updateCustomerDetails('city', $any($event.target).value)">
+                  <option value="">Select your city</option>
                   <option>Rome</option>
                   <option>Milan</option>
                   <option>Naples</option>
+                  <option>Casablanca</option>
                 </select>
                 <small>City</small>
               </label>
               <label class="field-line tone-violet full">
                 <op-icon name="map-pin"></op-icon>
-                <input type="text" placeholder="Address" aria-label="Address" />
+                <input type="text" placeholder="Address" aria-label="Address" [value]="customerAddress()" (input)="updateCustomerDetails('address', $any($event.target).value)" />
                 <small>Enter your full address</small>
               </label>
               <label class="field-line tone-pink">
                 <op-icon name="home"></op-icon>
-                <input type="text" placeholder="ZIP / Postal Code" aria-label="ZIP or postal code" />
+                <input type="text" placeholder="ZIP / Postal Code" aria-label="ZIP or postal code" [value]="customerZip()" (input)="updateCustomerDetails('zip', $any($event.target).value)" />
                 <small>Enter ZIP code</small>
               </label>
               <label class="field-line tone-blue">
                 <op-icon name="file-text"></op-icon>
-                <input type="text" placeholder="Additional Notes (Optional)" aria-label="Additional address notes" />
+                <input type="text" placeholder="Additional Notes (Optional)" aria-label="Additional address notes" [value]="customerAddressNotes()" (input)="updateCustomerDetails('addressNotes', $any($event.target).value)" />
                 <small>Apartment, suite, gate code, etc.</small>
               </label>
             </div>
@@ -422,13 +1102,13 @@
             <div class="date-grid">
               <label class="field-line tone-pink">
                 <op-icon name="calendar"></op-icon>
-                <input type="text" placeholder="Select Date" aria-label="Select date" />
+                <input type="date" placeholder="Select Date" aria-label="Select date" [value]="customerDate()" (input)="updateCustomerDetails('date', $any($event.target).value)" />
                 <small>Choose a date</small>
               </label>
               <label class="field-line tone-pink">
                 <op-icon name="clock"></op-icon>
-                <select aria-label="Select time slot">
-                  <option>Select Time Slot</option>
+                <select aria-label="Select time slot" [value]="customerTimeSlot()" (change)="updateCustomerDetails('timeSlot', $any($event.target).value)">
+                  <option value="">Select Time Slot</option>
                   <option>Morning</option>
                   <option>Afternoon</option>
                   <option>Evening</option>
@@ -437,9 +1117,9 @@
               </label>
             </div>
             <div class="time-options">
-              <article class="tone-orange"><op-icon name="sun"></op-icon><strong>Morning</strong><small>9AM - 12PM</small></article>
-              <article class="tone-violet active"><op-icon name="clock"></op-icon><strong>Afternoon</strong><small>12PM - 4PM</small></article>
-              <article class="tone-violet"><op-icon name="moon"></op-icon><strong>Evening</strong><small>4PM - 8PM</small></article>
+              <article class="tone-orange" [class.active]="customerTimeSlot() === 'Morning'" (click)="updateCustomerDetails('timeSlot', 'Morning')"><op-icon name="sun"></op-icon><strong>Morning</strong><small>9AM - 12PM</small></article>
+              <article class="tone-violet" [class.active]="customerTimeSlot() === 'Afternoon'" (click)="updateCustomerDetails('timeSlot', 'Afternoon')"><op-icon name="clock"></op-icon><strong>Afternoon</strong><small>12PM - 4PM</small></article>
+              <article class="tone-violet" [class.active]="customerTimeSlot() === 'Evening'" (click)="updateCustomerDetails('timeSlot', 'Evening')"><op-icon name="moon"></op-icon><strong>Evening</strong><small>4PM - 8PM</small></article>
             </div>
           </section>
 
@@ -452,9 +1132,45 @@
               </div>
             </div>
             <label class="issue-textarea">
-              <textarea maxlength="500" placeholder="Tell us anything important about your device..." aria-label="Additional notes"></textarea>
-              <span>0/500</span>
+              <textarea maxlength="500" placeholder="Tell us anything important about your device..." aria-label="Additional notes" [value]="customerNotes()" (input)="updateCustomerDetails('notes', $any($event.target).value)"></textarea>
+              <span>{{ customerNotes().length }}/500</span>
             </label>
+          </section>
+
+          <section class="detail-panel booking-resume-panel">
+            <div class="booking-title">
+              <span>5</span>
+              <div>
+                <h2>Booking Résumé</h2>
+                <p>This is the order summary the repair admin will receive.</p>
+              </div>
+            </div>
+            <div class="booking-resume-grid">
+              <article>
+                <small>Customer</small>
+                <strong>{{ customerName() || 'Full name required' }}</strong>
+                <span>{{ customerPhone() || 'Phone required' }}</span>
+                <span>{{ customerEmail() || 'Email required' }}</span>
+              </article>
+              <article>
+                <small>Repair</small>
+                <strong>{{ selectedBookDevice()?.name ?? 'Device not selected' }}</strong>
+                <span>{{ selectedRepairIssue()?.title ?? 'Issue not selected' }}</span>
+                <span>{{ selectedServiceOption()?.title ?? 'Service not selected' }}</span>
+              </article>
+              <article>
+                <small>Schedule</small>
+                <strong>{{ customerDate() || 'Date required' }}</strong>
+                <span>{{ customerTimeSlot() || 'Time slot required' }}</span>
+                <span>{{ selectedEta() }}</span>
+              </article>
+              <article>
+                <small>Quote</small>
+                <strong>To confirm</strong>
+                <span>{{ customerPayment() }}</span>
+                <span>{{ customerCity() || 'City required' }}</span>
+              </article>
+            </div>
           </section>
 
           <div class="book-actions">
@@ -486,11 +1202,12 @@
                 <a href="/book">Change</a>
               </div>
             </div>
-            <div class="price-list">
-              <p><span>{{ selectedRepairIssue()?.title ?? 'Screen Repair' }}</span><strong>${{ selectedRepairIssue() ? selectedIssuePrice() : 79 }}</strong></p>
-              <p><span>Service Fee</span><strong>${{ selectedServiceOption() ? selectedServiceFee() : 10 }}</strong></p>
-              <p><span>Discount</span><strong>- $0</strong></p>
-              <p class="total"><span>Total</span><strong>${{ canContinueBooking() ? selectedTotalPrice() : 89 }}</strong></p>
+            <div class="quote-note">
+              <op-icon name="message-circle"></op-icon>
+              <div>
+                <strong>Quote after diagnosis</strong>
+                <small>The team will confirm the quote before starting the repair.</small>
+              </div>
             </div>
             <div class="eta-card">
               <op-icon name="clock"></op-icon>
@@ -510,20 +1227,20 @@
 
           <section class="checkout-card payment-card">
             <h2>Payment Option</h2>
-            <label class="payment-option active">
+            <!-- <label class="payment-option" [class.active]="customerPayment() === 'Pay Online'" (click)="updateCustomerDetails('payment', 'Pay Online')">
               <span></span>
               <strong>Pay Online</strong>
               <small>Pay securely with card or other methods</small>
               <b>VISA</b><b>MC</b><b>AMEX</b><b>Pay</b>
-            </label>
-            <label class="payment-option">
+            </label> -->
+            <label class="payment-option" [class.active]="customerPayment() === 'Pay on Delivery'" (click)="updateCustomerDetails('payment', 'Pay on Delivery')">
               <span></span>
               <strong>Pay on Delivery</strong>
               <small>Pay when we deliver your device back</small>
             </label>
           </section>
 
-          <a class="btn btn-primary btn-large confirm-booking" href="mailto:hello@omarphone.test">Confirm Booking <op-icon name="arrow-right"></op-icon></a>
+          <a class="btn btn-primary btn-large confirm-booking" href="/booking-success" [class.disabled]="!canConfirmBooking()" [attr.aria-disabled]="!canConfirmBooking()" (click)="confirmBooking($event)">Confirm Booking <op-icon name="arrow-right"></op-icon></a>
           <p class="secure-note"><op-icon name="lock"></op-icon> Your information is secure and encrypted.</p>
         </aside>
       </div>
@@ -559,6 +1276,17 @@
 
       <div class="booking-layout">
         <div class="booking-flow">
+          <nav class="booking-progress booking-progress-mini" aria-label="Booking progress">
+            <span [class.active]="isBookDevice()" [class.done]="selectedBookDevice()"><b>1</b> Device</span>
+            <em><op-icon name="arrow-right"></op-icon></em>
+            <span [class.active]="isBookIssue()" [class.done]="selectedRepairIssue()"><b>2</b> Issue</span>
+            <em><op-icon name="arrow-right"></op-icon></em>
+            <span [class.active]="isBookService()" [class.done]="selectedServiceOption()"><b>3</b> Service</span>
+            <em><op-icon name="arrow-right"></op-icon></em>
+            <span><b>4</b> Details</span>
+          </nav>
+
+          @if (isBookDevice()) {
           <section class="booking-panel choose-device">
             <div class="booking-title">
               <span>1</span>
@@ -648,20 +1376,25 @@
               </div>
             </div>
           </section>
+          }
 
+          @if (isBookIssue()) {
           <section class="booking-panel">
             <div class="booking-title">
               <span>2</span>
               <div>
                 <h2>Choose the Issue</h2>
-                <p>Select the problem you are experiencing with your device.</p>
+                <p>Select the problem you are experiencing with {{ selectedBookDevice()?.name ?? 'your device' }}.</p>
               </div>
             </div>
 
             <div class="issue-grid">
-              @for (issue of repairIssues; track issue.title) {
+              @for (issue of availableRepairIssues(); track issue.key + issue.title) {
                 <article class="issue-card" [class]="'tone-' + issue.tone" [class.selected]="selectedRepairIssueTitle() === issue.title" (click)="selectRepairIssue(issue)" role="button" tabindex="0">
-                  <i><op-icon [name]="issue.icon"></op-icon></i>
+                  <figure>
+                    <img [src]="issue.image" [alt]="issue.title" loading="lazy" />
+                    <i><op-icon [name]="issue.icon"></op-icon></i>
+                  </figure>
                   <b><op-icon name="check"></op-icon></b>
                   <h3>{{ issue.title }}</h3>
                   <p>{{ issue.copy }}</p>
@@ -669,7 +1402,9 @@
               }
             </div>
           </section>
+          }
 
+          @if (isBookService()) {
           <section class="booking-panel">
             <div class="booking-title">
               <span>3</span>
@@ -695,24 +1430,59 @@
               }
             </div>
           </section>
+          }
 
-          <section class="booking-panel">
-            <div class="booking-title">
-              <span>4</span>
+          @if (isBookIssue() && !selectedBookDevice()) {
+            <section class="booking-panel step-warning">
+              <op-icon name="alert-circle"></op-icon>
               <div>
-                <h2>Describe the Issue <small>(Optional)</small></h2>
-                <p>Tell us more about the problem so we can assist you better.</p>
+                <h2>Choose a device first</h2>
+                <p>Pick your phone or laptop so we can show the right repair issues.</p>
               </div>
+              <a class="btn btn-secondary" href="/book">Choose Device</a>
+            </section>
+          }
+
+          @if (isBookService() && !selectedRepairIssue()) {
+            <section class="booking-panel step-warning">
+              <op-icon name="alert-circle"></op-icon>
+              <div>
+                <h2>Choose an issue first</h2>
+                <p>Select what needs repair before choosing the service method.</p>
+              </div>
+              <a class="btn btn-secondary" href="/book/issue">Choose Issue</a>
+            </section>
+          }
+
+          <section class="booking-panel step-explainer">
+            <div>
+              @if (isBookDevice()) {
+                <strong>Step 1 of 4</strong>
+                <h2>Start with the exact device.</h2>
+                <p>This lets OmarPhone prepare the right parts and repair logic for phones, laptops, tablets, and watches.</p>
+              } @else if (isBookIssue()) {
+                <strong>Step 2 of 4</strong>
+                <h2>Next, tell us what is wrong.</h2>
+                <p>Later we can filter this list by device type, so phone issues and laptop issues stay clean and specific.</p>
+              } @else {
+                <strong>Step 3 of 4</strong>
+                <h2>Choose how you want service handled.</h2>
+                <p>Pick walk-in, mail-in, or pickup and delivery. The estimate updates instantly in the summary.</p>
+              }
             </div>
-            <label class="issue-textarea">
-              <textarea maxlength="500" placeholder="Describe the issue in detail..." aria-label="Describe the issue in detail"></textarea>
-              <span>0/500</span>
-            </label>
           </section>
 
           <div class="book-actions">
-            <a class="btn btn-secondary" href="/"><op-icon name="arrow-left"></op-icon> Back</a>
-            <a class="btn btn-primary btn-large" href="/details" [class.disabled]="!canContinueBooking()" [attr.aria-disabled]="!canContinueBooking()" (click)="continueToDetails($event)">Continue to Details <op-icon name="arrow-right"></op-icon></a>
+            @if (isBookDevice()) {
+              <a class="btn btn-secondary" href="/"><op-icon name="arrow-left"></op-icon> Back</a>
+              <a class="btn btn-primary btn-large" href="/book/issue" [class.disabled]="!canContinueToIssue()" [attr.aria-disabled]="!canContinueToIssue()" (click)="continueToIssue($event)">Continue to Issue <op-icon name="arrow-right"></op-icon></a>
+            } @else if (isBookIssue()) {
+              <a class="btn btn-secondary" href="/book"><op-icon name="arrow-left"></op-icon> Back</a>
+              <a class="btn btn-primary btn-large" href="/book/service" [class.disabled]="!canContinueToService()" [attr.aria-disabled]="!canContinueToService()" (click)="continueToService($event)">Continue to Service <op-icon name="arrow-right"></op-icon></a>
+            } @else {
+              <a class="btn btn-secondary" href="/book/issue"><op-icon name="arrow-left"></op-icon> Back</a>
+              <a class="btn btn-primary btn-large" href="/details" [class.disabled]="!canContinueBooking()" [attr.aria-disabled]="!canContinueBooking()" (click)="continueToDetails($event)">Continue to Details <op-icon name="arrow-right"></op-icon></a>
+            }
           </div>
         </div>
 
@@ -738,9 +1508,9 @@
               <small>{{ selectedServiceOption()?.title ?? 'Not selected' }}</small>
             </div>
             <div>
-              <span class="tone-pink"><op-icon name="credit-card"></op-icon></span>
-              <strong>Estimated Price</strong>
-              <small>{{ selectedRepairIssue() ? ('$' + selectedTotalPrice()) : '-' }}</small>
+              <span class="tone-pink"><op-icon name="message-circle"></op-icon></span>
+              <strong>Quote</strong>
+              <small>To confirm</small>
             </div>
             <div>
               <span class="tone-cyan"><op-icon name="clock"></op-icon></span>
@@ -785,6 +1555,7 @@
     <p>Premium phone, laptop and tablet repair with glowing results.</p>
     <div class="footer-links">
       <a href="/before-after">Before & After</a>
+      <a href="/reviews">Reviews</a>
       <a href="/blogs">Blog</a>
       <a href="/services">Services</a>
       <a href="/support-center">Support</a>

@@ -4,14 +4,12 @@
       <div class="breadcrumb">
         <a href="/">Home</a>
         <span><op-icon name="chevron-right"></op-icon></span>
-        <a href="/book">Book a Repair</a>
-        <span><op-icon name="chevron-right"></op-icon></span>
         <strong>Before & After</strong>
       </div>
       <h1>Real <span>Repairs.</span><br />Real <em>Results.</em></h1>
       <p>See the difference quality repair makes. We do not just fix devices, we bring them back to life.</p>
       <div class="results-badges">
-        <div><span>♢</span><strong>90-Day Warranty</strong><small>On all repairs</small></div>
+        <div><span><op-icon name="shield"></op-icon></span><strong>90-Day Warranty</strong><small>On all repairs</small></div>
         <div><span><op-icon name="check"></op-icon></span><strong>Genuine Parts</strong><small>100% original</small></div>
       </div>
     </div>
@@ -42,91 +40,5 @@
     </div>
   </div>
 
-  <nav class="repair-tabs" aria-label="Repair result categories">
-    @for (tab of repairTabs; track tab[0]; let index = $index) {
-      <a [class.active]="index === 0" href="/before-after">
-        <span><op-icon [name]="index === 0 ? 'grid' : index === 1 ? 'smartphone' : index === 2 ? 'laptop' : index === 3 ? 'tablet' : 'watch'"></op-icon></span>
-        {{ tab[0] }}
-        <strong>{{ tab[1] }}</strong>
-      </a>
-    }
-  </nav>
-
-  <div class="before-after-grid">
-    @for (repair of beforeAfterRepairs; track repair.device) {
-      <article class="before-after-card" [class]="'tone-' + repair.tone + ' repair-' + repair.kind">
-        <div class="compare-stage" style="--compare: 50%">
-          <span class="compare-label before">Before</span>
-          <span class="compare-label after">After</span>
-          <div class="compare-layer compare-before">
-            @if (repair.kind === 'watch') {
-              <div class="results-watch-mock damaged"></div>
-            } @else {
-              <img [src]="repair.beforeImage" [alt]="'Before ' + repair.device" />
-            }
-          </div>
-          <div class="compare-layer compare-after">
-            @if (repair.kind === 'watch') {
-              <div class="results-watch-mock clean"></div>
-            } @else {
-              <img [src]="repair.afterImage" [alt]="'After ' + repair.device" />
-            }
-          </div>
-          @if (repair.kind !== 'watch') {
-            <span class="compare-divider"></span>
-            <span class="compare-handle"><op-icon name="chevron-left"></op-icon><op-icon name="chevron-right"></op-icon></span>
-            <input class="compare-range" type="range" min="0" max="100" value="50" [attr.aria-label]="'Slide to compare before and after ' + repair.device" (input)="setComparePosition($event)" />
-          }
-        </div>
-        <div class="result-card-body">
-          <span><op-icon [name]="repair.kind === 'laptop' ? 'laptop' : repair.kind === 'watch' ? 'watch' : 'smartphone'"></op-icon></span>
-          <div>
-            <h2>{{ repair.device }}</h2>
-            <strong>{{ repair.service }}</strong>
-          </div>
-          <p>{{ repair.copy }}</p>
-          <small>◷ Time: {{ repair.time }}</small>
-        </div>
-      </article>
-    }
-  </div>
-
-  <a class="btn result-more" href="/before-after">View More Before & After <op-icon name="arrow-right"></op-icon></a>
-
-  <section class="result-why">
-    <h2>Why Choose Our Repair Service?</h2>
-    <div class="result-why-grid">
-      @for (reason of resultReasons; track reason.title) {
-        <article [class]="'tone-' + reason.tone">
-          <span>{{ reason.icon }}</span>
-          <div>
-            <h3>{{ reason.title }}</h3>
-            <p>{{ reason.copy }}</p>
-          </div>
-        </article>
-      }
-    </div>
-  </section>
-
-  <section class="section testimonials result-testimonials">
-    <div class="section-heading spread">
-      <h2>What our customers say</h2>
-      <a class="btn btn-secondary" href="#reviews">View All Reviews</a>
-    </div>
-    <div class="testimonial-grid">
-      @for (testimonial of testimonials; track testimonial[0]) {
-        <article class="testimonial-card">
-          <div class="stars">★★★★★</div>
-          <p>“{{ testimonial[2] }}”</p>
-          <div class="person">
-            <span>{{ testimonial[0].slice(0, 1) }}</span>
-            <div>
-              <strong>{{ testimonial[0] }}</strong>
-              <small>{{ testimonial[1] }}</small>
-            </div>
-          </div>
-        </article>
-      }
-    </div>
-  </section>
+  <app-before-after></app-before-after>
 </section>

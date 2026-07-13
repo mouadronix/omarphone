@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { UiIconComponent } from '../ui-icon/ui-icon.component';
+import { ContentService } from '../../services/content.service';
 
 type BeforeAfterRepair = {
   device: string;
@@ -26,6 +27,8 @@ type ResultReason = {
   styleUrl: './before-after.component.css',
 })
 export class BeforeAfterComponent {
+  private readonly contentService = inject(ContentService);
+
   readonly repairTabs = [
     ['All Repairs', '24'],
     ['Phone', '16'],
@@ -86,11 +89,27 @@ export class BeforeAfterComponent {
   ];
 
   readonly testimonials = [
-    ['Sarah Johnson', 'iPhone 14 Pro', 'Amazing service! My iPhone looks brand new now.'],
-    ['Michael Chen', 'Dell XPS 15', 'Fixed my laptop in 24 hours. Super fast and professional!'],
-    ['Emily Davis', 'Samsung S23', 'Great customer service and affordable pricing.'],
-    ['David Wilson', 'MacBook Air', 'Highly recommend OmarPhone for any device repair!'],
+    ['reda salhaoui', 'Google Maps Review', 'Negozio ben fornito, personale disponibile e competente. Ottimo il servizio di riparazione: ho risparmiato evitando di cambiare telefono. Consigliato!'],
+    ['mohamed arjdal', 'Google Maps Review', 'Omar e suo fratello sono due veri professionisti: gentili, preparati e sempre disponibili con i clienti.'],
+    ['Marco Goria', 'Local Guide Review', 'Buona scelta di cellulari e apparecchiature elettroniche per tutti i gusti ed esigenze. Effettuano anche riparazioni a prezzi piu che onesti.'],
+    ['LORENZO RUSSO', 'Charging Port Repair', 'Mi hanno sistemato il telefono, aggiustandomi l ingresso USB-C per la ricarica. Lavoro veloce e prezzo piu che onesto.'],
   ];
+
+  constructor() {
+    this.beforeAfterRepairs.splice(0);
+    this.testimonials.splice(0);
+    void this.loadBackendContent();
+  }
+
+  private async loadBackendContent(): Promise<void> {
+    const content = await this.contentService.load();
+    if (Array.isArray(content?.beforeAfter?.repairs)) {
+      this.beforeAfterRepairs.splice(0, this.beforeAfterRepairs.length, ...(content.beforeAfter.repairs as BeforeAfterRepair[]));
+    }
+    if (Array.isArray(content?.beforeAfter?.testimonials)) {
+      this.testimonials.splice(0, this.testimonials.length, ...(content.beforeAfter.testimonials as string[][]));
+    }
+  }
 
   setComparePosition(event: Event): void {
     const input = event.target as HTMLInputElement | null;
@@ -101,5 +120,9 @@ export class BeforeAfterComponent {
     }
 
     stage.style.setProperty('--compare', `${input.value}%`);
+  }
+
+  repairKind(repair: BeforeAfterRepair): string {
+    return repair.kind.toLowerCase();
   }
 }

@@ -1,7 +1,8 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject } from '@angular/core';
 import { BlogSectionComponent } from '../../components/blog-section/blog-section.component';
 import { BeforeAfterComponent } from '../../components/before-after-component/before-after.component';
 import { UiIconComponent } from '../../components/ui-icon/ui-icon.component';
+import { ContentService } from '../../services/content.service';
 
 type Service = {
   title: string;
@@ -27,6 +28,11 @@ type Feature = {
   tone: string;
 };
 
+type BrandLogo = {
+  name: string;
+  logo: string;
+};
+
 @Component({
   selector: 'app-home-page',
   imports: [BeforeAfterComponent, BlogSectionComponent, UiIconComponent],
@@ -34,12 +40,13 @@ type Feature = {
   styleUrl: './home-page.component.css',
 })
 export class HomePageComponent {
+  private readonly contentService = inject(ContentService);
   @Input() isDark = false;
 
   readonly services: Service[] = [
     {
       title: 'Phone Screen Repair',
-      price: 'From $79',
+      price: 'Free quote',
       copy: 'Cracked or broken screen? We will make it look brand new.',
       icon: 'screen',
       tone: 'violet',
@@ -47,7 +54,7 @@ export class HomePageComponent {
     },
     {
       title: 'Phone Battery Replacement',
-      price: 'From $49',
+      price: 'Free quote',
       copy: 'Fast battery drain? Get your power back.',
       icon: 'battery',
       tone: 'green',
@@ -55,7 +62,7 @@ export class HomePageComponent {
     },
     {
       title: 'Laptop Screen Repair',
-      price: 'From $129',
+      price: 'Free quote',
       copy: 'Cracked or flickering display? We fix it fast.',
       icon: 'laptop',
       tone: 'blue',
@@ -63,7 +70,7 @@ export class HomePageComponent {
     },
     {
       title: 'Laptop Battery Replacement',
-      price: 'From $169',
+      price: 'Free quote',
       copy: 'Short battery life? Get long-lasting performance.',
       icon: 'chip',
       tone: 'orange',
@@ -71,7 +78,7 @@ export class HomePageComponent {
     },
     {
       title: 'Camera Repair',
-      price: 'From $69',
+      price: 'Free quote',
       copy: 'Blurry photos? We fix camera issues quickly.',
       icon: 'camera',
       tone: 'pink',
@@ -79,7 +86,7 @@ export class HomePageComponent {
     },
     {
       title: 'Tablet Repair',
-      price: 'From $79',
+      price: 'Free quote',
       copy: 'All tablet issues fixed quickly and beautifully.',
       icon: 'tablet',
       tone: 'cyan',
@@ -133,12 +140,37 @@ export class HomePageComponent {
   ];
 
   readonly testimonials = [
-    ['Sarah Johnson', 'iPhone 14 Pro', 'Amazing service! My iPhone looks brand new now.'],
-    ['Michael Chen', 'Dell XPS 15', 'Fixed my laptop in 24 hours. Super fast and professional!'],
-    ['Emily Davis', 'Samsung S23', 'Great customer service and affordable pricing.'],
-    ['David Wilson', 'MacBook Air', 'Highly recommend OmarPhone for any device repair!'],
+    ['reda salhaoui', 'Google Maps Review', 'Negozio ben fornito, personale disponibile e competente. Ottimo il servizio di riparazione: ho risparmiato evitando di cambiare telefono. Consigliato!'],
+    ['mohamed arjdal', 'Google Maps Review', 'Omar e suo fratello sono due veri professionisti: gentili, preparati e sempre disponibili con i clienti.'],
+    ['Marco Goria', 'Local Guide Review', 'Buona scelta di cellulari e apparecchiature elettroniche per tutti i gusti ed esigenze. Effettuano anche riparazioni a prezzi piu che onesti.'],
+    ['LORENZO RUSSO', 'Charging Port Repair', 'Mi hanno sistemato il telefono, aggiustandomi l ingresso USB-C per la ricarica. Lavoro veloce e prezzo piu che onesto.'],
   ];
 
-  readonly brands = ['Apple', 'Samsung', 'Google', 'Dell', 'HP', 'Lenovo', 'ASUS', 'Microsoft'];
+  readonly brands: BrandLogo[] = [
+    { name: 'Apple', logo: '/images/brands/apple.svg' },
+    { name: 'Samsung', logo: '/images/brands/samsung.svg' },
+    { name: 'Google', logo: '/images/brands/google.svg' },
+    { name: 'Dell', logo: '/images/brands/dell.svg' },
+    { name: 'HP', logo: '/images/brands/hp.svg' },
+    { name: 'Lenovo', logo: '/images/brands/lenovo.svg' },
+    { name: 'ASUS', logo: '/images/brands/asus.svg' },
+    { name: 'Microsoft', logo: '/images/brands/microsoft.svg' },
+  ];
   readonly trust = ['90-Day Warranty', 'Genuine Parts', 'Expert Technicians', 'Same Day Repair'];
+
+  constructor() {
+    this.services.splice(0);
+    this.testimonials.splice(0);
+    void this.loadBackendContent();
+  }
+
+  private async loadBackendContent(): Promise<void> {
+    const content = await this.contentService.load();
+    if (Array.isArray(content?.home?.services)) {
+      this.services.splice(0, this.services.length, ...(content.home.services as Service[]));
+    }
+    if (Array.isArray(content?.home?.testimonials)) {
+      this.testimonials.splice(0, this.testimonials.length, ...(content.home.testimonials as string[][]));
+    }
+  }
 }

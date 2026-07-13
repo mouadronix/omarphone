@@ -10,7 +10,7 @@
 
 .error-art {
   width: min(100%, 1180px);
-  max-height: 570px;
+  max-height: 300px;
   object-fit: contain;
   object-position: center;
   filter:
@@ -46,8 +46,8 @@
 .not-found-copy h1 {
   margin: 18px 0 0;
   color: var(--text-strong);
-  font-size: clamp(3rem, 6.4vw, 5.8rem);
-  line-height: 1;
+  font-size: clamp(2.25rem, 3.55vw, 3.6rem);
+  line-height: 1.1;
   letter-spacing: -0.055em;
 }
 

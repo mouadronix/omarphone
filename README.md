@@ -1,16 +1,93 @@
-# Omarphone
+# OmarPhone
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.12.
+Premium repair website built with Angular.
 
-## Development server
+## Development
 
-To start a local development server, run:
+Run the Angular site only:
 
 ```bash
-ng serve
+npm start -- --port 4300
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Run the backend API only:
+
+```bash
+npm run api
+```
+
+Run both the Angular site and backend API:
+
+```bash
+npm run dev
+```
+
+The website runs at `http://127.0.0.1:4300/`.
+The booking API runs at `http://127.0.0.1:4301/api`.
+
+Admin login is validated by the backend. Set these environment variables before running the API:
+
+```bash
+OMARPHONE_ADMIN_USERNAME=admin
+OMARPHONE_ADMIN_PASSWORD=your-secure-password
+OMARPHONE_ADMIN_AUTH_SECRET=your-long-random-token-secret
+```
+
+## Booking API
+
+Confirmed bookings are posted to `POST /api/orders` and saved in `server/data/orders.json`.
+The admin dashboard at `/admin` reads from `GET /api/orders`.
+
+If the API is offline, the website falls back to local browser storage.
+
+## Database
+
+Blog posts are stored in real database tables: `blog_posts` and `blog_post_tags`.
+For a fresh Neon/Postgres database, run `sql/setup-postgres.sql`.
+For an existing Neon database that still has blog content inside `content_sections.payload_json`, run `sql/migrate-blog-posts.sql` once in the Neon SQL Editor.
+
+The old JSON `content_sections` payloads have been split into real tables too. Run `sql/migrate-content-sections.sql` once in the Neon SQL Editor to create and backfill:
+
+`home_services`, `home_testimonials`, `booking_devices`, `booking_repair_issues`, `review_stats`, `customer_reviews`, `before_after_repairs`, `before_after_testimonials`, `service_hero_trust`, `service_cards`, `service_trust_features`, `service_process_steps`, `support_faqs`, `support_quick_actions`, and `support_contact_info`.
+
+`content_sections` is now kept only for admin compatibility and section metadata.
+
+Blog CRUD uses the real blog tables:
+
+- `GET /api/blog-posts`
+- `POST /api/blog-posts`
+- `GET /api/blog-posts/:slug`
+- `PUT /api/blog-posts/:slug`
+- `PATCH /api/blog-posts/:slug`
+- `DELETE /api/blog-posts/:slug`
+
+Separated content CRUD uses named resources backed by real content tables:
+
+- `GET /api/home-services`
+- `GET /api/home-testimonials`
+- `GET /api/booking-devices`
+- `GET /api/repair-issues`
+- `GET /api/review-stats`
+- `GET /api/reviews`
+- `GET /api/before-after-repairs`
+- `GET /api/before-after-testimonials`
+- `GET /api/service-trust`
+- `GET /api/services`
+- `GET /api/service-features`
+- `GET /api/service-process`
+- `GET /api/support-faqs`
+- `GET /api/support-actions`
+- `GET /api/support-contact`
+
+Every resource supports the same admin CRUD pattern:
+
+- `GET /api/:resource`
+- `POST /api/:resource`
+- `PUT /api/:resource/:id`
+- `PATCH /api/:resource/:id`
+- `DELETE /api/:resource/:id`
+
+The lower-level `/api/content-tables` routes still exist for compatibility, but new CRUD should use the named resource routes above.
 
 ## Code scaffolding
 

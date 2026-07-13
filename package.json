@@ -4,6 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "api": "node backend/api-server.mjs",
+    "dev": "node server/dev.mjs",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
@@ -17,7 +19,10 @@
     "@angular/forms": "^21.2.0",
     "@angular/platform-browser": "^21.2.0",
     "@angular/router": "^21.2.0",
+    "@neondatabase/serverless": "^1.1.0",
     "rxjs": "~7.8.0",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^6.0.1",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
