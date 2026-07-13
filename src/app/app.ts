@@ -1184,6 +1184,24 @@ export class App implements AfterViewInit, OnDestroy {
     this.updateAdminItem(index, (item) => ({ ...item, [field]: items }));
   }
 
+  async uploadAdminImage(index: number, field: string, event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) {
+      return;
+    }
+
+    try {
+      this.adminContentMessage.set(`Uploading ${file.name}...`);
+      const media = await this.contentService.uploadMedia(file, `${this.selectedAdminContentKey()} ${field}`);
+      this.updateAdminField(index, field, media.url);
+      this.adminContentMessage.set(`Image uploaded to database: ${media.url}`);
+    } catch {
+      this.adminContentError.set('Could not upload this image. Use PNG, JPG, GIF, SVG, or WebP up to 5MB.');
+    }
+  }
+
   updateAdminPrimitiveItem(index: number, value: string): void {
     const draft = this.cloneContentPayload(this.adminContentDraft());
     const key = this.selectedAdminGroupKey();

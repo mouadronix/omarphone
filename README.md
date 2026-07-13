@@ -45,6 +45,7 @@ If the API is offline, the website falls back to local browser storage.
 Blog posts are stored in real database tables: `blog_posts` and `blog_post_tags`.
 For a fresh Neon/Postgres database, run `sql/setup-postgres.sql`.
 For an existing Neon database that still has blog content inside `content_sections.payload_json`, run `sql/migrate-blog-posts.sql` once in the Neon SQL Editor.
+To delete all OmarPhone tables, recreate the schema, and insert fresh seed data, run `sql/reset-database-with-data.sql`.
 
 The old JSON `content_sections` payloads have been split into real tables too. Run `sql/migrate-content-sections.sql` once in the Neon SQL Editor to create and backfill:
 
@@ -88,6 +89,14 @@ Every resource supports the same admin CRUD pattern:
 - `DELETE /api/:resource/:id`
 
 The lower-level `/api/content-tables` routes still exist for compatibility, but new CRUD should use the named resource routes above.
+
+Media uploads are stored in the database table `media_assets`.
+
+- `POST /api/media` uploads an image with admin auth.
+- `GET /api/media/:id` serves the image to the frontend.
+- `DELETE /api/media/:id` removes an uploaded image with admin auth.
+
+The admin content editor can upload an image beside any image field. The upload returns a URL like `/api/media/<id>`, and that URL can be saved in `image`, `avatar`, `beforeImage`, or `afterImage` fields instead of using `/assets/...` or `/images/...`.
 
 ## Code scaffolding
 

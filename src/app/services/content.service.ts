@@ -41,6 +41,15 @@ export type ContentSection = {
   defaultPayload: unknown;
 };
 
+export type MediaAsset = {
+  id: string;
+  filename: string;
+  contentType: string;
+  byteSize: number;
+  altText: string;
+  url: string;
+};
+
 const ADMIN_SESSION_STORAGE_KEY = 'omarphone-admin-session';
 
 function getApiBaseUrl(): string {
@@ -135,6 +144,31 @@ export class ContentService {
     return result.sections ?? [];
   }
 
+  async uploadMedia(file: File, altText = ''): Promise<MediaAsset> {
+    const data = await this.readFileAsDataUrl(file);
+    const response = await fetch(`${getApiBaseUrl()}/media`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...getAdminAuthHeaders() },
+      body: JSON.stringify({
+        filename: file.name,
+        contentType: file.type || 'application/octet-stream',
+        altText,
+        data,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Media upload API responded with ${response.status}`);
+    }
+
+    const result = await response.json() as { media?: MediaAsset };
+    if (!result.media?.url) {
+      throw new Error('Media upload did not return an image URL');
+    }
+
+    return result.media;
+  }
+
   private async fetchContent(): Promise<SiteContent | null> {
     if (typeof window === 'undefined') {
       return null;
@@ -153,5 +187,14 @@ export class ContentService {
       this.content.set(null);
       return null;
     }
+  }
+
+  private readFileAsDataUrl(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result || ''));
+      reader.onerror = () => reject(reader.error ?? new Error('Could not read selected file'));
+      reader.readAsDataURL(file);
+    });
   }
 }

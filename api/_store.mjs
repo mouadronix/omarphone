@@ -1,4 +1,4 @@
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 import { neon } from '@neondatabase/serverless';
 import {
   CONTENT_TABLES,
@@ -24,6 +24,7 @@ const ADMIN_TOKEN_TTL_SECONDS = 60 * 60 * 8;
 let memoryOrders = [];
 let memoryContentOverrides = {};
 let memoryBlogPosts = null;
+let memoryMediaAssets = new Map();
 let schemaReadyPromise = null;
 let defaultContentPromise = null;
 
@@ -141,6 +142,18 @@ async function ensureSchema() {
           payload_json JSONB NOT NULL,
           updated_at TIMESTAMPTZ NOT NULL,
           customized BOOLEAN NOT NULL DEFAULT FALSE
+        )
+      `,
+      sql`
+        CREATE TABLE IF NOT EXISTS media_assets (
+          id TEXT PRIMARY KEY,
+          filename TEXT NOT NULL,
+          content_type TEXT NOT NULL,
+          data_base64 TEXT NOT NULL,
+          byte_size INTEGER NOT NULL DEFAULT 0,
+          alt_text TEXT NOT NULL DEFAULT '',
+          created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+          updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         )
       `,
       sql`
@@ -338,6 +351,118 @@ export async function deleteContentTableRow(tableName, id) {
 
   await ensureSchema();
   const result = await sql.query(`DELETE FROM ${definition.table} WHERE id = $1`, [Number(id)]);
+  return Number(result.count ?? 0) > 0;
+}
+
+function normalizeMediaUpload(payload) {
+  const rawData = String(payload?.data || payload?.dataBase64 || '');
+  const dataUrlMatch = rawData.match(/^data:([^;]+);base64,(.+)$/);
+  const contentType = String(payload?.contentType || dataUrlMatch?.[1] || 'application/octet-stream');
+  const dataBase64 = String(dataUrlMatch?.[2] || rawData).replace(/\s/g, '');
+  if (!dataBase64) {
+    const error = new Error('Media upload requires base64 image data');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const buffer = Buffer.from(dataBase64, 'base64');
+  if (!buffer.length || buffer.length > 5 * 1024 * 1024) {
+    const error = new Error('Media upload must be a valid image up to 5MB');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (!contentType.startsWith('image/')) {
+    const error = new Error('Only image uploads are supported');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  return {
+    id: String(payload?.id || randomUUID()),
+    filename: String(payload?.filename || `upload-${Date.now()}`),
+    contentType,
+    dataBase64,
+    byteSize: buffer.length,
+    altText: String(payload?.altText || ''),
+  };
+}
+
+export async function createMediaAsset(payload) {
+  const media = normalizeMediaUpload(payload);
+  if (!sql) {
+    memoryMediaAssets.set(media.id, media);
+    return { ...media, url: `/api/media/${media.id}` };
+  }
+
+  await ensureSchema();
+  await sql`
+    INSERT INTO media_assets (id, filename, content_type, data_base64, byte_size, alt_text, updated_at)
+    VALUES (
+      ${media.id},
+      ${media.filename},
+      ${media.contentType},
+      ${media.dataBase64},
+      ${media.byteSize},
+      ${media.altText},
+      ${new Date().toISOString()}
+    )
+    ON CONFLICT (id) DO UPDATE SET
+      filename = EXCLUDED.filename,
+      content_type = EXCLUDED.content_type,
+      data_base64 = EXCLUDED.data_base64,
+      byte_size = EXCLUDED.byte_size,
+      alt_text = EXCLUDED.alt_text,
+      updated_at = EXCLUDED.updated_at
+  `;
+
+  return {
+    id: media.id,
+    filename: media.filename,
+    contentType: media.contentType,
+    byteSize: media.byteSize,
+    altText: media.altText,
+    url: `/api/media/${media.id}`,
+  };
+}
+
+export async function readMediaAsset(id) {
+  if (!sql) {
+    const media = memoryMediaAssets.get(id);
+    return media ? { ...media, dataBase64: media.dataBase64 } : null;
+  }
+
+  await ensureSchema();
+  const rows = await sql`
+    SELECT id, filename, content_type, data_base64, byte_size, alt_text, created_at, updated_at
+    FROM media_assets
+    WHERE id = ${id}
+    LIMIT 1
+  `;
+  const row = rows[0];
+  if (!row) {
+    return null;
+  }
+
+  return {
+    id: row.id,
+    filename: row.filename,
+    contentType: row.content_type,
+    dataBase64: row.data_base64,
+    byteSize: row.byte_size,
+    altText: row.alt_text,
+    createdAt: row.created_at ? new Date(row.created_at).toISOString() : null,
+    updatedAt: row.updated_at ? new Date(row.updated_at).toISOString() : null,
+  };
+}
+
+export async function deleteMediaAsset(id) {
+  if (!sql) {
+    return memoryMediaAssets.delete(id);
+  }
+
+  await ensureSchema();
+  const result = await sql`DELETE FROM media_assets WHERE id = ${id}`;
   return Number(result.count ?? 0) > 0;
 }
 

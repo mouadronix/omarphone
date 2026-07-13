@@ -634,6 +634,25 @@
     }
   }
 
+  .admin-upload-image {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 7px 10px;
+    border: 1px solid #dfe3ea;
+    border-radius: 8px;
+    color: #111827;
+    background: #ffffff;
+    font-size: .78rem;
+    font-weight: 800;
+    cursor: pointer;
+
+    input {
+      display: none;
+    }
+  }
+
   .long-cell {
     min-width: 260px;
   }
@@ -759,6 +778,12 @@
 
     .select-col span,
     .image-cell img {
+      border-color: rgba(148, 163, 184, .26);
+      background: #0f172a;
+    }
+
+    .admin-upload-image {
+      color: #f8fafc;
       border-color: rgba(148, 163, 184, .26);
       background: #0f172a;
     }

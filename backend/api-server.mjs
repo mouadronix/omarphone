@@ -1,5 +1,5 @@
 import { createServer } from 'node:http';
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 import { mkdir, readFile } from 'node:fs/promises';
 import { dirname, extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -81,6 +81,17 @@ async function initializeDatabase() {
       payload_json TEXT NOT NULL,
       updated_at TEXT NOT NULL,
       customized INTEGER NOT NULL DEFAULT 0
+    );
+
+    CREATE TABLE IF NOT EXISTS media_assets (
+      id TEXT PRIMARY KEY,
+      filename TEXT NOT NULL,
+      content_type TEXT NOT NULL,
+      data_base64 TEXT NOT NULL,
+      byte_size INTEGER NOT NULL DEFAULT 0,
+      alt_text TEXT NOT NULL DEFAULT '',
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
 
     CREATE TABLE IF NOT EXISTS blog_posts (
@@ -256,6 +267,93 @@ async function upsertContentTableRow(database, tableName, id, payload) {
 async function deleteContentTableRow(database, tableName, id) {
   const definition = getContentTableDefinition(tableName);
   const result = await database.run(`DELETE FROM ${definition.table} WHERE id = ?`, Number(id));
+  return Number(result.changes ?? 0) > 0;
+}
+
+function normalizeMediaUpload(payload) {
+  const rawData = String(payload?.data || payload?.dataBase64 || '');
+  const dataUrlMatch = rawData.match(/^data:([^;]+);base64,(.+)$/);
+  const contentType = String(payload?.contentType || dataUrlMatch?.[1] || 'application/octet-stream');
+  const dataBase64 = String(dataUrlMatch?.[2] || rawData).replace(/\s/g, '');
+  if (!dataBase64) {
+    const error = new Error('Media upload requires base64 image data');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const buffer = Buffer.from(dataBase64, 'base64');
+  if (!buffer.length || buffer.length > 5 * 1024 * 1024) {
+    const error = new Error('Media upload must be a valid image up to 5MB');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (!contentType.startsWith('image/')) {
+    const error = new Error('Only image uploads are supported');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  return {
+    id: String(payload?.id || randomUUID()),
+    filename: String(payload?.filename || `upload-${Date.now()}`),
+    contentType,
+    dataBase64,
+    byteSize: buffer.length,
+    altText: String(payload?.altText || ''),
+  };
+}
+
+async function createMediaAsset(database, payload) {
+  const media = normalizeMediaUpload(payload);
+  await database.run(
+    `
+      INSERT INTO media_assets (id, filename, content_type, data_base64, byte_size, alt_text, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        filename = excluded.filename,
+        content_type = excluded.content_type,
+        data_base64 = excluded.data_base64,
+        byte_size = excluded.byte_size,
+        alt_text = excluded.alt_text,
+        updated_at = excluded.updated_at
+    `,
+    [media.id, media.filename, media.contentType, media.dataBase64, media.byteSize, media.altText, new Date().toISOString()],
+  );
+
+  return {
+    id: media.id,
+    filename: media.filename,
+    contentType: media.contentType,
+    byteSize: media.byteSize,
+    altText: media.altText,
+    url: `/api/media/${media.id}`,
+  };
+}
+
+async function readMediaAsset(database, id) {
+  const row = await database.get(
+    'SELECT id, filename, content_type, data_base64, byte_size, alt_text, created_at, updated_at FROM media_assets WHERE id = ?',
+    id,
+  );
+  if (!row) {
+    return null;
+  }
+
+  return {
+    id: row.id,
+    filename: row.filename,
+    contentType: row.content_type,
+    dataBase64: row.data_base64,
+    byteSize: row.byte_size,
+    altText: row.alt_text,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+async function deleteMediaAsset(database, id) {
+  const result = await database.run('DELETE FROM media_assets WHERE id = ?', id);
   return Number(result.changes ?? 0) > 0;
 }
 
@@ -881,6 +979,43 @@ const server = createServer(async (request, response) => {
 
     if (request.method === 'GET' && url.pathname === '/api/content') {
       sendJson(response, 200, await readMergedSiteContent(database));
+      return;
+    }
+
+    if (request.method === 'POST' && url.pathname === '/api/media') {
+      if (!requireAdmin(request, response)) {
+        return;
+      }
+
+      const raw = await readRequestBody(request);
+      const media = await createMediaAsset(database, JSON.parse(raw || '{}'));
+      sendJson(response, 201, { media });
+      return;
+    }
+
+    const mediaMatch = url.pathname.match(/^\/api\/media\/([^/]+)$/);
+    if (mediaMatch && request.method === 'GET') {
+      const media = await readMediaAsset(database, decodeURIComponent(mediaMatch[1]));
+      if (!media) {
+        sendJson(response, 404, { error: 'Media asset not found' });
+        return;
+      }
+
+      response.writeHead(200, {
+        'Cache-Control': 'public, max-age=31536000, immutable',
+        'Content-Type': media.contentType,
+      });
+      response.end(Buffer.from(media.dataBase64, 'base64'));
+      return;
+    }
+
+    if (mediaMatch && request.method === 'DELETE') {
+      if (!requireAdmin(request, response)) {
+        return;
+      }
+
+      const deleted = await deleteMediaAsset(database, decodeURIComponent(mediaMatch[1]));
+      sendJson(response, deleted ? 200 : 404, deleted ? { ok: true } : { error: 'Media asset not found' });
       return;
     }
 

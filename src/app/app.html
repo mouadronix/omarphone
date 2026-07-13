@@ -802,6 +802,11 @@
                                     @if (isAdminImageField(field)) {
                                       <img [src]="getAdminFieldValue(item, field) || '/images/error.png'" alt="">
                                       <input type="text" [value]="getAdminFieldValue(item, field)" (input)="updateAdminField(itemIndex, field, $any($event.target).value)">
+                                      <label class="admin-upload-image">
+                                        <op-icon name="paperclip"></op-icon>
+                                        <span>Upload</span>
+                                        <input type="file" accept="image/*" (change)="uploadAdminImage(itemIndex, field, $event)">
+                                      </label>
                                     } @else if (isAdminListField(field)) {
                                       <textarea [value]="getAdminFieldValue(item, field)" (input)="updateAdminArrayField(itemIndex, field, $any($event.target).value)" placeholder="Comma separated"></textarea>
                                     } @else if (isAdminLongTextField(field)) {
