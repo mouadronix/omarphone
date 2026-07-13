@@ -194,6 +194,25 @@ async function readStructuredContent(database) {
   return content;
 }
 
+function isNonEmptyObject(value) {
+  return !!value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length > 0;
+}
+
+function mergeStructuredContent(base, structured) {
+  const merged = structuredClone(base);
+  for (const [sectionKey, sectionPayload] of Object.entries(structured)) {
+    const currentSection = isNonEmptyObject(merged[sectionKey]) ? merged[sectionKey] : {};
+    const nextSection = { ...currentSection };
+    for (const [property, rows] of Object.entries(sectionPayload)) {
+      if (Array.isArray(rows) && rows.length > 0) {
+        nextSection[property] = rows;
+      }
+    }
+    merged[sectionKey] = nextSection;
+  }
+  return merged;
+}
+
 async function replaceStructuredContentSection(database, key, payload) {
   const definitions = definitionsForSection(key);
   if (definitions.length === 0) {
@@ -838,9 +857,15 @@ async function readContentOverrides(database) {
 }
 
 async function readMergedSiteContent(database) {
+  const defaults = await getSiteContent(PROJECT_DIR);
   const sections = await readContentOverrides(database);
-  const content = Object.fromEntries(sections.map((section) => [section.key, section.payload]));
-  Object.assign(content, await readStructuredContent(database));
+  let content = structuredClone(defaults);
+  for (const section of sections) {
+    if (isNonEmptyObject(section.payload)) {
+      content[section.key] = section.payload;
+    }
+  }
+  content = mergeStructuredContent(content, await readStructuredContent(database));
   content.blogs = { posts: await readBlogPosts(database) };
   return content;
 }
@@ -864,7 +889,7 @@ async function readContentSections(database) {
   const structured = await readStructuredContent(database);
   for (const section of sections) {
     if (structured[section.key]) {
-      section.payload = structured[section.key];
+      section.payload = mergeStructuredContent({ [section.key]: section.payload ?? defaults[section.key] ?? {} }, { [section.key]: structured[section.key] })[section.key];
     }
   }
   const blogs = sections.find((section) => section.key === 'blogs');

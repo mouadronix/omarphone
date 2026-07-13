@@ -263,6 +263,25 @@ async function readStructuredContent() {
   return content;
 }
 
+function isNonEmptyObject(value) {
+  return !!value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length > 0;
+}
+
+function mergeStructuredContent(base, structured) {
+  const merged = structuredClone(base);
+  for (const [sectionKey, sectionPayload] of Object.entries(structured)) {
+    const currentSection = isNonEmptyObject(merged[sectionKey]) ? merged[sectionKey] : {};
+    const nextSection = { ...currentSection };
+    for (const [property, rows] of Object.entries(sectionPayload)) {
+      if (Array.isArray(rows) && rows.length > 0) {
+        nextSection[property] = rows;
+      }
+    }
+    merged[sectionKey] = nextSection;
+  }
+  return merged;
+}
+
 async function replaceStructuredContentSection(key, payload) {
   const definitions = definitionsForSection(key);
   if (definitions.length === 0) {
@@ -802,10 +821,16 @@ async function readContentOverrides() {
 }
 
 export async function readMergedSiteContent() {
+  const defaults = await getDefaultContent();
   const sections = await readContentOverrides();
-  const content = Object.fromEntries(Object.entries(sections).map(([key, value]) => [key, value.payload]));
+  let content = structuredClone(defaults);
+  for (const [key, value] of Object.entries(sections)) {
+    if (isNonEmptyObject(value.payload)) {
+      content[key] = value.payload;
+    }
+  }
   if (sql) {
-    Object.assign(content, await readStructuredContent());
+    content = mergeStructuredContent(content, await readStructuredContent());
   }
   content.blogs = { posts: await readBlogPosts() };
   return content;
@@ -830,7 +855,7 @@ export async function readContentSections() {
     const structured = await readStructuredContent();
     for (const section of result) {
       if (structured[section.key]) {
-        section.payload = structured[section.key];
+        section.payload = mergeStructuredContent({ [section.key]: section.payload ?? defaults[section.key] ?? {} }, { [section.key]: structured[section.key] })[section.key];
       }
     }
   }
