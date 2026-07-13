@@ -35,45 +35,11 @@ export class SupportCenterPageComponent {
   readonly chatDraft = signal('');
   readonly contentRevision = signal(0);
 
-  readonly faqs: FaqItem[] = [
-    {
-      question: 'How long does a typical repair take?',
-      answer: 'Most repairs are completed within 30 minutes to 2 hours depending on the issue.',
-    },
-    {
-      question: 'Do you offer warranty on repairs?',
-      answer: 'Yes. All our repairs come with a warranty. Duration depends on the type of repair.',
-    },
-    {
-      question: 'How can I track my repair status?',
-      answer: 'You can track your repair in real-time using our Track Repair page.',
-    },
-    {
-      question: 'Do I need to book an appointment?',
-      answer: 'Walk-ins are welcome, but booking an appointment saves your time.',
-    },
-    {
-      question: 'What payment methods do you accept?',
-      answer: 'We accept cash, all major credit/debit cards, and digital payments.',
-    },
-    {
-      question: 'Can I get a quote before the repair?',
-      answer: 'Absolutely. Book a repair or visit our store and we will confirm a free quote before starting.',
-    },
-  ];
+  readonly faqs: FaqItem[] = [];
 
-  readonly quickActions: SupportItem[] = [
-    { title: 'Track Your Repair', copy: 'Send your repair ID to support', icon: 'box', tone: 'violet', href: 'https://wa.me/212612345678' },
-    { title: 'Free Repair Quote', copy: 'Ask for a diagnosis', icon: 'message-circle', tone: 'blue', href: '/book' },
-    { title: 'Device Health Check', copy: 'Check your device status', icon: 'activity', tone: 'orange', href: '/book' },
-    { title: 'Book a Repair', copy: 'Schedule an appointment', icon: 'calendar', tone: 'pink', href: '/book' },
-  ];
+  readonly quickActions: SupportItem[] = [];
 
-  readonly contactInfo: SupportItem[] = [
-    { title: '+212 6 12 34 56 78', copy: 'Mon - Sat : 9:00 AM - 7:00 PM', icon: 'phone', tone: 'violet', href: 'tel:+212612345678' },
-    { title: 'hello@omarphone.com', copy: 'We reply within 15 minutes', icon: 'mail', tone: 'violet', href: 'mailto:hello@omarphone.com' },
-    { title: '123 Tech Avenue', copy: 'Casablanca, 20000 Morocco', icon: 'map-pin', tone: 'violet', href: 'https://maps.google.com' },
-  ];
+  readonly contactInfo: SupportItem[] = [];
 
   readonly helpChannels: SupportItem[] = [
     { title: 'Email Support', copy: 'Send us an email and we will get back to you.', icon: 'mail', tone: 'violet', href: 'mailto:hello@omarphone.com' },

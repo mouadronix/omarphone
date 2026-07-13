@@ -43,56 +43,7 @@ export class HomePageComponent {
   private readonly contentService = inject(ContentService);
   @Input() isDark = false;
 
-  readonly services: Service[] = [
-    {
-      title: 'Phone Screen Repair',
-      price: 'Free quote',
-      copy: 'Cracked or broken screen? We will make it look brand new.',
-      icon: 'screen',
-      tone: 'violet',
-      image: '/assets/cutouts/screen-repair.png',
-    },
-    {
-      title: 'Phone Battery Replacement',
-      price: 'Free quote',
-      copy: 'Fast battery drain? Get your power back.',
-      icon: 'battery',
-      tone: 'green',
-      image: '/assets/cutouts/battery-repair.png',
-    },
-    {
-      title: 'Laptop Screen Repair',
-      price: 'Free quote',
-      copy: 'Cracked or flickering display? We fix it fast.',
-      icon: 'laptop',
-      tone: 'blue',
-      image: '/assets/cutouts/laptop-repair.png',
-    },
-    {
-      title: 'Laptop Battery Replacement',
-      price: 'Free quote',
-      copy: 'Short battery life? Get long-lasting performance.',
-      icon: 'chip',
-      tone: 'orange',
-      image: '/assets/cutouts/ipad-repair.png',
-    },
-    {
-      title: 'Camera Repair',
-      price: 'Free quote',
-      copy: 'Blurry photos? We fix camera issues quickly.',
-      icon: 'camera',
-      tone: 'pink',
-      image: '/assets/cutouts/iphone.png',
-    },
-    {
-      title: 'Tablet Repair',
-      price: 'Free quote',
-      copy: 'All tablet issues fixed quickly and beautifully.',
-      icon: 'tablet',
-      tone: 'cyan',
-      image: '/assets/cutouts/ipad-repair.png',
-    },
-  ];
+  readonly services: Service[] = [];
 
   readonly features: Feature[] = [
     { title: '90-Day Warranty', copy: 'Peace of mind with our warranty.', icon: 'shield', tone: 'violet' },
@@ -139,12 +90,7 @@ export class HomePageComponent {
     ['98%', 'Satisfaction Rate', 'shield'],
   ];
 
-  readonly testimonials = [
-    ['reda salhaoui', 'Google Maps Review', 'Negozio ben fornito, personale disponibile e competente. Ottimo il servizio di riparazione: ho risparmiato evitando di cambiare telefono. Consigliato!'],
-    ['mohamed arjdal', 'Google Maps Review', 'Omar e suo fratello sono due veri professionisti: gentili, preparati e sempre disponibili con i clienti.'],
-    ['Marco Goria', 'Local Guide Review', 'Buona scelta di cellulari e apparecchiature elettroniche per tutti i gusti ed esigenze. Effettuano anche riparazioni a prezzi piu che onesti.'],
-    ['LORENZO RUSSO', 'Charging Port Repair', 'Mi hanno sistemato il telefono, aggiustandomi l ingresso USB-C per la ricarica. Lavoro veloce e prezzo piu che onesto.'],
-  ];
+  readonly testimonials: string[][] = [];
 
   readonly brands: BrandLogo[] = [
     { name: 'Apple', logo: '/images/brands/apple.svg' },

@@ -187,47 +187,9 @@ async function ensureSchema() {
       ...CONTENT_TABLES.map((definition) => sql.query(postgresContentTableDdl(definition))),
       sql`ALTER TABLE content_sections ADD COLUMN IF NOT EXISTS customized BOOLEAN NOT NULL DEFAULT TRUE`,
     ]);
-    schemaReadyPromise = schemaReadyPromise.then(async () => {
-      const defaults = await getDefaultContent();
-      for (const [key, payload] of Object.entries(defaults)) {
-        if (key === 'blogs') {
-          continue;
-        }
-        await sql`
-          INSERT INTO content_sections (section_key, payload_json, updated_at, customized)
-          VALUES (${key}, ${JSON.stringify(payload)}::jsonb, ${new Date().toISOString()}, FALSE)
-          ON CONFLICT (section_key) DO NOTHING
-        `;
-      }
-      await seedStructuredContentTables(defaults);
-      await seedBlogPosts(defaults.blogs?.posts ?? []);
-    });
   }
 
   await schemaReadyPromise;
-}
-
-async function seedStructuredContentTables(defaults) {
-  for (const definition of CONTENT_TABLES) {
-    const existing = await sql.query(`SELECT COUNT(*)::int AS count FROM ${definition.table}`);
-    if ((existing[0]?.count ?? 0) > 0) {
-      continue;
-    }
-
-    let payload = defaults[definition.section]?.[definition.property] ?? [];
-    const section = await sql`
-      SELECT payload_json
-      FROM content_sections
-      WHERE section_key = ${definition.section}
-      LIMIT 1
-    `;
-    const sectionPayload = section[0]?.payload_json;
-    if (Array.isArray(sectionPayload?.[definition.property])) {
-      payload = sectionPayload[definition.property];
-    }
-
-    await replaceContentTable(definition, payload);
-  }
 }
 
 async function replaceContentTable(definition, items) {
@@ -506,34 +468,6 @@ function normalizeBlogPost(post, index = 0) {
     publishedAt: post?.publishedAt ? String(post.publishedAt) : null,
     sortOrder: Number.isFinite(Number(post?.sortOrder)) ? Number(post.sortOrder) : index,
   };
-}
-
-async function seedBlogPosts(posts) {
-  if (!sql) {
-    if (!memoryBlogPosts) {
-      memoryBlogPosts = posts.map(normalizeBlogPost);
-    }
-    return;
-  }
-
-  const existing = await sql`SELECT COUNT(*)::int AS count FROM blog_posts`;
-  if ((existing[0]?.count ?? 0) > 0) {
-    return;
-  }
-
-  const existingBlogsSection = await sql`
-    SELECT payload_json
-    FROM content_sections
-    WHERE section_key = 'blogs'
-    LIMIT 1
-  `;
-  const existingPayload = existingBlogsSection[0]?.payload_json;
-  if (Array.isArray(existingPayload?.posts)) {
-    posts = existingPayload.posts;
-  }
-
-  await replaceBlogPosts(posts, false);
-  await sql`DELETE FROM content_sections WHERE section_key = 'blogs'`;
 }
 
 async function replaceBlogPosts(posts, shouldEnsureSchema = true) {
@@ -822,11 +756,10 @@ async function readContentOverrides() {
 }
 
 export async function readMergedSiteContent() {
-  const defaults = await getDefaultContent();
   const sections = await readContentOverrides();
-  let content = structuredClone(defaults);
+  let content = sql ? {} : structuredClone(await getDefaultContent());
   for (const [key, value] of Object.entries(sections)) {
-    if (isNonEmptyObject(value.payload)) {
+    if ((!sql || value.customized) && isNonEmptyObject(value.payload)) {
       content[key] = value.payload;
     }
   }
@@ -840,7 +773,8 @@ export async function readMergedSiteContent() {
 export async function readContentSections() {
   const defaults = await getDefaultContent();
   const sections = await readContentOverrides();
-  const keys = [...new Set([...Object.keys(defaults), ...Object.keys(sections), 'blogs'])].sort();
+  const resourceSectionKeys = CONTENT_TABLES.map((definition) => definition.section);
+  const keys = [...new Set([...(sql ? resourceSectionKeys : Object.keys(defaults)), ...Object.keys(sections), 'blogs'])].sort();
 
   const result = keys.map((key) => {
     const section = sections[key];
@@ -848,15 +782,15 @@ export async function readContentSections() {
       key,
       customized: Boolean(section?.customized),
       updatedAt: section?.updatedAt ?? null,
-      payload: section?.payload ?? defaults[key] ?? null,
-      defaultPayload: defaults[key] ?? null,
+      payload: sql ? (section?.customized ? section.payload : {}) : (section?.payload ?? defaults[key] ?? null),
+      defaultPayload: sql ? null : (defaults[key] ?? null),
     };
   });
   if (sql) {
     const structured = await readStructuredContent();
     for (const section of result) {
       if (structured[section.key]) {
-        section.payload = mergeStructuredContent({ [section.key]: section.payload ?? defaults[section.key] ?? {} }, { [section.key]: structured[section.key] })[section.key];
+        section.payload = mergeStructuredContent({ [section.key]: section.payload ?? {} }, { [section.key]: structured[section.key] })[section.key];
       }
     }
   }
@@ -864,7 +798,7 @@ export async function readContentSections() {
   if (blogs) {
     blogs.customized = true;
     blogs.payload = { posts: await readBlogPosts() };
-    blogs.defaultPayload = defaults.blogs ?? { posts: [] };
+    blogs.defaultPayload = sql ? null : (defaults.blogs ?? { posts: [] });
   }
 
   return result;

@@ -37,48 +37,7 @@ export class BeforeAfterComponent {
     ['Smartwatch', '1'],
   ];
 
-  readonly beforeAfterRepairs: BeforeAfterRepair[] = [
-    {
-      device: 'iphone 11 Pro',
-      service: 'Screen Replacement',
-      copy: 'Flickering and dim display replaced with a brand new one.',
-      time: '4 Hours',
-      tone: 'pink',
-      beforeImage: '/images/before and after/iphone 11 before.png',
-      afterImage: '/images/before and after/iphone 11 after.png',
-      kind: 'Phone',
-    },
-    {
-      device: 'Ipad Pro 2020',
-      service: 'Screen Replacement',
-      copy: 'Flickering and dim display replaced with a brand new one.',
-      time: '4 Hours',
-      tone: 'pink',
-      beforeImage: '/images/before and after/ipad screen before.png',
-      afterImage: '/images/before and after/ipad screen after.png',
-      kind: 'Tablet',
-    },
-    {
-      device: 'Apple Watch Ultra ',
-      service: 'Screen Replacement',
-      copy: 'Deep scratches removed, display looks crystal clear.',
-      time: '4 Hours',
-      tone: 'pink',
-      beforeImage: '/images/before and after/apple watch before.png',
-      afterImage: '/images/before and after/apple watch after.png',
-      kind: 'Smartwatch',
-    },
-    {
-      device: 'MacBook Air M2 ',
-      service: 'Screen Replacement',
-      copy: 'Flickering and dim display replaced with a brand new one.',
-      time: '4 Hours',
-      tone: 'pink',
-      beforeImage: '/images/before and after/Macbook sreen before.png',
-      afterImage: '/images/before and after/Macbook sreen after.png',
-      kind: 'laptop',
-    }
-  ];
+  readonly beforeAfterRepairs: BeforeAfterRepair[] = [];
 
   readonly resultReasons: ResultReason[] = [
     { title: 'Expert Technicians', copy: 'Certified pros with years of experience.', icon: '♢', tone: 'pink' },
@@ -88,12 +47,7 @@ export class BeforeAfterComponent {
     { title: 'Customer Satisfaction', copy: '20K+ happy customers and counting.', icon: '♡', tone: 'pink' },
   ];
 
-  readonly testimonials = [
-    ['reda salhaoui', 'Google Maps Review', 'Negozio ben fornito, personale disponibile e competente. Ottimo il servizio di riparazione: ho risparmiato evitando di cambiare telefono. Consigliato!'],
-    ['mohamed arjdal', 'Google Maps Review', 'Omar e suo fratello sono due veri professionisti: gentili, preparati e sempre disponibili con i clienti.'],
-    ['Marco Goria', 'Local Guide Review', 'Buona scelta di cellulari e apparecchiature elettroniche per tutti i gusti ed esigenze. Effettuano anche riparazioni a prezzi piu che onesti.'],
-    ['LORENZO RUSSO', 'Charging Port Repair', 'Mi hanno sistemato il telefono, aggiustandomi l ingresso USB-C per la ricarica. Lavoro veloce e prezzo piu che onesto.'],
-  ];
+  readonly testimonials: string[][] = [];
 
   constructor() {
     this.beforeAfterRepairs.splice(0);

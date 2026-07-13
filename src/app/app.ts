@@ -205,56 +205,7 @@ export class App implements AfterViewInit, OnDestroy {
   private translationObserver: MutationObserver | null = null;
   private translationFrame = 0;
 
-  readonly services: Service[] = [
-    {
-      title: 'Phone Screen Repair',
-      price: 'Free quote',
-      copy: 'Cracked or broken screen? We will make it look brand new.',
-      icon: 'screen',
-      tone: 'violet',
-      image: '/assets/cutouts/screen-repair.png',
-    },
-    {
-      title: 'Phone Battery Replacement',
-      price: 'Free quote',
-      copy: 'Fast battery drain? Get your power back.',
-      icon: 'battery',
-      tone: 'green',
-      image: '/assets/cutouts/battery-repair.png',
-    },
-    {
-      title: 'Laptop Screen Repair',
-      price: 'Free quote',
-      copy: 'Cracked or flickering display? We fix it fast.',
-      icon: 'laptop',
-      tone: 'blue',
-      image: '/assets/cutouts/laptop-repair.png',
-    },
-    {
-      title: 'Laptop Battery Replacement',
-      price: 'Free quote',
-      copy: 'Short battery life? Get long-lasting performance.',
-      icon: 'chip',
-      tone: 'orange',
-      image: '/assets/cutouts/ipad-repair.png',
-    },
-    {
-      title: 'Camera Repair',
-      price: 'Free quote',
-      copy: 'Blurry photos? We fix camera issues quickly.',
-      icon: 'camera',
-      tone: 'pink',
-      image: '/assets/cutouts/iphone.png',
-    },
-    {
-      title: 'Tablet Repair',
-      price: 'Free quote',
-      copy: 'All tablet issues fixed quickly and beautifully.',
-      icon: 'tablet',
-      tone: 'cyan',
-      image: '/assets/cutouts/ipad-repair.png',
-    },
-  ];
+  readonly services: Service[] = [];
 
   readonly features: Feature[] = [
     { title: '90-Day Warranty', copy: 'Peace of mind with our warranty.', icon: 'shield', tone: 'violet' },
@@ -301,69 +252,9 @@ export class App implements AfterViewInit, OnDestroy {
     ['98%', 'Satisfaction Rate', 'shield'],
   ];
 
-  readonly testimonials = [
-    ['reda salhaoui', 'Google Maps Review', 'Negozio ben fornito, personale disponibile e competente. Ottimo il servizio di riparazione: ho risparmiato evitando di cambiare telefono. Consigliato!'],
-    ['mohamed arjdal', 'Google Maps Review', 'Omar e suo fratello sono due veri professionisti: gentili, preparati e sempre disponibili con i clienti.'],
-    ['Marco Goria', 'Local Guide Review', 'Buona scelta di cellulari e apparecchiature elettroniche per tutti i gusti ed esigenze. Effettuano anche riparazioni a prezzi piu che onesti.'],
-    ['LORENZO RUSSO', 'Charging Port Repair', 'Mi hanno sistemato il telefono, aggiustandomi l ingresso USB-C per la ricarica. Lavoro veloce e prezzo piu che onesto.'],
-  ];
+  readonly testimonials: string[][] = [];
 
-  readonly bookDevices: BookDevice[] = [
-    { name: 'iPhone 17 Pro Max', image: '/images/phones/apple/iphone-17-pro-max.png', tone: 'violet' },
-    { name: 'iPhone 17 Pro', image: '/images/phones/apple/iphone-17-pro.png', tone: 'blue' },
-    { name: 'iPhone 17', image: '/images/phones/apple/iphone-17.png', tone: 'pink' },
-    { name: 'iPhone 17e', image: '/images/phones/apple/iphone-17e.png', tone: 'green' },
-    { name: 'iPhone Air', image: '/images/phones/apple/iphone-air.png', tone: 'orange' },
-    { name: 'iPhone 16 Pro Max', image: '/images/phones/apple/iphone-16-pro-max.png', tone: 'cyan' },
-    { name: 'iPhone 16 Pro', image: '/images/phones/apple/iphone-16-pro.png', tone: 'violet' },
-    { name: 'iPhone 16 Plus', image: '/images/phones/apple/iphone-16-plus.png', tone: 'blue' },
-    { name: 'iPhone 16', image: '/images/phones/apple/iphone-16.png', tone: 'pink' },
-    { name: 'iPhone 16e', image: '/images/phones/apple/iphone-16e.png', tone: 'green' },
-    { name: 'iPhone 15 Pro Max', image: '/images/phones/apple/iphone-15-pro-max.png', tone: 'orange' },
-    { name: 'iPhone 15 Pro', image: '/images/phones/apple/iphone-15-pro.png', tone: 'cyan' },
-    { name: 'iPhone 15 Plus', image: '/images/phones/apple/iphone-15-plus.png', tone: 'violet' },
-    { name: 'iPhone 15', image: '/images/phones/apple/iphone-15.png', tone: 'blue' },
-    { name: 'iPhone 14 Pro Max', image: '/images/phones/apple/iphone-14-pro-max.png', tone: 'pink' },
-    { name: 'iPhone 14 Pro', image: '/images/phones/apple/iphone-14-pro.png', tone: 'green' },
-    { name: 'iPhone 14 Plus', image: '/images/phones/apple/iphone-14-plus.png', tone: 'orange' },
-    { name: 'iPhone 14', image: '/images/phones/apple/iphone-14.png', tone: 'cyan' },
-    { name: 'iPhone 13 Pro Max', image: '/images/phones/apple/iphone-13-pro-max.png', tone: 'violet' },
-    { name: 'iPhone 13 Pro', image: '/images/phones/apple/iphone-13-pro.png', tone: 'blue' },
-    { name: 'iPhone 13 Mini', image: '/images/phones/apple/iphone-13-mini.png', tone: 'pink' },
-    { name: 'iPhone 13', image: '/images/phones/apple/iphone-13.png', tone: 'green' },
-    { name: 'iPhone 12 Pro Max', image: '/images/phones/apple/iphone-12-pro-max.png', tone: 'orange' },
-    { name: 'iPhone 12 Pro', image: '/images/phones/apple/iphone-12-pro.png', tone: 'cyan' },
-    { name: 'iPhone 12 Mini', image: '/images/phones/apple/iphone-12-mini.png', tone: 'violet' },
-    { name: 'iPhone 12', image: '/images/phones/apple/iphone-12.png', tone: 'blue' },
-    { name: 'iPhone 11 Pro Max', image: '/images/phones/apple/iphone-11-pro-max.png', tone: 'pink' },
-    { name: 'iPhone 11 Pro', image: '/images/phones/apple/iphone-11-pro.png', tone: 'green' },
-    { name: 'iPhone 11', image: '/images/phones/apple/iphone-11.png', tone: 'orange' },
-    { name: 'iPhone SE 2022', image: '/images/phones/apple/iphone-se-2022.png', tone: 'cyan' },
-    { name: 'iPhone SE 2020', image: '/images/phones/apple/iphone-se-2020.png', tone: 'violet' },
-    { name: 'iPhone XS Max', image: '/images/phones/apple/iphone-xs-max.png', tone: 'blue' },
-    { name: 'iPhone XS', image: '/images/phones/apple/iphone-xs.png', tone: 'pink' },
-    { name: 'iPhone XR', image: '/images/phones/apple/iphone-xr.png', tone: 'green' },
-    { name: 'iPhone X', image: '/images/phones/apple/iphone-x.png', tone: 'orange' },
-    { name: 'iPhone 8 Plus', image: '/images/phones/apple/iphone-8-plus.png', tone: 'cyan' },
-    { name: 'iPhone 8', image: '/images/phones/apple/iphone-8.png', tone: 'violet' },
-    { name: 'iPhone 7 Plus', image: '/images/phones/apple/iphone-7-plus.png', tone: 'blue' },
-    { name: 'iPhone 7', image: '/images/phones/apple/iphone-7.png', tone: 'pink' },
-    { name: 'iPhone SE 1st Generation', image: '/images/phones/apple/iphone-se-1st-generation.png', tone: 'green' },
-    { name: 'iPhone 6S Plus', image: '/images/phones/apple/iphone-6s-plus.png', tone: 'orange' },
-    { name: 'iPhone 6S', image: '/images/phones/apple/iphone-6s.png', tone: 'cyan' },
-    { name: 'iPhone 6 Plus', image: '/images/phones/apple/iphone-6-plus.png', tone: 'violet' },
-    { name: 'iPhone 6', image: '/images/phones/apple/iphone-6.png', tone: 'blue' },
-    { name: 'iPhone 5S', image: '/images/phones/apple/iphone-5s.png', tone: 'pink' },
-    { name: 'iPhone 5C', image: '/images/phones/apple/iphone-5c.png', tone: 'green' },
-    { name: 'iPhone 5', image: '/images/phones/apple/iphone-5.png', tone: 'orange' },
-    { name: 'iPhone 4S', image: '/images/phones/apple/iphone-4s.png', tone: 'cyan' },
-    { name: 'iPhone 4 Verizon', image: '/images/phones/apple/iphone-4-verizon.png', tone: 'violet' },
-    { name: 'iPhone 4', image: '/images/phones/apple/iphone-4.png', tone: 'blue' },
-    { name: 'iPhone 3GS', image: '/images/phones/apple/iphone-3gs.png', tone: 'pink' },
-    { name: 'iPhone 3G', image: '/images/phones/apple/iphone-3g.png', tone: 'green' },
-    { name: 'iPhone 1st Generation', image: '/images/phones/apple/iphone-1st-generation.png', tone: 'orange' },
-    { name: 'iPhone Accessories', image: '/images/phones/apple/iphone-accessories.png', tone: 'cyan' },
-  ];
+  readonly bookDevices: BookDevice[] = [];
 
   readonly deviceCategories = [
     ['All Devices', '54', 'grid'],
@@ -385,20 +276,7 @@ export class App implements AfterViewInit, OnDestroy {
     ['MSI', 'Soon'],
   ];
 
-  readonly repairIssues: RepairIssue[] = [
-    { key: 'screen', title: 'Screen Repair', copy: 'Cracked glass, broken OLED, dead pixels or touch issues.', icon: 'smartphone', tone: 'violet', image: '/images/ifixit/cutouts/iphone-17-pro-screen.png', availability: 'all' },
-    { key: 'battery', title: 'Battery Replacement', copy: 'Fast drain, swollen battery, random shutdowns or poor health.', icon: 'battery', tone: 'green', image: '/images/ifixit/cutouts/iphone-17-pro-battery.png', availability: 'all' },
-    { key: 'charging-port', title: 'Charging Port Repair', copy: 'Loose cable, port not charging, bent pins or debris damage.', icon: 'zap', tone: 'orange', image: '/images/ifixit/cutouts/iphone-17-pro-usbc.png', availability: 'all' },
-    { key: 'camera', title: 'Camera Repair', copy: 'Blurry lens, shaking focus, black camera or broken camera glass.', icon: 'camera', tone: 'pink', image: '/images/ifixit/cutouts/iphone-17-pro-rear-camera.png', availability: 'all' },
-    { key: 'water', title: 'Water Damage', copy: 'Liquid exposure, corrosion, no power or unstable behavior.', icon: 'water', tone: 'cyan', image: '/images/ifixit/cutouts/iphone-17-pro-opened.png', availability: 'all' },
-    { key: 'back-glass', title: 'Back Glass Repair', copy: 'Cracked rear glass, damaged housing or exposed internal parts.', icon: 'smartphone', tone: 'violet', image: '/images/ifixit/cutouts/iphone-17-pro-back-glass.png', availability: 'modern-glass' },
-    { key: 'face-id', title: 'Face ID / Sensors', copy: 'Front sensor, earpiece, TrueDepth or proximity sensor diagnostics.', icon: 'scan', tone: 'blue', image: '/images/ifixit/cutouts/iphone-17-pro-front-camera.png', availability: 'face-id' },
-    { key: 'speaker', title: 'Speaker / Mic', copy: 'Low sound, distorted audio, muffled microphone or call problems.', icon: 'speaker', tone: 'orange', image: '/images/ifixit/cutouts/iphone-17-pro-front-camera.png', availability: 'all' },
-    { key: 'buttons', title: 'Buttons / Switches', copy: 'Power, volume, mute, home button or action button problems.', icon: 'settings', tone: 'cyan', image: '/images/ifixit/cutouts/iphone-17-pro-tools.png', availability: 'legacy' },
-    { key: 'software', title: 'Software Issue', copy: 'Boot loop, slow system, frozen apps or update problems.', icon: 'settings', tone: 'blue', image: '/images/ifixit/cutouts/iphone-17-pro-tools.png', availability: 'all' },
-    { key: 'accessory', title: 'Accessory Help', copy: 'Cases, cables, chargers, adapters and compatibility support.', icon: 'box', tone: 'green', image: '/images/phones/apple/iphone-accessories.png', availability: 'accessory' },
-    { key: 'other', title: 'Other Issue', copy: 'Not sure yet? We inspect the device and identify the fault.', icon: 'dots', tone: 'violet', image: '/images/ifixit/cutouts/iphone-17-pro-opened.png', availability: 'all' },
-  ];
+  readonly repairIssues: RepairIssue[] = [];
 
   readonly serviceOptions: ServiceOption[] = [
     { title: 'Walk-in Repair', copy: 'Visit our store and get your device repaired on the same day.', icon: 'home', tone: 'violet' },
