@@ -187,6 +187,19 @@ type AdminServiceStat = {
   tone: string;
 };
 
+type AdminTrendPoint = {
+  label: string;
+  count: number;
+  height: number;
+};
+
+type AdminActivityStat = {
+  label: string;
+  count: number;
+  height: number;
+  tone: string;
+};
+
 type AdminBlogPost = {
   slug: string;
   title: string;
@@ -532,6 +545,57 @@ export class App implements AfterViewInit, OnDestroy {
     ];
   });
   readonly adminRecentOrders = computed(() => this.adminOrders().slice(0, 5));
+  readonly adminOrderTrend = computed<AdminTrendPoint[]>(() => {
+    const days = Array.from({ length: 14 }, (_, index) => {
+      const date = new Date();
+      date.setHours(0, 0, 0, 0);
+      date.setDate(date.getDate() - (13 - index));
+      const key = this.formatDateKey(date);
+      return {
+        key,
+        label: new Intl.DateTimeFormat('en', { month: 'short', day: 'numeric' }).format(date),
+        count: 0,
+      };
+    });
+    const byDay = new Map(days.map((day) => [day.key, day]));
+
+    this.adminOrders().forEach((order) => {
+      const date = new Date(order.createdAt);
+      if (Number.isNaN(date.getTime())) {
+        return;
+      }
+
+      const bucket = byDay.get(this.formatDateKey(date));
+      if (bucket) {
+        bucket.count += 1;
+      }
+    });
+
+    const max = Math.max(...days.map((day) => day.count), 1);
+    return days.map((day) => ({
+      label: day.label,
+      count: day.count,
+      height: day.count ? Math.max(12, Math.round((day.count / max) * 100)) : 4,
+    }));
+  });
+  readonly adminActivityStats = computed<AdminActivityStat[]>(() => {
+    const orders = this.adminOrders();
+    const statuses: Array<{ label: BookingOrder['status']; tone: string }> = [
+      { label: 'New', tone: 'blue' },
+      { label: 'In Review', tone: 'violet' },
+      { label: 'Confirmed', tone: 'green' },
+    ];
+    const max = Math.max(...statuses.map((status) => orders.filter((order) => order.status === status.label).length), 1);
+    return statuses.map((status) => {
+      const count = orders.filter((order) => order.status === status.label).length;
+      return {
+        label: status.label,
+        count,
+        height: count ? Math.max(12, Math.round((count / max) * 100)) : 4,
+        tone: status.tone,
+      };
+    });
+  });
   readonly adminDeviceItems = computed(() => {
     this.contentRevision();
     return this.bookDevices.map((device, index) => ({
@@ -623,13 +687,7 @@ export class App implements AfterViewInit, OnDestroy {
     const tones = ['violet', 'blue', 'orange', 'pink', 'green'];
     const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 5);
     if (!entries.length) {
-      return [
-        { title: 'Screen Replacement', count: 0, percent: 45, tone: 'violet' },
-        { title: 'Battery Replacement', count: 0, percent: 25, tone: 'blue' },
-        { title: 'Charging Port Repair', count: 0, percent: 15, tone: 'orange' },
-        { title: 'Camera Repair', count: 0, percent: 10, tone: 'pink' },
-        { title: 'Others', count: 0, percent: 5, tone: 'green' },
-      ];
+      return [];
     }
 
     const total = entries.reduce((sum, [, count]) => sum + count, 0) || 1;
@@ -1039,6 +1097,13 @@ export class App implements AfterViewInit, OnDestroy {
 
   formatCompactNumber(value: number): string {
     return new Intl.NumberFormat('en', { notation: value >= 1000 ? 'compact' : 'standard' }).format(value);
+  }
+
+  private formatDateKey(value: Date): string {
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, '0');
+    const day = String(value.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   orderTimeAgo(value: string): string {

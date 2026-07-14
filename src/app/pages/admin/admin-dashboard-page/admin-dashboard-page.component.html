@@ -112,20 +112,21 @@
         <article class="admin-chart-panel">
           <div class="admin-panel-head">
             <h2>Orders Overview</h2>
-            <button type="button">This Month <op-icon name="chevron-down"></op-icon></button>
+            <button type="button">Last 14 Days</button>
           </div>
           <div class="admin-line-chart" aria-label="Orders overview chart">
-            <svg viewBox="0 0 640 260" role="img">
-              <defs>
-                <linearGradient id="adminLineFill" x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0%" stop-color="#8a42ff" stop-opacity=".55"></stop>
-                  <stop offset="100%" stop-color="#225dff" stop-opacity=".04"></stop>
-                </linearGradient>
-              </defs>
-              <path d="M12 218 C55 145 82 128 116 146 S169 132 198 154 S250 123 282 106 S331 117 356 84 S405 122 439 95 S485 70 522 92 S577 28 628 64 L628 246 L12 246 Z" fill="url(#adminLineFill)"></path>
-              <path d="M12 218 C55 145 82 128 116 146 S169 132 198 154 S250 123 282 106 S331 117 356 84 S405 122 439 95 S485 70 522 92 S577 28 628 64" fill="none" stroke="#8a42ff" stroke-width="4" stroke-linecap="round"></path>
-              <circle cx="356" cy="84" r="7" fill="#fff" stroke="#8a42ff" stroke-width="5"></circle>
-            </svg>
+            <div class="admin-trend-bars">
+              @for (point of admin.adminOrderTrend(); track point.label) {
+                <span [style.height.%]="point.height" [title]="point.label + ': ' + point.count + ' orders'">
+                  <b>{{ point.count }}</b>
+                </span>
+              }
+            </div>
+            <div class="admin-trend-labels">
+              @for (point of admin.adminOrderTrend(); track point.label) {
+                <small>{{ point.label }}</small>
+              }
+            </div>
           </div>
         </article>
 
@@ -156,7 +157,7 @@
         <article class="admin-services-panel">
           <div class="admin-panel-head">
             <h2>Top Services</h2>
-            <button type="button">View Report</button>
+            <button type="button" (click)="admin.openAdminView('orders')">View Orders</button>
           </div>
           <div class="admin-donut-wrap">
             <div class="admin-donut"><span>{{ admin.adminOrders().length }}<small>Total</small></span></div>
@@ -168,6 +169,8 @@
                   <b>{{ service.percent }}%</b>
                   <small>({{ service.count }})</small>
                 </div>
+              } @empty {
+                <p class="admin-mini-empty">No order services yet.</p>
               }
             </div>
           </div>
@@ -200,11 +203,14 @@
         <article class="admin-revenue-panel">
           <div class="admin-panel-head">
             <h2>Activity Overview</h2>
-            <button type="button">This Month <op-icon name="chevron-down"></op-icon></button>
+            <button type="button">Live Orders</button>
           </div>
           <div class="admin-bars">
-            @for (height of [28, 52, 70, 56, 68, 86, 44, 72, 90, 62, 78, 96, 58, 82, 100]; track $index) {
-              <span [style.height.%]="height"></span>
+            @for (activity of admin.adminActivityStats(); track activity.label) {
+              <span class="tone-{{ activity.tone }}" [style.height.%]="activity.height" [title]="activity.label + ': ' + activity.count">
+                <b>{{ activity.count }}</b>
+                <small>{{ activity.label }}</small>
+              </span>
             }
           </div>
         </article>
@@ -424,7 +430,12 @@
                 <td>
                   <input class="admin-device-chip-input category" type="text" [value]="row.category" (input)="admin.updateAdminField(row.index, 'category', $any($event.target).value)" aria-label="Category">
                 </td>
-                <td><span class="admin-device-status active">Active</span></td>
+                <td>
+                  <select class="admin-device-status-select" [value]="row.status" (change)="admin.updateAdminField(row.index, 'status', $any($event.target).value)" aria-label="Device status">
+                    <option>Active</option>
+                    <option>Inactive</option>
+                  </select>
+                </td>
                 <td>
                   <input class="admin-device-sort" type="text" [value]="row.sortOrder" (input)="admin.updateAdminField(row.index, 'sortOrder', $any($event.target).value)" aria-label="Sort order">
                 </td>
@@ -448,7 +459,7 @@
         </table>
       </div>
       <footer class="admin-devices-footer">
-        <span>Rows per page <strong>10</strong></span>
+        <span>Rows shown <strong>{{ admin.adminDeviceManagerItems().length }}</strong></span>
         <span>1-{{ admin.adminDeviceManagerItems().length }} of {{ admin.adminDeviceManagerItems().length }}</span>
         <div>
           <button type="button" (click)="admin.refreshAdminContent()"><op-icon name="refresh"></op-icon> Reload</button>
