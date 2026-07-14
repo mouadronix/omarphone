@@ -504,7 +504,7 @@ export class App implements AfterViewInit, OnDestroy {
   readonly isBookService = computed(() => this.path() === '/book/service');
   readonly isDetails = computed(() => this.path() === '/details');
   readonly isBookingSuccess = computed(() => this.path() === '/booking-success');
-  readonly isAdminDashboard = computed(() => this.path().toLowerCase() === '/admin');
+  readonly isAdminDashboard = computed(() => this.path().toLowerCase() === '/admin' || this.path().toLowerCase().startsWith('/admin/'));
   readonly isBeforeAfter = computed(() => this.path() === '/before-after');
   readonly isPricing = computed(() => false);
   readonly isAbout = computed(() => this.path() === '/about');
@@ -748,16 +748,18 @@ export class App implements AfterViewInit, OnDestroy {
     this.bookDevices.splice(0);
     this.repairIssues.splice(0);
     this.applyTheme(this.theme());
+    this.syncAdminViewFromPath();
     void this.loadBackendContent();
     if (typeof window !== 'undefined') {
       window.addEventListener('popstate', () => {
         this.path.set(this.getPath());
+        this.syncAdminViewFromPath();
         this.scheduleTranslation();
       });
     }
     if (this.isAdminUnlocked()) {
       void this.syncAdminOrdersFromApi();
-      void this.syncAdminContentSections();
+      void this.hydrateAdminRoute();
     }
   }
 
@@ -1067,9 +1069,9 @@ export class App implements AfterViewInit, OnDestroy {
     window.history.pushState({}, '', path);
     this.path.set(path);
     this.scheduleTranslation();
-    if (path === '/admin' && this.isAdminUnlocked()) {
+    if (path.startsWith('/admin') && this.isAdminUnlocked()) {
       void this.syncAdminOrdersFromApi();
-      void this.syncAdminContentSections();
+      void this.hydrateAdminRoute();
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -1092,6 +1094,7 @@ export class App implements AfterViewInit, OnDestroy {
 
   openAdminView(view: AdminView): void {
     this.adminActiveView.set(view);
+    this.setAdminRoute(view);
     if (view === 'orders') {
       void this.syncAdminOrdersFromApi();
     }
@@ -1133,6 +1136,7 @@ export class App implements AfterViewInit, OnDestroy {
 
   async openAdminDevices(): Promise<void> {
     this.adminActiveView.set('devices');
+    this.setAdminRoute('devices');
     if (!this.adminContentSections().length) {
       await this.syncAdminContentSections();
     }
@@ -1285,6 +1289,7 @@ export class App implements AfterViewInit, OnDestroy {
 
   openAdminContent(key: string): void {
     this.adminActiveView.set('content');
+    this.setAdminRoute('content', key);
     if (!this.adminContentSections().length) {
       void this.syncAdminContentSections().then(() => this.selectAdminContentSection(key));
       return;
@@ -1612,7 +1617,7 @@ export class App implements AfterViewInit, OnDestroy {
       this.adminLoginError.set('');
       this.saveAdminSession(payload.token);
       void this.syncAdminOrdersFromApi();
-      void this.syncAdminContentSections();
+      void this.hydrateAdminRoute();
     } catch {
       this.adminLoginError.set('Wrong username or password.');
       this.adminLoginPassword.set('');
@@ -1633,6 +1638,73 @@ export class App implements AfterViewInit, OnDestroy {
     this.adminContentMessage.set('Content editor locked');
     this.adminContentError.set('');
     this.saveAdminSession(null);
+  }
+
+  private syncAdminViewFromPath(): void {
+    const path = this.getPath().toLowerCase();
+    if (!path.startsWith('/admin')) {
+      return;
+    }
+
+    const [, view = 'dashboard', contentKey = ''] = path.split('/').filter(Boolean);
+    if (view === 'orders') {
+      this.adminActiveView.set('orders');
+      return;
+    }
+
+    if (view === 'devices') {
+      this.adminActiveView.set('devices');
+      return;
+    }
+
+    if (view === 'blogs') {
+      this.adminActiveView.set('blogs');
+      return;
+    }
+
+    if (view === 'content') {
+      this.adminActiveView.set('content');
+      if (contentKey) {
+        this.selectedAdminContentKey.set(contentKey);
+      }
+      return;
+    }
+
+    this.adminActiveView.set('dashboard');
+  }
+
+  private async hydrateAdminRoute(): Promise<void> {
+    await this.syncAdminContentSections();
+    if (this.adminActiveView() === 'devices') {
+      await this.openAdminDevices();
+      return;
+    }
+
+    if (this.adminActiveView() === 'blogs') {
+      await this.selectAdminContentSection('blogs');
+      return;
+    }
+
+    if (this.adminActiveView() === 'content') {
+      await this.selectAdminContentSection(this.selectedAdminContentKey());
+    }
+  }
+
+  private setAdminRoute(view: AdminView, contentKey = ''): void {
+    if (typeof window === 'undefined' || !this.isAdminDashboard()) {
+      return;
+    }
+
+    const nextPath = view === 'dashboard'
+      ? '/admin/dashboard'
+      : view === 'content'
+      ? `/admin/content/${encodeURIComponent(contentKey || this.selectedAdminContentKey())}`
+      : `/admin/${view}`;
+
+    if (window.location.pathname !== nextPath) {
+      window.history.pushState({}, '', nextPath);
+      this.path.set(nextPath);
+    }
   }
 
   private createBookingOrder(): BookingOrder {
