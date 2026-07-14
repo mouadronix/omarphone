@@ -8424,6 +8424,280 @@ h1 {
   }
 }
 
+:root[data-theme='light'] {
+  .admin-dashboard-shell {
+    color: #0f172a;
+    border-color: #dbe3ef;
+    background:
+      radial-gradient(circle at 78% 0, rgba(37, 99, 235, .1), transparent 30%),
+      radial-gradient(circle at 100% 38%, rgba(255, 122, 26, .08), transparent 28%),
+      #f3f6fb;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, .12);
+  }
+
+  .admin-sidebar {
+    border-right-color: #dbe3ef;
+    background: linear-gradient(180deg, #ffffff, #eef3fa);
+  }
+
+  .admin-brand,
+  .admin-brand strong,
+  .admin-topbar h1,
+  .admin-kpis strong,
+  .admin-panel-head h2,
+  .admin-recent-list strong,
+  .admin-recent-list b,
+  .admin-service-list strong,
+  .admin-service-list b,
+  .admin-device-preview strong,
+  .admin-devices-head h2,
+  .admin-device-stats strong,
+  .admin-content-panel .compact-heading h2,
+  .admin-content-toolbar strong,
+  .admin-data-head strong,
+  .admin-row-title strong,
+  .admin-item-identity strong {
+    color: #0f172a;
+  }
+
+  .admin-sidebar nav a,
+  .admin-sidebar nav button,
+  .admin-user-mini strong,
+  .admin-topbar p,
+  .admin-search,
+  .admin-search input,
+  .admin-kpis small,
+  .admin-kpis p,
+  .admin-mini-empty,
+  .admin-recent-list small,
+  .admin-recent-list code,
+  .admin-service-list small,
+  .admin-device-preview small,
+  .admin-device-categories span,
+  .admin-devices-head p,
+  .admin-devices-head nav,
+  .admin-content-toolbar small,
+  .admin-content-toolbar span,
+  .admin-data-head > div,
+  .admin-data-head span,
+  .admin-row-title small,
+  .admin-item-identity small,
+  .admin-data-footer {
+    color: #64748b;
+  }
+
+  .admin-main {
+    background: transparent;
+  }
+
+  .admin-search,
+  .admin-bell,
+  .admin-chart-panel,
+  .admin-recent-panel,
+  .admin-services-panel,
+  .admin-device-panel,
+  .admin-revenue-panel,
+  .admin-content-panel,
+  .admin-orders-panel,
+  .admin-content-toolbar,
+  .admin-data-card,
+  .admin-devices-table-card {
+    border-color: #dbe3ef;
+    background: #ffffff;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, .08);
+  }
+
+  .admin-kpis article,
+  .admin-recent-list article,
+  .admin-device-preview,
+  .admin-device-categories span,
+  .admin-devices-actions label,
+  .admin-device-tabs,
+  .admin-device-filters select,
+  .admin-device-filters button,
+  .admin-devices-table td,
+  .admin-devices-footer,
+  .admin-line-chart,
+  .admin-bars {
+    border-color: #dbe3ef;
+    background: #f8fafc;
+  }
+
+  .admin-content-panel {
+    background: #f8fafc;
+  }
+
+  .admin-content-toolbar .btn-secondary,
+  .admin-group-tabs button,
+  .admin-settings-btn,
+  .admin-data-actions,
+  .admin-data-actions > div button,
+  .admin-data-footer button,
+  .admin-table-remove,
+  .admin-edit-table input,
+  .admin-edit-table textarea,
+  .admin-device-chip-input,
+  .admin-device-sort,
+  .admin-device-upload,
+  .admin-device-row-actions a,
+  .admin-device-row-actions button {
+    color: #0f172a;
+    border-color: #dbe3ef;
+    background: #ffffff;
+  }
+
+  .admin-group-tabs button.active,
+  .admin-group-tabs button:hover {
+    color: #0f172a;
+    border-color: #2563eb;
+    background: #eff6ff;
+  }
+
+  .admin-table-wrap,
+  .admin-edit-table th,
+  .admin-edit-table td {
+    border-color: #e2e8f0;
+  }
+
+  .admin-edit-table th,
+  .admin-devices-table th {
+    color: #475569;
+    background: #f1f5f9;
+  }
+
+  .admin-edit-table td {
+    color: #111827;
+    background: #ffffff;
+  }
+
+  .admin-edit-table tbody tr:hover td,
+  .admin-devices-table tbody tr:hover td {
+    background: #f8fafc;
+  }
+
+  .admin-item-identity img {
+    border-color: #e2e8f0;
+    background: #f1f5f9;
+  }
+}
+
+:root[data-theme='dark'] {
+  .admin-dashboard-shell {
+    color: #f8fafc;
+    border-color: rgba(148, 163, 184, .22);
+    background:
+      radial-gradient(circle at 78% 0, rgba(138, 66, 255, .22), transparent 30%),
+      radial-gradient(circle at 100% 38%, rgba(255, 102, 24, .12), transparent 28%),
+      #070b18;
+  }
+
+  .admin-content-panel,
+  .admin-orders-panel {
+    border-color: rgba(148, 163, 184, .16);
+    background: linear-gradient(135deg, rgba(15, 23, 42, .84), rgba(15, 23, 42, .48));
+  }
+
+  .admin-content-panel .compact-heading h2,
+  .admin-content-toolbar strong,
+  .admin-data-head strong,
+  .admin-row-title strong,
+  .admin-item-identity strong {
+    color: #f8fafc;
+  }
+
+  .admin-content-panel .compact-heading p,
+  .admin-content-toolbar small,
+  .admin-content-toolbar span,
+  .admin-data-head > div,
+  .admin-data-head span,
+  .admin-row-title small,
+  .admin-item-identity small,
+  .admin-data-footer {
+    color: #94a3b8;
+  }
+
+  .admin-content-toolbar,
+  .admin-data-card,
+  .admin-data-head,
+  .admin-data-actions,
+  .admin-data-footer {
+    border-color: rgba(148, 163, 184, .18);
+    background: rgba(15, 23, 42, .78);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, .28);
+  }
+
+  .admin-group-tabs button,
+  .admin-settings-btn,
+  .admin-content-toolbar .btn-secondary,
+  .admin-data-actions > div button,
+  .admin-data-footer button,
+  .admin-table-remove {
+    color: #e5e7eb;
+    border-color: rgba(148, 163, 184, .22);
+    background: #0b1220;
+  }
+
+  .admin-group-tabs button strong {
+    color: #f8fafc;
+  }
+
+  .admin-group-tabs button small {
+    color: #94a3b8;
+  }
+
+  .admin-group-tabs button.active,
+  .admin-group-tabs button:hover {
+    color: #ffffff;
+    border-color: rgba(96, 165, 250, .72);
+    background: rgba(37, 99, 235, .22);
+  }
+
+  .admin-table-wrap,
+  .admin-edit-table th,
+  .admin-edit-table td {
+    border-color: rgba(148, 163, 184, .18);
+  }
+
+  .admin-edit-table th {
+    color: #cbd5e1;
+    background: #111827;
+  }
+
+  .admin-edit-table td {
+    color: #e5e7eb;
+    background: rgba(15, 23, 42, .82);
+  }
+
+  .admin-edit-table tbody tr:hover td {
+    background: rgba(30, 41, 59, .94);
+  }
+
+  .admin-edit-table input,
+  .admin-edit-table textarea {
+    color: #f8fafc;
+    border-color: rgba(148, 163, 184, .24);
+    background: #0f172a;
+  }
+
+  .admin-edit-table input:focus,
+  .admin-edit-table textarea:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, .18);
+  }
+
+  .admin-item-identity img {
+    border-color: rgba(148, 163, 184, .22);
+    background: #0f172a;
+  }
+
+  .admin-item-identity > span,
+  .admin-edit-table .admin-upload-image {
+    color: #bfdbfe;
+    border-color: rgba(96, 165, 250, .24);
+    background: rgba(37, 99, 235, .18);
+  }
+}
+
 .admin-bars {
   display: flex;
   align-items: end;
