@@ -74,6 +74,10 @@
           <p>{{ admin.adminViewSubtitle() }}</p>
         </div>
         <div class="admin-top-actions">
+          <button class="admin-theme-switch" type="button" (click)="admin.toggleTheme()" [attr.aria-label]="admin.isDark() ? 'Switch to light mode' : 'Switch to dark mode'" [attr.aria-pressed]="admin.isDark()">
+            <span><op-icon [name]="admin.isDark() ? 'moon' : 'sun'"></op-icon></span>
+            <strong>{{ admin.isDark() ? 'Dark' : 'Light' }}</strong>
+          </button>
           <label class="admin-search">
             <op-icon name="search"></op-icon>
             <input type="search" [placeholder]="admin.adminActiveView() === 'blogs' ? 'Search blogs...' : admin.adminActiveView() === 'devices' ? 'Manage device catalog...' : 'Search anything...'" [value]="admin.adminActiveView() === 'blogs' ? admin.adminBlogSearch() : ''" (input)="admin.adminActiveView() === 'blogs' ? admin.updateAdminBlogSearch($any($event.target).value) : null">
