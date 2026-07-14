@@ -64,6 +64,12 @@ type BookDevice = {
   category?: string;
 };
 
+type DeviceCategoryOption = {
+  label: string;
+  icon: string;
+  count: number;
+};
+
 type RepairIssue = {
   key: string;
   title: string;
@@ -409,6 +415,8 @@ export class App implements AfterViewInit, OnDestroy {
   readonly adminBlogCategoryFilter = signal('All Categories');
   readonly adminBlogAuthorFilter = signal('All Authors');
   readonly selectedBookDeviceName = signal<string | null>(this.getSavedBookingSelection().deviceName);
+  readonly selectedDeviceCategory = signal('All Devices');
+  readonly deviceSearch = signal('');
   readonly selectedRepairIssueTitle = signal<string | null>(this.getSavedBookingSelection().issueTitle);
   readonly selectedServiceOptionTitle = signal<string | null>(this.getSavedBookingSelection().serviceTitle);
   readonly customerName = signal(this.getSavedCustomerDetails().fullName);
@@ -425,6 +433,44 @@ export class App implements AfterViewInit, OnDestroy {
   readonly selectedBookDevice = computed(() => {
     this.contentRevision();
     return this.bookDevices.find((device) => device.name === this.selectedBookDeviceName()) ?? null;
+  });
+  readonly normalizedBookDevices = computed(() => {
+    this.contentRevision();
+    return this.bookDevices.map((device) => ({
+      ...device,
+      brand: device.brand || this.inferDeviceBrand(device.name),
+      category: this.normalizeDeviceCategory(device.category || this.inferDeviceCategory(device.name)),
+    }));
+  });
+  readonly bookDeviceCategories = computed<DeviceCategoryOption[]>(() => {
+    const devices = this.normalizedBookDevices();
+    const count = (label: string) => devices.filter((device) => device.category === label).length;
+    return [
+      { label: 'All Devices', icon: 'grid', count: devices.length },
+      { label: 'Phones', icon: 'smartphone', count: count('Phones') },
+      { label: 'Laptops', icon: 'laptop', count: count('Laptops') },
+      { label: 'Tablets', icon: 'tablet', count: count('Tablets') },
+      { label: 'Smartwatches', icon: 'watch', count: count('Smartwatches') },
+    ];
+  });
+  readonly selectedBookDeviceBrands = computed(() => {
+    const category = this.selectedDeviceCategory();
+    const devices = this.normalizedBookDevices().filter((device) => category === 'All Devices' || device.category === category);
+    const counts = devices.reduce<Record<string, number>>((acc, device) => {
+      const brand = device.brand || 'Other';
+      acc[brand] = (acc[brand] ?? 0) + 1;
+      return acc;
+    }, {});
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  });
+  readonly filteredBookDevices = computed(() => {
+    const category = this.selectedDeviceCategory();
+    const query = this.deviceSearch().trim().toLowerCase();
+    return this.normalizedBookDevices().filter((device) => {
+      const matchesCategory = category === 'All Devices' || device.category === category;
+      const matchesSearch = !query || [device.name, device.brand, device.category].join(' ').toLowerCase().includes(query);
+      return matchesCategory && matchesSearch;
+    });
   });
   readonly availableRepairIssues = computed(() => this.getRepairIssuesForDevice(this.selectedBookDevice()?.name));
   readonly selectedRepairIssue = computed(() => this.availableRepairIssues().find((issue) => issue.title === this.selectedRepairIssueTitle()) ?? null);
@@ -484,7 +530,7 @@ export class App implements AfterViewInit, OnDestroy {
     return this.bookDevices.map((device, index) => ({
       ...device,
       brand: device.brand || (device.name.toLowerCase().includes('iphone') ? 'Apple' : 'Other'),
-      category: device.category || (device.name.toLowerCase().includes('mac') ? 'Laptop' : device.name.toLowerCase().includes('ipad') ? 'Tablet' : device.name.toLowerCase().includes('watch') ? 'Smartwatch' : 'Phone'),
+      category: this.normalizeDeviceCategory(device.category || this.inferDeviceCategory(device.name)),
       sortOrder: index,
     }));
   });
@@ -976,6 +1022,14 @@ export class App implements AfterViewInit, OnDestroy {
     }).format(date);
   }
 
+  selectDeviceCategory(category: string): void {
+    this.selectedDeviceCategory.set(category);
+  }
+
+  updateDeviceSearch(value: string): void {
+    this.deviceSearch.set(value);
+  }
+
   formatCompactNumber(value: number): string {
     return new Intl.NumberFormat('en', { notation: value >= 1000 ? 'compact' : 'standard' }).format(value);
   }
@@ -1100,7 +1154,7 @@ export class App implements AfterViewInit, OnDestroy {
         image: item['image'] || '/assets/cutouts/iphone.png',
         tone: item['tone'] || 'violet',
         brand: item['brand'] || 'Apple',
-        category: item['category'] || 'Phone',
+        category: item['category'] || 'Phones',
       }));
     }
   }
@@ -1157,15 +1211,32 @@ export class App implements AfterViewInit, OnDestroy {
   private inferDeviceCategory(name: string): string {
     const lower = name.toLowerCase();
     if (lower.includes('mac') || lower.includes('book') || lower.includes('laptop')) {
-      return 'Laptop';
+      return 'Laptops';
     }
     if (lower.includes('ipad') || lower.includes('tablet')) {
-      return 'Tablet';
+      return 'Tablets';
     }
     if (lower.includes('watch')) {
-      return 'Smartwatch';
+      return 'Smartwatches';
     }
-    return 'Smartphone';
+    return 'Phones';
+  }
+
+  private normalizeDeviceCategory(category: string): string {
+    const value = category.trim().toLowerCase();
+    if (['phone', 'phones', 'smartphone', 'smartphones', 'mobile', 'mobiles'].includes(value)) {
+      return 'Phones';
+    }
+    if (['laptop', 'laptops', 'macbook', 'macbooks', 'computer', 'computers'].includes(value)) {
+      return 'Laptops';
+    }
+    if (['tablet', 'tablets', 'ipad', 'ipads'].includes(value)) {
+      return 'Tablets';
+    }
+    if (['smartwatch', 'smartwatches', 'watch', 'watches', 'apple watch'].includes(value)) {
+      return 'Smartwatches';
+    }
+    return category.trim() || 'Phones';
   }
 
   async addAdminBlog(): Promise<void> {

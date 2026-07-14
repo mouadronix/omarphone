@@ -1493,72 +1493,45 @@
               <aside class="device-filter">
                 <label>
                   <op-icon name="grid"></op-icon>
-                  <input type="search" placeholder="Search your device..." aria-label="Search your device" />
+                  <input type="search" placeholder="Search your device..." aria-label="Search your device" [value]="deviceSearch()" (input)="updateDeviceSearch($any($event.target).value)" />
                 </label>
                 <div class="device-nav">
-                  <a class="active" href="/book">
-                    <op-icon name="arrow-right"></op-icon>
-                    All Devices
-                    <strong>54</strong>
-                  </a>
+                  @for (category of bookDeviceCategories(); track category.label) {
+                    <button type="button" [class.active]="selectedDeviceCategory() === category.label" (click)="selectDeviceCategory(category.label)">
+                      <op-icon [name]="selectedDeviceCategory() === category.label ? 'arrow-right' : category.icon"></op-icon>
+                      {{ category.label }}
+                      <strong>{{ category.count }}</strong>
+                    </button>
+                  }
 
-                  <details class="brand-dropdown" open>
-                    <summary>
-                      <op-icon name="smartphone"></op-icon>
-                      Phones
-                      <strong>54</strong>
-                      <i><op-icon name="chevron-right"></op-icon></i>
-                    </summary>
-                    <div class="brand-list">
-                      @for (brand of phoneBrands; track brand[0]) {
-                        <a class="brand-active" href="/book">
-                          <op-icon name="smartphone"></op-icon>
+                  @if (selectedBookDeviceBrands().length) {
+                    <div class="brand-list active-brand-list">
+                      @for (brand of selectedBookDeviceBrands(); track brand[0]) {
+                        <button type="button" class="brand-active">
+                          <op-icon [name]="selectedDeviceCategory() === 'Laptops' ? 'laptop' : selectedDeviceCategory() === 'Tablets' ? 'tablet' : selectedDeviceCategory() === 'Smartwatches' ? 'watch' : 'smartphone'"></op-icon>
                           {{ brand[0] }}
                           <strong>{{ brand[1] }}</strong>
-                        </a>
+                        </button>
                       }
                     </div>
-                  </details>
-
-                  <details class="brand-dropdown">
-                    <summary>
-                      <op-icon name="laptop"></op-icon>
-                      Laptops
-                      <strong>8</strong>
-                      <i><op-icon name="chevron-right"></op-icon></i>
-                    </summary>
-                    <div class="brand-list">
-                      @for (brand of laptopBrands; track brand[0]) {
-                        <a href="/book">
-                          <op-icon name="laptop"></op-icon>
-                          {{ brand[0] }}
-                          <strong>{{ brand[1] }}</strong>
-                        </a>
-                      }
-                    </div>
-                  </details>
-
-                  <a href="/book">
-                    <op-icon name="tablet"></op-icon>
-                    Tablets
-                    <strong>2</strong>
-                  </a>
-                  <a href="/book">
-                    <op-icon name="watch"></op-icon>
-                    Smartwatches
-                    <strong>1</strong>
-                  </a>
+                  }
                 </div>
               </aside>
 
               <div class="device-grid">
-                @for (device of bookDevices; track device.name) {
+                @for (device of filteredBookDevices(); track device.name) {
                   <article class="device-card" [class]="'tone-' + device.tone" [class.selected]="selectedBookDeviceName() === device.name" (click)="selectBookDevice(device)">
                     <img [src]="device.image" [alt]="device.name" />
                     <h3>{{ device.name }}</h3>
                     <button type="button" (click)="selectBookDevice(device); $event.stopPropagation()">
                       {{ selectedBookDeviceName() === device.name ? 'Selected' : 'Select' }}
                     </button>
+                  </article>
+                } @empty {
+                  <article class="find-device empty-device-result">
+                    <op-icon name="search"></op-icon>
+                    No devices found
+                    <strong>Try another category</strong>
                   </article>
                 }
                 <a class="find-device" href="mailto:hello@omarphone.test">
