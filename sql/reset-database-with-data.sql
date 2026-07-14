@@ -478,13 +478,13 @@ INSERT INTO support_faqs (question, answer, sort_order) VALUES
   ('Can I get a quote before the repair?', 'Absolutely. Book a repair or visit our store and we will confirm a free quote before starting.', 5);
 
 INSERT INTO support_quick_actions (title, copy, icon, tone, href, sort_order) VALUES
-  ('Track Your Repair', 'Send your repair ID to support', 'box', 'violet', 'https://wa.me/212612345678', 0),
+  ('Track Your Repair', 'Send your repair ID to support', 'box', 'violet', 'https://wa.me/393298571129', 0),
   ('Free Repair Quote', 'Ask for a diagnosis', 'message-circle', 'blue', '/book', 1),
   ('Device Health Check', 'Check your device status', 'activity', 'orange', '/book', 2),
   ('Book a Repair', 'Schedule an appointment', 'calendar', 'pink', '/book', 3);
 
 INSERT INTO support_contact_info (title, copy, icon, tone, href, sort_order) VALUES
-  ('+212 6 12 34 56 78', 'Mon - Sat : 9:00 AM - 7:00 PM', 'phone', 'violet', 'tel:+212612345678', 0),
+  ('+39 329 857 1129', 'Mon - Sat : 9:00 AM - 7:00 PM', 'phone', 'violet', 'tel:+393298571129', 0),
   ('hello@omarphone.com', 'We reply within 15 minutes', 'mail', 'violet', 'mailto:hello@omarphone.com', 1),
   ('123 Tech Avenue', 'Casablanca, 20000 Morocco', 'map-pin', 'violet', 'https://maps.google.com', 2);
 

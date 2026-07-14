@@ -218,13 +218,13 @@ export async function getSiteContent(projectDir) {
         { question: 'Can I get a quote before the repair?', answer: 'Absolutely. Book a repair or visit our store and we will confirm a free quote before starting.' },
       ],
       quickActions: [
-        { title: 'Track Your Repair', copy: 'Send your repair ID to support', icon: 'box', tone: 'violet', href: 'https://wa.me/212612345678' },
+        { title: 'Track Your Repair', copy: 'Send your repair ID to support', icon: 'box', tone: 'violet', href: 'https://wa.me/393298571129' },
         { title: 'Free Repair Quote', copy: 'Ask for a diagnosis', icon: 'message-circle', tone: 'blue', href: '/book' },
         { title: 'Device Health Check', copy: 'Check your device status', icon: 'activity', tone: 'orange', href: '/book' },
         { title: 'Book a Repair', copy: 'Schedule an appointment', icon: 'calendar', tone: 'pink', href: '/book' },
       ],
       contactInfo: [
-        { title: '+212 6 12 34 56 78', copy: 'Mon - Sat : 9:00 AM - 7:00 PM', icon: 'phone', tone: 'violet', href: 'tel:+212612345678' },
+        { title: '+39 329 857 1129', copy: 'Mon - Sat : 9:00 AM - 7:00 PM', icon: 'phone', tone: 'violet', href: 'tel:+393298571129' },
         { title: 'hello@omarphone.com', copy: 'We reply within 15 minutes', icon: 'mail', tone: 'violet', href: 'mailto:hello@omarphone.com' },
         { title: '123 Tech Avenue', copy: 'Casablanca, 20000 Morocco', icon: 'map-pin', tone: 'violet', href: 'https://maps.google.com' },
       ],

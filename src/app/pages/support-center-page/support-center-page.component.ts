@@ -43,9 +43,9 @@ export class SupportCenterPageComponent {
 
   readonly helpChannels: SupportItem[] = [
     { title: 'Email Support', copy: 'Send us an email and we will get back to you.', icon: 'mail', tone: 'violet', href: 'mailto:hello@omarphone.com' },
-    { title: 'WhatsApp', copy: 'Chat with us on WhatsApp.', icon: 'message-circle', tone: 'green', href: 'https://wa.me/212612345678' },
+    { title: 'WhatsApp', copy: 'Chat with us on WhatsApp.', icon: 'message-circle', tone: 'green', href: 'https://wa.me/393298571129' },
     { title: 'Messenger', copy: 'Message us on Facebook.', icon: 'message-circle', tone: 'blue', href: 'https://m.me/omarphone' },
-    { title: 'Call Us', copy: 'Speak directly with our support team.', icon: 'phone', tone: 'orange', href: 'tel:+212612345678' },
+    { title: 'Call Us', copy: 'Speak directly with our support team.', icon: 'phone', tone: 'orange', href: 'tel:+393298571129' },
   ];
 
   readonly chatMessages: ChatMessage[] = [
@@ -88,7 +88,7 @@ export class SupportCenterPageComponent {
     if (Array.isArray(content?.support?.quickActions)) {
       const actions = (content.support.quickActions as SupportItem[]).map((action) =>
         action.href === '/admin'
-          ? { ...action, copy: 'Send your repair ID to support', href: 'https://wa.me/212612345678' }
+          ? { ...action, copy: 'Send your repair ID to support', href: 'https://wa.me/393298571129' }
           : action
       );
       this.quickActions.splice(0, this.quickActions.length, ...actions);

@@ -15,7 +15,7 @@ import { TranslationService } from './services/translation.service';
 type Theme = 'light' | 'dark';
 const THEME_STORAGE_KEY = 'omarphone-theme';
 const ADMIN_SESSION_STORAGE_KEY = 'omarphone-admin-session';
-const ADMIN_WHATSAPP_NUMBER = '212612345678';
+const ADMIN_WHATSAPP_NUMBER = '393298571129';
 
 function getApiBaseUrl(): string {
   if (typeof window === 'undefined') {
