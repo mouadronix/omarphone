@@ -17,6 +17,11 @@ type Theme = 'light' | 'dark';
 const THEME_STORAGE_KEY = 'omarphone-theme';
 const ADMIN_SESSION_STORAGE_KEY = 'omarphone-admin-session';
 const ADMIN_WHATSAPP_NUMBER = '393298571129';
+const ADMIN_HOSTNAME = 'admin.omarphone.it';
+
+function isAdminHostname(hostname: string): boolean {
+  return hostname.toLowerCase() === ADMIN_HOSTNAME;
+}
 
 function getApiBaseUrl(): string {
   if (typeof window === 'undefined') {
@@ -2083,6 +2088,10 @@ export class App implements AfterViewInit, OnDestroy {
   private getPath(): string {
     if (typeof window === 'undefined') {
       return '/';
+    }
+
+    if (isAdminHostname(window.location.hostname)) {
+      return '/admin';
     }
 
     return window.location.pathname;
