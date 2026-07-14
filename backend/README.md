@@ -17,6 +17,8 @@ The router calls controllers, and controllers call services:
 
 The dashboard should call separated CRUD APIs such as:
 
+- `GET/POST /api/blogs`
+- `PUT/PATCH/DELETE /api/blogs/:slug`
 - `GET/POST /api/services`
 - `PUT/PATCH/DELETE /api/services/:id`
 - `GET/POST /api/reviews`

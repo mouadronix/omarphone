@@ -581,8 +581,9 @@ export class App implements AfterViewInit, OnDestroy {
     return Array.from({ length: maxLength }, (_, index) => index);
   });
   readonly adminBlogPosts = computed(() => {
+    const draft = this.selectedAdminContentKey() === 'blogs' ? this.adminContentDraft() : null;
     const section = this.adminContentSections().find((item) => item.key === 'blogs');
-    const payload = section?.payload;
+    const payload = draft ?? section?.payload;
     if (!payload || Array.isArray(payload) || typeof payload !== 'object') {
       return [];
     }
@@ -976,7 +977,11 @@ export class App implements AfterViewInit, OnDestroy {
     if (view === 'orders') {
       void this.syncAdminOrdersFromApi();
     }
-    if ((view === 'content' || view === 'blogs') && !this.adminContentSections().length) {
+    if (view === 'blogs') {
+      void this.syncAdminContentSections().then(() => this.selectAdminContentSection('blogs'));
+      return;
+    }
+    if (view === 'content' && !this.adminContentSections().length) {
       void this.syncAdminContentSections();
     }
   }
@@ -1185,7 +1190,7 @@ export class App implements AfterViewInit, OnDestroy {
     const items = Array.isArray(record[key]) ? [...record[key] as unknown[]] : [];
     const current = items[index];
     if (this.selectedAdminResource() && this.isAdminObjectItem(current)) {
-      const id = (current as Record<string, unknown>)['id'];
+      const id = this.getAdminResourceRowId(current as Record<string, unknown>, this.selectedAdminResource());
       if (id !== undefined && id !== null && id !== '') {
         this.adminDeletedResourceRowIds.update((ids) => [...ids, id as string | number]);
       }
@@ -1286,7 +1291,7 @@ export class App implements AfterViewInit, OnDestroy {
       if (resource) {
         const rows = this.selectedAdminGroupItems().filter(this.isAdminObjectItem) as Record<string, unknown>[];
         await Promise.all(rows.map((row) => {
-          const id = row['id'];
+          const id = this.getAdminResourceRowId(row, resource);
           return id === undefined || id === null || id === '' ? Promise.resolve() : this.contentService.deleteResourceRow(resource, id as string | number);
         }));
         this.adminDeletedResourceRowIds.set([]);
@@ -1886,7 +1891,7 @@ export class App implements AfterViewInit, OnDestroy {
         ...row,
         sortOrder: Number.isFinite(Number(row.sortOrder)) ? Number(row.sortOrder) : index,
       };
-      const id = payload.id;
+      const id = this.getAdminResourceRowId(payload, resource);
       if (id === undefined || id === null || id === '') {
         await this.contentService.createResourceRow(resource, payload);
       } else {
@@ -1896,6 +1901,12 @@ export class App implements AfterViewInit, OnDestroy {
 
     this.adminDeletedResourceRowIds.set([]);
     await this.contentService.refresh();
+  }
+
+  private getAdminResourceRowId(row: Record<string, unknown>, resource: ContentResource | null): string | number | undefined {
+    const idField = resource?.idField ?? 'id';
+    const id = row[idField];
+    return typeof id === 'string' || typeof id === 'number' ? id : undefined;
   }
 
   private normalizeAdminBlogPost(post: Record<string, unknown>, index: number): AdminBlogPost {
@@ -1941,6 +1952,33 @@ export class App implements AfterViewInit, OnDestroy {
   private async mutateAdminBlogs(updater: (posts: AdminBlogPost[]) => AdminBlogPost[]): Promise<void> {
     if (!this.adminContentSections().length) {
       await this.syncAdminContentSections();
+    }
+
+    const resource = this.adminContentResources().find((item) => item.key === 'blogs');
+    if (resource) {
+      const currentPosts = (await this.contentService.loadResourceRows(resource))
+        .filter(this.isAdminObjectItem)
+        .map((post, index) => this.normalizeAdminBlogPost(post as Record<string, unknown>, index));
+      const nextPosts = updater(currentPosts);
+      const nextSlugs = new Set(nextPosts.map((post) => post.slug));
+
+      await Promise.all(currentPosts
+        .filter((post) => !nextSlugs.has(post.slug))
+        .map((post) => this.contentService.deleteResourceRow(resource, post.slug)));
+
+      for (const [index, post] of nextPosts.entries()) {
+        const payload = { ...post, sortOrder: index };
+        if (currentPosts.some((item) => item.slug === post.slug)) {
+          await this.contentService.updateResourceRow(resource, post.slug, payload);
+        } else {
+          await this.contentService.createResourceRow(resource, payload);
+        }
+      }
+
+      await this.selectAdminContentSection('blogs');
+      await this.loadBackendContent();
+      this.adminContentMessage.set('blogs saved to Postgres');
+      return;
     }
 
     const section = this.adminContentSections().find((item) => item.key === 'blogs');

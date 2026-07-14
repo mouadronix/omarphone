@@ -58,7 +58,7 @@ export async function handleApiRequest(request, response) {
       return;
     }
 
-    if (resource === 'blog-posts') {
+    if (resource === 'blogs' || resource === 'blog-posts') {
       await handleBlogs(request, response, id);
       return;
     }
@@ -82,4 +82,3 @@ export async function handleApiRequest(request, response) {
     sendJson(response, error.statusCode || 500, { error: error.message || 'Server error' });
   }
 }
-

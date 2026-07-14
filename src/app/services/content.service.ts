@@ -48,6 +48,7 @@ export type ContentResource = {
   property: string;
   table: string;
   columns: string[];
+  idField?: string;
 };
 
 export type ContentResourceRow = Record<string, unknown> & {
@@ -148,8 +149,8 @@ export class ContentService {
       throw new Error(`Content resource API responded with ${response.status}`);
     }
 
-    const payload = await response.json() as { rows?: ContentResourceRow[] };
-    return payload.rows ?? [];
+    const payload = await response.json() as { rows?: ContentResourceRow[]; posts?: ContentResourceRow[] };
+    return payload.rows ?? payload.posts ?? [];
   }
 
   async createResourceRow(resource: ContentResource | string, row: ContentResourceRow): Promise<ContentResourceRow> {
@@ -268,8 +269,8 @@ export class ContentService {
       throw new Error(`Write content resource API responded with ${response.status}`);
     }
 
-    const payload = await response.json() as { row?: ContentResourceRow };
-    return payload.row ?? row;
+    const payload = await response.json() as { row?: ContentResourceRow; post?: ContentResourceRow };
+    return payload.row ?? payload.post ?? row;
   }
 
   private readFileAsDataUrl(file: File): Promise<string> {

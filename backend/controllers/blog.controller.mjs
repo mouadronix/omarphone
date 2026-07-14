@@ -5,7 +5,8 @@ import { deleteBlogPost, readBlogPost, readBlogPosts, upsertBlogPost } from '../
 
 export async function handleBlogs(request, response, slug = null) {
   if (!slug && request.method === 'GET') {
-    sendJson(response, 200, { posts: await readBlogPosts() });
+    const posts = await readBlogPosts();
+    sendJson(response, 200, { resource: 'blogs', rows: posts, posts });
     return;
   }
 
@@ -14,7 +15,7 @@ export async function handleBlogs(request, response, slug = null) {
       return;
     }
     const post = await upsertBlogPost(await readJsonBody(request));
-    sendJson(response, 201, { post });
+    sendJson(response, 201, { row: post, post });
     return;
   }
 
@@ -30,7 +31,7 @@ export async function handleBlogs(request, response, slug = null) {
     }
     const existing = request.method === 'PATCH' ? await readBlogPost(slug) : null;
     const post = await upsertBlogPost({ ...(existing ?? {}), ...(await readJsonBody(request)), slug });
-    sendJson(response, 200, { post });
+    sendJson(response, 200, { row: post, post });
     return;
   }
 
@@ -45,4 +46,3 @@ export async function handleBlogs(request, response, slug = null) {
 
   sendJson(response, 405, { error: 'Method not allowed' });
 }
-

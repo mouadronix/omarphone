@@ -11,7 +11,18 @@ import {
 } from '../../api/_store.mjs';
 
 export function listContentResources() {
-  return CONTENT_RESOURCE_DEFINITIONS;
+  return [
+    {
+      key: 'blogs',
+      endpoint: '/api/blogs',
+      section: 'blogs',
+      property: 'posts',
+      table: 'blog_posts',
+      columns: ['slug', 'title', 'copy', 'date', 'tag', 'category', 'tags', 'tone', 'image', 'author', 'status', 'views', 'publishedAt'],
+      idField: 'slug',
+    },
+    ...CONTENT_RESOURCE_DEFINITIONS,
+  ];
 }
 
 export function findContentResourceTable(resourceName) {
@@ -28,4 +39,3 @@ export {
   upsertContentSection,
   upsertContentTableRow,
 };
-

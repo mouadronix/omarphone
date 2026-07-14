@@ -55,12 +55,14 @@ The old JSON `content_sections` payloads have been split into real tables too. R
 
 Blog CRUD uses the real blog tables:
 
-- `GET /api/blog-posts`
-- `POST /api/blog-posts`
-- `GET /api/blog-posts/:slug`
-- `PUT /api/blog-posts/:slug`
-- `PATCH /api/blog-posts/:slug`
-- `DELETE /api/blog-posts/:slug`
+- `GET /api/blogs`
+- `POST /api/blogs`
+- `GET /api/blogs/:slug`
+- `PUT /api/blogs/:slug`
+- `PATCH /api/blogs/:slug`
+- `DELETE /api/blogs/:slug`
+
+The legacy `/api/blog-posts` route still works as a compatibility alias.
 
 Separated content CRUD uses named resources backed by real content tables:
 

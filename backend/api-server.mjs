@@ -1045,23 +1045,25 @@ const server = createServer(async (request, response) => {
       return;
     }
 
-    if (request.method === 'GET' && url.pathname === '/api/blog-posts') {
-      sendJson(response, 200, { posts: await readBlogPosts(database) });
+    const isBlogCollection = url.pathname === '/api/blogs' || url.pathname === '/api/blog-posts';
+    if (request.method === 'GET' && isBlogCollection) {
+      const posts = await readBlogPosts(database);
+      sendJson(response, 200, { resource: 'blogs', rows: posts, posts });
       return;
     }
 
-    if (request.method === 'POST' && url.pathname === '/api/blog-posts') {
+    if (request.method === 'POST' && isBlogCollection) {
       if (!requireAdmin(request, response)) {
         return;
       }
 
       const raw = await readRequestBody(request);
       const post = await upsertBlogPost(database, JSON.parse(raw || '{}'));
-      sendJson(response, 201, { post });
+      sendJson(response, 201, { row: post, post });
       return;
     }
 
-    const blogPostMatch = url.pathname.match(/^\/api\/blog-posts\/([^/]+)$/);
+    const blogPostMatch = url.pathname.match(/^\/api\/(?:blogs|blog-posts)\/([^/]+)$/);
     if (blogPostMatch && request.method === 'GET') {
       const post = await readBlogPost(database, decodeURIComponent(blogPostMatch[1]));
       if (!post) {
@@ -1086,7 +1088,7 @@ const server = createServer(async (request, response) => {
         ...JSON.parse(raw || '{}'),
         slug,
       });
-      sendJson(response, 200, { post });
+      sendJson(response, 200, { row: post, post });
       return;
     }
 
@@ -1112,7 +1114,20 @@ const server = createServer(async (request, response) => {
       if (!requireAdmin(request, response)) {
         return;
       }
-      sendJson(response, 200, { resources: CONTENT_RESOURCE_DEFINITIONS });
+      sendJson(response, 200, {
+        resources: [
+          {
+            key: 'blogs',
+            endpoint: '/api/blogs',
+            section: 'blogs',
+            property: 'posts',
+            table: 'blog_posts',
+            columns: ['slug', 'title', 'copy', 'date', 'tag', 'category', 'tags', 'tone', 'image', 'author', 'status', 'views', 'publishedAt'],
+            idField: 'slug',
+          },
+          ...CONTENT_RESOURCE_DEFINITIONS,
+        ],
+      });
       return;
     }
 
