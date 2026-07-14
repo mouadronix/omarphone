@@ -1,5 +1,6 @@
 import { createServer } from 'node:http';
 import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
+import { existsSync, readFileSync } from 'node:fs';
 import { mkdir, readFile } from 'node:fs/promises';
 import { dirname, extname, join, normalize, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -27,6 +28,9 @@ const PUBLIC_DIR = join(PROJECT_DIR, 'dist', 'omarphone', 'browser');
 const INDEX_FILE = join(PUBLIC_DIR, 'index.html');
 const LEGACY_ORDERS_FILE = join(PROJECT_DIR, 'server', 'data', 'orders.json');
 const DATABASE_FILE = join(DATA_DIR, 'omarphone.sqlite');
+
+loadLocalEnv(join(PROJECT_DIR, '.env'));
+
 const PORT = Number(process.env['OMARPHONE_API_PORT'] || 4301);
 const ADMIN_USERNAME = process.env['OMARPHONE_ADMIN_USERNAME'] || 'admin';
 const ADMIN_PASSWORD = process.env['OMARPHONE_ADMIN_PASSWORD'] || '';
@@ -34,6 +38,22 @@ const ADMIN_AUTH_SECRET = process.env['OMARPHONE_ADMIN_AUTH_SECRET'] || ADMIN_PA
 const ADMIN_TOKEN_TTL_SECONDS = 60 * 60 * 8;
 
 let databasePromise;
+
+function loadLocalEnv(path) {
+  if (!existsSync(path)) {
+    return;
+  }
+
+  const env = readFileSync(path, 'utf8');
+  for (const line of env.split(/\r?\n/)) {
+    const match = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$/);
+    if (!match || process.env[match[1]] !== undefined) {
+      continue;
+    }
+
+    process.env[match[1]] = match[2].replace(/^['"]|['"]$/g, '');
+  }
+}
 
 async function getDatabase() {
   if (!databasePromise) {

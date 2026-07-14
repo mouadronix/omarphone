@@ -1329,6 +1329,11 @@ export class App implements AfterViewInit, OnDestroy {
         body: JSON.stringify({ status }),
       });
 
+      if (response.status === 401) {
+        this.handleAdminUnauthorized();
+        throw new Error('Admin session expired');
+      }
+
       if (!response.ok) {
         throw new Error(`API responded with ${response.status}`);
       }
@@ -1546,6 +1551,11 @@ export class App implements AfterViewInit, OnDestroy {
       const response = await fetch(`${getApiBaseUrl()}/orders`, {
         headers: this.getAdminAuthHeaders(),
       });
+      if (response.status === 401) {
+        this.handleAdminUnauthorized();
+        return;
+      }
+
       if (!response.ok) {
         throw new Error(`API responded with ${response.status}`);
       }
@@ -1862,10 +1872,31 @@ export class App implements AfterViewInit, OnDestroy {
       }
       this.adminContentMessage.set(`Connected to content API · ${sections.length} section${sections.length === 1 ? '' : 's'}`);
       this.adminContentError.set('');
-    } catch {
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('401')) {
+        this.handleAdminUnauthorized();
+        return;
+      }
+
       this.adminContentMessage.set('Content service unavailable');
       this.adminContentError.set('Could not load editable content. Check the production database connection.');
     }
+  }
+
+  private handleAdminUnauthorized(): void {
+    this.isAdminUnlocked.set(false);
+    this.adminOrders.set([]);
+    this.adminDataSource.set('local');
+    this.adminSyncMessage.set('Admin session expired. Please log in again.');
+    this.adminContentSections.set([]);
+    this.adminContentResources.set([]);
+    this.adminDeletedResourceRowIds.set([]);
+    this.adminContentDraft.set({});
+    this.selectedAdminGroupKey.set('');
+    this.adminContentJson.set('');
+    this.adminContentMessage.set('Admin session expired. Please log in again.');
+    this.adminContentError.set('');
+    this.saveAdminSession(null);
   }
 
   private async loadAdminResourceSection(sectionKey: string): Promise<void> {
