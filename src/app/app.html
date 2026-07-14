@@ -1,4 +1,5 @@
 <main class="site-shell">
+  @if (!isAdminDashboard()) {
   <nav class="navbar" aria-label="Primary navigation">
     <a class="brand" href="/#home" aria-label="OmarPhone home">
       <span class="op-logo" aria-hidden="true">
@@ -48,6 +49,7 @@
       <a class="btn btn-primary" href="/book">Book a Repair <op-icon name="arrow-right"></op-icon></a>
     </div>
   </nav>
+  }
 
   @if (isBlogDetail()) {
     <app-blog-detail-page></app-blog-detail-page>
