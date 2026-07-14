@@ -7956,21 +7956,20 @@ h1 {
   overflow: hidden;
   border: 1px solid rgba(148, 163, 184, .16);
   border-radius: 18px;
-  background: linear-gradient(135deg, rgba(15, 23, 42, .88), rgba(15, 23, 42, .5));
+  background: #081225;
   box-shadow: 0 20px 60px rgba(0, 0, 0, .18);
 }
 
 .admin-blog-table-wrap {
   overflow-x: auto;
-  padding: 0 10px 10px;
 }
 
 .admin-blog-table {
   width: 100%;
   min-width: 1180px;
   table-layout: fixed;
-  border-collapse: separate;
-  border-spacing: 0 10px;
+  border-collapse: collapse;
+  border-spacing: 0;
 }
 
 .admin-blog-table th:nth-child(1),
@@ -7992,38 +7991,31 @@ h1 {
 
 .admin-blog-table th,
 .admin-blog-table td {
-  padding: 14px 16px;
+  padding: 18px 20px;
   text-align: left;
   vertical-align: middle;
 }
 
 .admin-blog-table th {
   color: #a8b3c7;
-  background: #0e172a;
+  background: #0c1629;
   font-size: .78rem;
   text-transform: uppercase;
   letter-spacing: .04em;
 }
 
+.admin-blog-table tbody tr {
+  background: rgba(15, 23, 42, .78);
+  border-bottom: 1px solid rgba(148, 163, 184, .13);
+}
+
 .admin-blog-table td {
   color: #dbeafe;
-  background: rgba(15, 23, 42, .72);
-  border-top: 1px solid rgba(148, 163, 184, .12);
-  border-bottom: 1px solid rgba(148, 163, 184, .12);
+  background: transparent;
 }
 
-.admin-blog-table td:first-child {
-  border-left: 1px solid rgba(148, 163, 184, .12);
-  border-radius: 12px 0 0 12px;
-}
-
-.admin-blog-table td:last-child {
-  border-right: 1px solid rgba(148, 163, 184, .12);
-  border-radius: 0 12px 12px 0;
-}
-
-.admin-blog-table tr:hover td {
-  background: rgba(30, 41, 59, .86);
+.admin-blog-table tbody tr:hover {
+  background: rgba(30, 41, 59, .88);
 }
 
 .blog-post-cell {
@@ -8084,7 +8076,7 @@ h1 {
 }
 
 .blog-author-cell {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 10px;
   min-width: 0;

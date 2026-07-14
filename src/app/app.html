@@ -655,17 +655,21 @@
                     @for (post of filteredAdminBlogPosts(); track post.slug) {
                       <tr>
                         <td class="select-col"><span></span></td>
-                        <td class="blog-post-cell">
-                          <img [src]="post.image" [alt]="post.title">
-                          <div>
-                            <strong>{{ post.title }}</strong>
-                            <small>{{ post.copy }}</small>
+                        <td>
+                          <div class="blog-post-cell">
+                            <img [src]="post.image" [alt]="post.title">
+                            <div>
+                              <strong>{{ post.title }}</strong>
+                              <small>{{ post.copy }}</small>
+                            </div>
                           </div>
                         </td>
                         <td><span class="blog-pill tone-{{ post.tone }}">{{ post.category }}</span></td>
-                        <td class="blog-author-cell">
-                          <span>OP</span>
-                          <strong>{{ post.author }}</strong>
+                        <td>
+                          <div class="blog-author-cell">
+                            <span>OP</span>
+                            <strong>{{ post.author }}</strong>
+                          </div>
                         </td>
                         <td><span class="blog-status status-{{ post.status?.toLowerCase() }}">{{ post.status }}</span></td>
                         <td class="blog-date-cell">
