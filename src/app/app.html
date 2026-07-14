@@ -743,12 +743,153 @@
           </section>
           }
 
-      @if (adminActiveView() === 'content' || adminActiveView() === 'devices') {
+      @if (adminActiveView() === 'devices') {
+      <section class="admin-devices-page">
+        <div class="admin-devices-head">
+          <div>
+            <nav>Dashboard <op-icon name="chevron-right"></op-icon> Devices</nav>
+            <h2>Devices</h2>
+            <p>Manage all booking device brands and models.</p>
+          </div>
+          <div class="admin-devices-actions">
+            <label>
+              <op-icon name="search"></op-icon>
+              <input type="search" placeholder="Search devices..." aria-label="Search devices">
+              <kbd>Ctrl K</kbd>
+            </label>
+            <button type="button" class="admin-device-primary" (click)="addAdminDevice()"><op-icon name="plus"></op-icon> Add Device</button>
+          </div>
+        </div>
+
+        <section class="admin-device-stats">
+          <article class="tone-violet">
+            <span><op-icon name="smartphone"></op-icon></span>
+            <div><small>Total Devices</small><strong>{{ adminDeviceManagerItems().length }}</strong><p>All devices</p></div>
+          </article>
+          <article class="tone-green">
+            <span><op-icon name="check"></op-icon></span>
+            <div><small>Active</small><strong>{{ adminActiveDeviceCount() }}</strong><p>Active devices</p></div>
+          </article>
+          <article class="tone-orange">
+            <span><op-icon name="eye"></op-icon></span>
+            <div><small>Inactive</small><strong>{{ adminInactiveDeviceCount() }}</strong><p>Hidden devices</p></div>
+          </article>
+          <article class="tone-blue">
+            <span><op-icon name="badge"></op-icon></span>
+            <div><small>Brands</small><strong>{{ adminDeviceBrandCount() }}</strong><p>Total brands</p></div>
+          </article>
+          <article class="tone-pink">
+            <span><op-icon name="grid"></op-icon></span>
+            <div><small>Models</small><strong>{{ adminDeviceModelCount() }}</strong><p>Total models</p></div>
+          </article>
+        </section>
+
+        <section class="admin-devices-toolbar">
+          <div class="admin-device-tabs">
+            <button class="active" type="button">All Devices <span>{{ adminDeviceManagerItems().length }}</span></button>
+            <button type="button">Active <span>{{ adminActiveDeviceCount() }}</span></button>
+            <button type="button">Inactive <span>{{ adminInactiveDeviceCount() }}</span></button>
+          </div>
+          <div class="admin-device-filters">
+            <select aria-label="Brand filter">
+              <option>All Brands</option>
+            </select>
+            <select aria-label="Category filter">
+              <option>All Categories</option>
+            </select>
+            <button type="button"><op-icon name="settings"></op-icon> Filters</button>
+            <button type="button" (click)="saveAdminContentSection()"><op-icon name="save"></op-icon> Save All</button>
+          </div>
+        </section>
+
+        <section class="admin-devices-table-card">
+          @if (selectedAdminGroupItems().length) {
+          <div class="admin-devices-table-wrap">
+            <table class="admin-devices-table">
+              <thead>
+                <tr>
+                  <th class="select-col"><span></span></th>
+                  <th>Device</th>
+                  <th>Brand</th>
+                  <th>Category</th>
+                  <th>Status</th>
+                  <th>Sort Order</th>
+                  <th>Image</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (row of adminDeviceManagerItems(); track row.index) {
+                  <tr>
+                    <td class="select-col"><span></span></td>
+                    <td>
+                      <div class="admin-device-name-cell">
+                        <img [src]="row.image" [alt]="row.name">
+                        <div>
+                          <input type="text" [value]="row.name" (input)="updateAdminField(row.index, 'name', $any($event.target).value)" aria-label="Device name">
+                          <small>{{ row.slug }}</small>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <input class="admin-device-chip-input brand" type="text" [value]="row.brand" (input)="updateAdminField(row.index, 'brand', $any($event.target).value)" aria-label="Brand">
+                    </td>
+                    <td>
+                      <input class="admin-device-chip-input category" type="text" [value]="row.category" (input)="updateAdminField(row.index, 'category', $any($event.target).value)" aria-label="Category">
+                    </td>
+                    <td><span class="admin-device-status active">Active</span></td>
+                    <td>
+                      <input class="admin-device-sort" type="text" [value]="row.sortOrder" (input)="updateAdminField(row.index, 'sortOrder', $any($event.target).value)" aria-label="Sort order">
+                    </td>
+                    <td>
+                      <label class="admin-device-upload">
+                        <op-icon name="paperclip"></op-icon>
+                        Upload
+                        <input type="file" accept="image/*" (change)="uploadAdminImage(row.index, 'image', $event)">
+                      </label>
+                    </td>
+                    <td>
+                      <div class="admin-device-row-actions">
+                        <a href="/book" aria-label="View booking picker"><op-icon name="eye"></op-icon></a>
+                        <button type="button" (click)="duplicateAdminDevice(row.index)" aria-label="Duplicate device"><op-icon name="copy"></op-icon></button>
+                        <button type="button" class="danger" (click)="removeAdminItem(row.index)" aria-label="Delete device"><op-icon name="trash"></op-icon></button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          <footer class="admin-devices-footer">
+            <span>Rows per page <strong>10</strong></span>
+            <span>1-{{ adminDeviceManagerItems().length }} of {{ adminDeviceManagerItems().length }}</span>
+            <div>
+              <button type="button" (click)="refreshAdminContent()"><op-icon name="refresh"></op-icon> Reload</button>
+              <button type="button" (click)="saveAdminContentSection()"><op-icon name="save"></op-icon> Save All</button>
+            </div>
+          </footer>
+          } @else {
+            <div class="admin-empty compact">
+              <op-icon name="smartphone"></op-icon>
+              <h2>No devices loaded</h2>
+              <p>Load the booking devices table or add the first item.</p>
+              <button class="btn btn-primary" type="button" (click)="addAdminDevice()">Add Device <op-icon name="arrow-right"></op-icon></button>
+            </div>
+          }
+        </section>
+
+        @if (adminContentError()) {
+          <strong class="admin-content-error"><op-icon name="alert-circle"></op-icon> {{ adminContentError() }}</strong>
+        }
+      </section>
+      }
+
+      @if (adminActiveView() === 'content') {
       <section class="admin-content-panel" id="admin-content">
         <div class="section-heading compact-heading">
-          <span class="eyebrow">{{ adminActiveView() === 'devices' ? 'Booking CRUD' : 'Website CRUD' }}</span>
-          <h2>{{ adminActiveView() === 'devices' ? 'Device Item Management' : 'Editable Page Content' }}</h2>
-          <p>{{ adminActiveView() === 'devices' ? 'Create, update, upload images, reorder, and delete devices used by the booking flow.' : adminContentMessage() }}</p>
+          <span class="eyebrow">Website CRUD</span>
+          <h2>Editable Page Content</h2>
+          <p>{{ adminContentMessage() }}</p>
         </div>
 
         @if (adminContentSections().length) {

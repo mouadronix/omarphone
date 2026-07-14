@@ -495,6 +495,34 @@ export class App implements AfterViewInit, OnDestroy {
     }, {});
     return Object.entries(counts).map(([category, count]) => ({ category, count }));
   });
+  readonly adminDeviceManagerItems = computed(() => {
+    const source = this.adminActiveView() === 'devices' && this.selectedAdminContentKey() === 'booking' && this.selectedAdminGroupKey() === 'devices'
+      ? this.selectedAdminGroupItems()
+      : this.adminDeviceItems();
+    return source
+      .filter(this.isAdminObjectItem)
+      .map((item, index) => {
+        const record = item as Record<string, unknown>;
+        const name = String(record['name'] ?? `Device ${index + 1}`);
+        return {
+          item,
+          index,
+          id: this.getAdminFieldValue(record, 'id') || String(index + 1),
+          name,
+          slug: this.slugifyDeviceName(name),
+          image: this.getAdminFieldValue(record, 'image') || '/assets/cutouts/iphone.png',
+          brand: this.getAdminFieldValue(record, 'brand') || this.inferDeviceBrand(name),
+          category: this.getAdminFieldValue(record, 'category') || this.inferDeviceCategory(name),
+          tone: this.getAdminFieldValue(record, 'tone') || 'violet',
+          sortOrder: this.getAdminFieldValue(record, 'sortOrder') || String(index + 1),
+          status: this.getAdminFieldValue(record, 'status') || 'Active',
+        };
+      });
+  });
+  readonly adminDeviceBrandCount = computed(() => new Set(this.adminDeviceManagerItems().map((device) => device.brand).filter(Boolean)).size);
+  readonly adminDeviceModelCount = computed(() => this.adminDeviceManagerItems().length);
+  readonly adminActiveDeviceCount = computed(() => this.adminDeviceManagerItems().filter((device) => device.status !== 'Inactive').length);
+  readonly adminInactiveDeviceCount = computed(() => this.adminDeviceManagerItems().filter((device) => device.status === 'Inactive').length);
   readonly adminViewTitle = computed(() => {
     if (this.adminActiveView() === 'orders') {
       return 'Repair Orders';
@@ -1075,6 +1103,69 @@ export class App implements AfterViewInit, OnDestroy {
         category: item['category'] || 'Phone',
       }));
     }
+  }
+
+  duplicateAdminDevice(index: number): void {
+    const item = this.selectedAdminGroupItems()[index];
+    if (!this.isAdminObjectItem(item)) {
+      return;
+    }
+
+    const draft = this.cloneContentPayload(this.adminContentDraft());
+    const key = this.selectedAdminGroupKey();
+    if (!draft || Array.isArray(draft) || typeof draft !== 'object' || !key) {
+      return;
+    }
+
+    const record = draft as Record<string, unknown>;
+    const items = Array.isArray(record[key]) ? [...record[key] as unknown[]] : [];
+    const source = item as Record<string, unknown>;
+    const copy = {
+      ...source,
+      id: '',
+      name: `${String(source['name'] ?? 'Device')} Copy`,
+      sortOrder: items.length,
+    };
+    items.splice(index + 1, 0, copy);
+    record[key] = items;
+    this.adminContentDraft.set(record);
+    this.adminContentJson.set(this.formatJson(record));
+    this.adminContentError.set('');
+  }
+
+  private slugifyDeviceName(name: string): string {
+    return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'device';
+  }
+
+  private inferDeviceBrand(name: string): string {
+    const lower = name.toLowerCase();
+    if (lower.includes('iphone') || lower.includes('ipad') || lower.includes('mac') || lower.includes('watch')) {
+      return 'Apple';
+    }
+    if (lower.includes('samsung')) {
+      return 'Samsung';
+    }
+    if (lower.includes('xiaomi')) {
+      return 'Xiaomi';
+    }
+    if (lower.includes('dell')) {
+      return 'Dell';
+    }
+    return 'Other';
+  }
+
+  private inferDeviceCategory(name: string): string {
+    const lower = name.toLowerCase();
+    if (lower.includes('mac') || lower.includes('book') || lower.includes('laptop')) {
+      return 'Laptop';
+    }
+    if (lower.includes('ipad') || lower.includes('tablet')) {
+      return 'Tablet';
+    }
+    if (lower.includes('watch')) {
+      return 'Smartwatch';
+    }
+    return 'Smartphone';
   }
 
   async addAdminBlog(): Promise<void> {
