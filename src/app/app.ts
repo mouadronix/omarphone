@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnDestroy, ViewEncapsulation, computed, inject, signal } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, ViewEncapsulation, computed, inject, signal } from '@angular/core';
 import { UiIconComponent } from './components/ui-icon/ui-icon.component';
 import { BeforeAfterPage } from './pages/before-after-page/before-after.page';
 import { BlogDetailPageComponent } from './pages/blog-detail-page/blog-detail-page.component';
@@ -202,6 +202,7 @@ type AdminView = 'dashboard' | 'orders' | 'content' | 'blogs';
 export class App implements AfterViewInit, OnDestroy {
   private readonly translationService = inject(TranslationService);
   private readonly contentService = inject(ContentService);
+  private readonly changeDetector = inject(ChangeDetectorRef);
   private translationObserver: MutationObserver | null = null;
   private translationFrame = 0;
 
@@ -373,6 +374,7 @@ export class App implements AfterViewInit, OnDestroy {
   readonly trust = ['90-Day Warranty', 'Genuine Parts', 'Expert Technicians', 'Same Day Repair'];
 
   readonly theme = signal<Theme>(this.getPreferredTheme());
+  readonly contentRevision = signal(0);
   readonly currentLanguage = this.translationService.language;
   readonly isLanguageMenuOpen = signal(false);
   readonly languageOptions: { code: Language; label: string; short: string }[] = [
@@ -418,7 +420,10 @@ export class App implements AfterViewInit, OnDestroy {
   readonly customerTimeSlot = signal(this.getSavedCustomerDetails().timeSlot);
   readonly customerNotes = signal(this.getSavedCustomerDetails().notes);
   readonly customerPayment = signal(this.getSavedCustomerDetails().payment || 'Pay Online');
-  readonly selectedBookDevice = computed(() => this.bookDevices.find((device) => device.name === this.selectedBookDeviceName()) ?? null);
+  readonly selectedBookDevice = computed(() => {
+    this.contentRevision();
+    return this.bookDevices.find((device) => device.name === this.selectedBookDeviceName()) ?? null;
+  });
   readonly availableRepairIssues = computed(() => this.getRepairIssuesForDevice(this.selectedBookDevice()?.name));
   readonly selectedRepairIssue = computed(() => this.availableRepairIssues().find((issue) => issue.title === this.selectedRepairIssueTitle()) ?? null);
   readonly selectedServiceOption = computed(() => this.serviceOptions.find((option) => option.title === this.selectedServiceOptionTitle()) ?? null);
@@ -659,6 +664,8 @@ export class App implements AfterViewInit, OnDestroy {
     ]);
     this.bookDevices.splice(0, this.bookDevices.length, ...(devices as BookDevice[]));
     this.repairIssues.splice(0, this.repairIssues.length, ...(repairIssues as RepairIssue[]));
+    this.contentRevision.update((value) => value + 1);
+    this.changeDetector.detectChanges();
   }
 
   ngAfterViewInit(): void {

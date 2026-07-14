@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { UiIconComponent } from '../ui-icon/ui-icon.component';
 import { ContentService } from '../../services/content.service';
 
@@ -20,6 +20,7 @@ type BlogPost = {
 })
 export class BlogSectionComponent {
   private readonly contentService = inject(ContentService);
+  private readonly changeDetector = inject(ChangeDetectorRef);
 
   readonly blogPosts: BlogPost[] = [];
 
@@ -31,5 +32,6 @@ export class BlogSectionComponent {
   private async loadBackendContent(): Promise<void> {
     const posts = await this.contentService.loadBlogPosts() as BlogPost[];
     this.blogPosts.splice(0, this.blogPosts.length, ...posts.slice(0, 4));
+    this.changeDetector.detectChanges();
   }
 }

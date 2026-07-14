@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, inject, signal } from '@angular/core';
 import { UiIconComponent } from '../../components/ui-icon/ui-icon.component';
 import { ContentService } from '../../services/content.service';
 
@@ -24,12 +24,14 @@ type BlogSort = 'latest' | 'oldest' | 'title';
 })
 export class BlogsPageComponent {
   private readonly contentService = inject(ContentService);
+  private readonly changeDetector = inject(ChangeDetectorRef);
 
   readonly searchQuery = signal('');
   readonly selectedCategory = signal('All Articles');
   readonly selectedTag = signal<string | null>(null);
   readonly sortBy = signal<BlogSort>('latest');
   readonly currentPage = signal(1);
+  readonly contentRevision = signal(0);
   readonly pageSize = 8;
 
   readonly blogPosts: BlogPost[] = [];
@@ -45,16 +47,18 @@ export class BlogsPageComponent {
     { title: 'Troubleshooting', icon: 'star' },
   ];
 
-  readonly categoryFilters = computed(() =>
-    this.categoryOptions.map((category) => ({
+  readonly categoryFilters = computed(() => {
+    this.contentRevision();
+    return this.categoryOptions.map((category) => ({
       ...category,
       count: category.title === 'All Articles'
         ? this.allBlogPosts.length
         : this.allBlogPosts.filter((post) => post.category === category.title).length,
-    }))
-  );
+    }));
+  });
 
   readonly popularTags = computed(() => {
+    this.contentRevision();
     const counts = new Map<string, number>();
     for (const post of this.allBlogPosts) {
       for (const tag of post.tags) {
@@ -69,6 +73,7 @@ export class BlogsPageComponent {
   });
 
   readonly filteredPosts = computed(() => {
+    this.contentRevision();
     const query = this.searchQuery().trim().toLowerCase();
     const category = this.selectedCategory();
     const tag = this.selectedTag();
@@ -122,6 +127,8 @@ export class BlogsPageComponent {
     this.blogPosts.splice(0, this.blogPosts.length, ...posts.slice(0, 4));
     this.allBlogPosts.splice(0, this.allBlogPosts.length, ...posts);
     this.currentPage.set(1);
+    this.contentRevision.update((value) => value + 1);
+    this.changeDetector.detectChanges();
   }
 
   updateSearch(value: string): void {

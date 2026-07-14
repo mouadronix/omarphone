@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { UiIconComponent } from '../../components/ui-icon/ui-icon.component';
 import { ContentService } from '../../services/content.service';
 
@@ -36,6 +36,7 @@ type Step = {
 })
 export class ServicesPageComponent {
   private readonly contentService = inject(ContentService);
+  private readonly changeDetector = inject(ChangeDetectorRef);
 
   readonly heroTrust: Feature[] = [];
 
@@ -95,5 +96,6 @@ export class ServicesPageComponent {
     this.services.splice(0, this.services.length, ...(services as ServiceCard[]));
     this.trustFeatures.splice(0, this.trustFeatures.length, ...(trustFeatures as Feature[]));
     this.process.splice(0, this.process.length, ...(process as Feature[]));
+    this.changeDetector.detectChanges();
   }
 }

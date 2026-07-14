@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, signal } from '@angular/core';
 import { UiIconComponent } from '../../components/ui-icon/ui-icon.component';
 import { ContentService } from '../../services/content.service';
 
@@ -31,6 +31,7 @@ type ReviewStat = {
 })
 export class ReviewsPageComponent {
   private readonly contentService = inject(ContentService);
+  private readonly changeDetector = inject(ChangeDetectorRef);
   readonly selectedRating = signal(0);
 
   readonly stats: ReviewStat[] = [];
@@ -56,6 +57,7 @@ export class ReviewsPageComponent {
     ]);
     this.stats.splice(0, this.stats.length, ...(stats as ReviewStat[]));
     this.reviews.splice(0, this.reviews.length, ...(reviews as Review[]));
+    this.changeDetector.detectChanges();
   }
 
   setRating(value: number): void {

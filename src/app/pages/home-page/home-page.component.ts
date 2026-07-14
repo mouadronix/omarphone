@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, inject } from '@angular/core';
 import { BlogSectionComponent } from '../../components/blog-section/blog-section.component';
 import { BeforeAfterComponent } from '../../components/before-after-component/before-after.component';
 import { UiIconComponent } from '../../components/ui-icon/ui-icon.component';
@@ -41,6 +41,7 @@ type BrandLogo = {
 })
 export class HomePageComponent {
   private readonly contentService = inject(ContentService);
+  private readonly changeDetector = inject(ChangeDetectorRef);
   @Input() isDark = false;
 
   readonly services: Service[] = [];
@@ -121,5 +122,6 @@ export class HomePageComponent {
       this.testimonials.length,
       ...testimonials.map((item) => [String(item['name'] ?? ''), String(item['service'] ?? ''), String(item['copy'] ?? '')])
     );
+    this.changeDetector.detectChanges();
   }
 }

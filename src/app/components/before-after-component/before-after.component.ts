@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { UiIconComponent } from '../ui-icon/ui-icon.component';
 import { ContentService } from '../../services/content.service';
 
@@ -28,6 +28,7 @@ type ResultReason = {
 })
 export class BeforeAfterComponent {
   private readonly contentService = inject(ContentService);
+  private readonly changeDetector = inject(ChangeDetectorRef);
 
   readonly repairTabs = [
     ['All Repairs', '24'],
@@ -66,6 +67,7 @@ export class BeforeAfterComponent {
       this.testimonials.length,
       ...testimonials.map((item) => [String(item['name'] ?? ''), String(item['service'] ?? ''), String(item['copy'] ?? '')])
     );
+    this.changeDetector.detectChanges();
   }
 
   setComparePosition(event: Event): void {

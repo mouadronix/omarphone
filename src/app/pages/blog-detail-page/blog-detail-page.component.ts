@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, inject, signal } from '@angular/core';
 import { UiIconComponent } from '../../components/ui-icon/ui-icon.component';
 import { ContentService } from '../../services/content.service';
 
@@ -41,6 +41,7 @@ type BlogArticle = {
 })
 export class BlogDetailPageComponent {
   private readonly contentService = inject(ContentService);
+  private readonly changeDetector = inject(ChangeDetectorRef);
   readonly contentRevision = signal(0);
 
   readonly articles: BlogArticle[] = [];
@@ -81,6 +82,7 @@ export class BlogDetailPageComponent {
     this.articles.splice(0, this.articles.length, ...posts.map((post) => this.normalizeArticle(post)));
     this.syncSidebarData();
     this.contentRevision.update((value) => value + 1);
+    this.changeDetector.detectChanges();
   }
 
   private syncSidebarData(): void {

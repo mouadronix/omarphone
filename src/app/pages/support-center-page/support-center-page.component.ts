@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, inject, signal } from '@angular/core';
 import { UiIconComponent } from '../../components/ui-icon/ui-icon.component';
 import { ContentService } from '../../services/content.service';
 
@@ -31,6 +31,7 @@ type FaqItem = {
 })
 export class SupportCenterPageComponent {
   private readonly contentService = inject(ContentService);
+  private readonly changeDetector = inject(ChangeDetectorRef);
   readonly supportQuery = signal('');
   readonly chatDraft = signal('');
   readonly contentRevision = signal(0);
@@ -95,6 +96,7 @@ export class SupportCenterPageComponent {
     this.quickActions.splice(0, this.quickActions.length, ...actions);
     this.contactInfo.splice(0, this.contactInfo.length, ...(contactInfo as SupportItem[]));
     this.contentRevision.update((value) => value + 1);
+    this.changeDetector.detectChanges();
   }
 
   updateSupportQuery(value: string): void {
