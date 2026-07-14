@@ -60,6 +60,8 @@ type BookDevice = {
   name: string;
   image: string;
   tone: string;
+  brand?: string;
+  category?: string;
 };
 
 type RepairIssue = {
@@ -189,7 +191,7 @@ type AdminBlogPost = {
   publishedAt?: string;
 };
 
-type AdminView = 'dashboard' | 'orders' | 'content' | 'blogs';
+type AdminView = 'dashboard' | 'orders' | 'content' | 'blogs' | 'devices';
 
 
 @Component({
@@ -465,17 +467,41 @@ export class App implements AfterViewInit, OnDestroy {
   readonly adminRevenue = computed(() => this.adminOrders().reduce((total, order) => total + order.repair.total, 0));
   readonly adminCompletedOrders = computed(() => this.adminOrders().filter((order) => order.status === 'Confirmed').length);
   readonly adminInProgressOrders = computed(() => this.adminOrders().filter((order) => order.status === 'In Review').length);
-  readonly adminDashboardStats = computed<AdminMetric[]>(() => [
-    { title: 'Total Orders', value: this.formatCompactNumber(this.adminOrders().length), delta: 'Live from database', icon: 'file-text', tone: 'violet' },
-    { title: 'New Orders', value: this.formatCompactNumber(this.adminPendingOrders()), delta: 'Needs review', icon: 'clock', tone: 'blue' },
-    { title: 'In Progress', value: this.formatCompactNumber(this.adminInProgressOrders()), delta: 'Being handled', icon: 'tools', tone: 'violet' },
-    { title: 'Completed', value: this.formatCompactNumber(this.adminCompletedOrders()), delta: 'Confirmed jobs', icon: 'shield', tone: 'green' },
-    { title: 'Content Sections', value: this.formatCompactNumber(this.adminContentSections().length), delta: 'Editable website data', icon: 'save', tone: 'orange' },
-  ]);
+  readonly adminDashboardStats = computed<AdminMetric[]>(() => {
+    this.contentRevision();
+    return [
+      { title: 'Total Orders', value: this.formatCompactNumber(this.adminOrders().length), delta: 'Live from database', icon: 'file-text', tone: 'violet' },
+      { title: 'New Orders', value: this.formatCompactNumber(this.adminPendingOrders()), delta: 'Needs review', icon: 'clock', tone: 'blue' },
+      { title: 'In Progress', value: this.formatCompactNumber(this.adminInProgressOrders()), delta: 'Being handled', icon: 'tools', tone: 'violet' },
+      { title: 'Completed', value: this.formatCompactNumber(this.adminCompletedOrders()), delta: 'Confirmed jobs', icon: 'shield', tone: 'green' },
+      { title: 'Device Items', value: this.formatCompactNumber(this.bookDevices.length), delta: 'Booking picker catalog', icon: 'smartphone', tone: 'blue' },
+      { title: 'Content Sections', value: this.formatCompactNumber(this.adminContentSections().length), delta: 'Editable website data', icon: 'save', tone: 'orange' },
+    ];
+  });
   readonly adminRecentOrders = computed(() => this.adminOrders().slice(0, 5));
+  readonly adminDeviceItems = computed(() => {
+    this.contentRevision();
+    return this.bookDevices.map((device, index) => ({
+      ...device,
+      brand: device.brand || (device.name.toLowerCase().includes('iphone') ? 'Apple' : 'Other'),
+      category: device.category || (device.name.toLowerCase().includes('mac') ? 'Laptop' : device.name.toLowerCase().includes('ipad') ? 'Tablet' : device.name.toLowerCase().includes('watch') ? 'Smartwatch' : 'Phone'),
+      sortOrder: index,
+    }));
+  });
+  readonly adminDeviceCategoryStats = computed(() => {
+    const counts = this.adminDeviceItems().reduce<Record<string, number>>((acc, device) => {
+      acc[device.category] = (acc[device.category] ?? 0) + 1;
+      return acc;
+    }, {});
+    return Object.entries(counts).map(([category, count]) => ({ category, count }));
+  });
   readonly adminViewTitle = computed(() => {
     if (this.adminActiveView() === 'orders') {
       return 'Repair Orders';
+    }
+
+    if (this.adminActiveView() === 'devices') {
+      return 'Device Items';
     }
 
     if (this.adminActiveView() === 'content') {
@@ -491,6 +517,10 @@ export class App implements AfterViewInit, OnDestroy {
   readonly adminViewSubtitle = computed(() => {
     if (this.adminActiveView() === 'orders') {
       return 'Manage booking orders, customer details, and repair status.';
+    }
+
+    if (this.adminActiveView() === 'devices') {
+      return 'Manage the exact devices shown in the booking picker.';
     }
 
     if (this.adminActiveView() === 'content') {
@@ -983,6 +1013,10 @@ export class App implements AfterViewInit, OnDestroy {
     if (view === 'orders') {
       void this.syncAdminOrdersFromApi();
     }
+    if (view === 'devices') {
+      this.openAdminDevices();
+      return;
+    }
     if (view === 'blogs') {
       void this.syncAdminContentSections().then(() => this.selectAdminContentSection('blogs'));
       return;
@@ -1013,6 +1047,34 @@ export class App implements AfterViewInit, OnDestroy {
   openAdminBlogsEditor(): void {
     this.openAdminContent('blogs');
     this.selectedAdminGroupKey.set('posts');
+  }
+
+  async openAdminDevices(): Promise<void> {
+    this.adminActiveView.set('devices');
+    if (!this.adminContentSections().length) {
+      await this.syncAdminContentSections();
+    }
+    await this.selectAdminContentSection('booking');
+    this.selectedAdminGroupKey.set('devices');
+  }
+
+  async addAdminDevice(): Promise<void> {
+    if (this.adminActiveView() !== 'devices' || this.selectedAdminContentKey() !== 'booking' || this.selectedAdminGroupKey() !== 'devices') {
+      await this.openAdminDevices();
+    }
+
+    this.addAdminItem();
+    const itemIndex = this.selectedAdminGroupItems().length - 1;
+    if (itemIndex >= 0) {
+      this.updateAdminItem(itemIndex, (item) => ({
+        ...item,
+        name: item['name'] || 'New Device',
+        image: item['image'] || '/assets/cutouts/iphone.png',
+        tone: item['tone'] || 'violet',
+        brand: item['brand'] || 'Apple',
+        category: item['category'] || 'Phone',
+      }));
+    }
   }
 
   async addAdminBlog(): Promise<void> {

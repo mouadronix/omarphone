@@ -456,6 +456,7 @@
           <nav>
             <button type="button" [class.active]="adminActiveView() === 'dashboard'" (click)="openAdminView('dashboard')"><op-icon name="home"></op-icon> Dashboard</button>
             <button type="button" [class.active]="adminActiveView() === 'orders'" (click)="openAdminView('orders')"><op-icon name="file-text"></op-icon> Repair Orders</button>
+            <button type="button" [class.active]="adminActiveView() === 'devices'" (click)="openAdminDevices()"><op-icon name="smartphone"></op-icon> Device Items</button>
             <a href="/book"><op-icon name="clipboard"></op-icon> Test Booking</a>
             <button type="button" [class.active]="adminActiveView() === 'blogs'" (click)="openAdminView('blogs')"><op-icon name="file-text"></op-icon> Blogs</button>
             <span class="admin-nav-label">Website Content</span>
@@ -492,11 +493,13 @@
             <div class="admin-top-actions">
               <label class="admin-search">
                 <op-icon name="search"></op-icon>
-                <input type="search" [placeholder]="adminActiveView() === 'blogs' ? 'Search blogs...' : 'Search anything...'" [value]="adminActiveView() === 'blogs' ? adminBlogSearch() : ''" (input)="adminActiveView() === 'blogs' ? updateAdminBlogSearch($any($event.target).value) : null">
+                <input type="search" [placeholder]="adminActiveView() === 'blogs' ? 'Search blogs...' : adminActiveView() === 'devices' ? 'Manage device catalog...' : 'Search anything...'" [value]="adminActiveView() === 'blogs' ? adminBlogSearch() : ''" (input)="adminActiveView() === 'blogs' ? updateAdminBlogSearch($any($event.target).value) : null">
                 <kbd>Ctrl K</kbd>
               </label>
               @if (adminActiveView() === 'blogs') {
                 <button class="admin-new-order" type="button" (click)="addAdminBlog()"><op-icon name="plus"></op-icon> New Blog</button>
+              } @else if (adminActiveView() === 'devices') {
+                <button class="admin-new-order" type="button" (click)="addAdminDevice()"><op-icon name="plus"></op-icon> Add Device</button>
               } @else {
                 <a class="admin-new-order" href="/book"><op-icon name="plus"></op-icon> New Order</a>
               }
@@ -580,6 +583,30 @@
                     </div>
                   }
                 </div>
+              </div>
+            </article>
+
+            <article class="admin-device-panel">
+              <div class="admin-panel-head">
+                <h2>Device Items</h2>
+                <button type="button" (click)="openAdminDevices()">Manage Items</button>
+              </div>
+              <div class="admin-device-preview">
+                <div>
+                  <strong>{{ adminDeviceItems().length }}</strong>
+                  <span>Devices in booking picker</span>
+                  <small>Source: /api/booking-devices</small>
+                </div>
+                <div class="admin-device-stack">
+                  @for (device of adminDeviceItems().slice(0, 5); track device.name) {
+                    <img [src]="device.image" [alt]="device.name">
+                  }
+                </div>
+              </div>
+              <div class="admin-device-categories">
+                @for (item of adminDeviceCategoryStats(); track item.category) {
+                  <span>{{ item.category }} <strong>{{ item.count }}</strong></span>
+                }
               </div>
             </article>
 
@@ -716,12 +743,12 @@
           </section>
           }
 
-      @if (adminActiveView() === 'content') {
+      @if (adminActiveView() === 'content' || adminActiveView() === 'devices') {
       <section class="admin-content-panel" id="admin-content">
         <div class="section-heading compact-heading">
-          <span class="eyebrow">Website CRUD</span>
-          <h2>Editable Page Content</h2>
-          <p>{{ adminContentMessage() }}</p>
+          <span class="eyebrow">{{ adminActiveView() === 'devices' ? 'Booking CRUD' : 'Website CRUD' }}</span>
+          <h2>{{ adminActiveView() === 'devices' ? 'Device Item Management' : 'Editable Page Content' }}</h2>
+          <p>{{ adminActiveView() === 'devices' ? 'Create, update, upload images, reorder, and delete devices used by the booking flow.' : adminContentMessage() }}</p>
         </div>
 
         @if (adminContentSections().length) {
