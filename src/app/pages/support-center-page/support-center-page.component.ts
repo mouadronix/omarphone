@@ -81,21 +81,19 @@ export class SupportCenterPageComponent {
   }
 
   private async loadBackendContent(): Promise<void> {
-    const content = await this.contentService.load();
-    if (Array.isArray(content?.support?.faqs)) {
-      this.faqs.splice(0, this.faqs.length, ...(content.support.faqs as FaqItem[]));
-    }
-    if (Array.isArray(content?.support?.quickActions)) {
-      const actions = (content.support.quickActions as SupportItem[]).map((action) =>
-        action.href === '/admin'
-          ? { ...action, copy: 'Send your repair ID to support', href: 'https://wa.me/393298571129' }
-          : action
-      );
-      this.quickActions.splice(0, this.quickActions.length, ...actions);
-    }
-    if (Array.isArray(content?.support?.contactInfo)) {
-      this.contactInfo.splice(0, this.contactInfo.length, ...(content.support.contactInfo as SupportItem[]));
-    }
+    const [faqs, quickActions, contactInfo] = await Promise.all([
+      this.contentService.loadPublicRows('support-faqs'),
+      this.contentService.loadPublicRows('support-actions'),
+      this.contentService.loadPublicRows('support-contact'),
+    ]);
+    this.faqs.splice(0, this.faqs.length, ...(faqs as FaqItem[]));
+    const actions = (quickActions as SupportItem[]).map((action) =>
+      action.href === '/admin'
+        ? { ...action, copy: 'Send your repair ID to support', href: 'https://wa.me/393298571129' }
+        : action
+    );
+    this.quickActions.splice(0, this.quickActions.length, ...actions);
+    this.contactInfo.splice(0, this.contactInfo.length, ...(contactInfo as SupportItem[]));
     this.contentRevision.update((value) => value + 1);
   }
 

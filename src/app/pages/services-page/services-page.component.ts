@@ -85,18 +85,15 @@ export class ServicesPageComponent {
   }
 
   private async loadBackendContent(): Promise<void> {
-    const content = await this.contentService.load();
-    if (Array.isArray(content?.services?.heroTrust)) {
-      this.heroTrust.splice(0, this.heroTrust.length, ...(content.services.heroTrust as Feature[]));
-    }
-    if (Array.isArray(content?.services?.services)) {
-      this.services.splice(0, this.services.length, ...(content.services.services as ServiceCard[]));
-    }
-    if (Array.isArray(content?.services?.trustFeatures)) {
-      this.trustFeatures.splice(0, this.trustFeatures.length, ...(content.services.trustFeatures as Feature[]));
-    }
-    if (Array.isArray(content?.services?.process)) {
-      this.process.splice(0, this.process.length, ...(content.services.process as Feature[]));
-    }
+    const [heroTrust, services, trustFeatures, process] = await Promise.all([
+      this.contentService.loadPublicRows('service-trust'),
+      this.contentService.loadPublicRows('services'),
+      this.contentService.loadPublicRows('service-features'),
+      this.contentService.loadPublicRows('service-process'),
+    ]);
+    this.heroTrust.splice(0, this.heroTrust.length, ...(heroTrust as Feature[]));
+    this.services.splice(0, this.services.length, ...(services as ServiceCard[]));
+    this.trustFeatures.splice(0, this.trustFeatures.length, ...(trustFeatures as Feature[]));
+    this.process.splice(0, this.process.length, ...(process as Feature[]));
   }
 }

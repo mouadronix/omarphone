@@ -29,10 +29,7 @@ export class BlogSectionComponent {
   }
 
   private async loadBackendContent(): Promise<void> {
-    const content = await this.contentService.load();
-    if (Array.isArray(content?.blogs?.posts)) {
-      const posts = content.blogs.posts.slice(0, 4) as BlogPost[];
-      this.blogPosts.splice(0, this.blogPosts.length, ...posts);
-    }
+    const posts = await this.contentService.loadBlogPosts() as BlogPost[];
+    this.blogPosts.splice(0, this.blogPosts.length, ...posts.slice(0, 4));
   }
 }

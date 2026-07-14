@@ -56,13 +56,16 @@ export class BeforeAfterComponent {
   }
 
   private async loadBackendContent(): Promise<void> {
-    const content = await this.contentService.load();
-    if (Array.isArray(content?.beforeAfter?.repairs)) {
-      this.beforeAfterRepairs.splice(0, this.beforeAfterRepairs.length, ...(content.beforeAfter.repairs as BeforeAfterRepair[]));
-    }
-    if (Array.isArray(content?.beforeAfter?.testimonials)) {
-      this.testimonials.splice(0, this.testimonials.length, ...(content.beforeAfter.testimonials as string[][]));
-    }
+    const [repairs, testimonials] = await Promise.all([
+      this.contentService.loadPublicRows('before-after-repairs'),
+      this.contentService.loadPublicRows('before-after-testimonials'),
+    ]);
+    this.beforeAfterRepairs.splice(0, this.beforeAfterRepairs.length, ...(repairs as BeforeAfterRepair[]));
+    this.testimonials.splice(
+      0,
+      this.testimonials.length,
+      ...testimonials.map((item) => [String(item['name'] ?? ''), String(item['service'] ?? ''), String(item['copy'] ?? '')])
+    );
   }
 
   setComparePosition(event: Event): void {

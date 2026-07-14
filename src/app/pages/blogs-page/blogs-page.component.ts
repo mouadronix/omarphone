@@ -118,13 +118,10 @@ export class BlogsPageComponent {
   }
 
   private async loadBackendContent(): Promise<void> {
-    const content = await this.contentService.load();
-    if (Array.isArray(content?.blogs?.posts)) {
-      const posts = content.blogs.posts as BlogPost[];
-      this.blogPosts.splice(0, this.blogPosts.length, ...posts.slice(0, 4));
-      this.allBlogPosts.splice(0, this.allBlogPosts.length, ...posts);
-      this.currentPage.set(1);
-    }
+    const posts = await this.contentService.loadBlogPosts() as BlogPost[];
+    this.blogPosts.splice(0, this.blogPosts.length, ...posts.slice(0, 4));
+    this.allBlogPosts.splice(0, this.allBlogPosts.length, ...posts);
+    this.currentPage.set(1);
   }
 
   updateSearch(value: string): void {

@@ -118,12 +118,12 @@ export async function handleResource(request, response, resourceName, id = null)
     return false;
   }
 
-  if (!requireAdmin(request, response)) {
+  if (!id && request.method === 'GET') {
+    sendJson(response, 200, { resource: resourceName, rows: await readContentTableRows(table) });
     return true;
   }
 
-  if (!id && request.method === 'GET') {
-    sendJson(response, 200, { resource: resourceName, rows: await readContentTableRows(table) });
+  if (!requireAdmin(request, response)) {
     return true;
   }
 
@@ -148,4 +148,3 @@ export async function handleResource(request, response, resourceName, id = null)
   sendJson(response, 405, { error: 'Method not allowed' });
   return true;
 }
-

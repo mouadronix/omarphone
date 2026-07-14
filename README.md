@@ -82,6 +82,8 @@ Separated content CRUD uses named resources backed by real content tables:
 - `GET /api/support-actions`
 - `GET /api/support-contact`
 
+Public pages use these separated resource APIs directly. The website should not load the full `/api/content` payload for normal page rendering.
+
 Every resource supports the same admin CRUD pattern:
 
 - `GET /api/:resource`

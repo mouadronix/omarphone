@@ -653,13 +653,12 @@ export class App implements AfterViewInit, OnDestroy {
   }
 
   private async loadBackendContent(): Promise<void> {
-    const content = await this.contentService.load();
-    if (Array.isArray(content?.booking?.devices)) {
-      this.bookDevices.splice(0, this.bookDevices.length, ...(content.booking.devices as BookDevice[]));
-    }
-    if (Array.isArray(content?.booking?.repairIssues)) {
-      this.repairIssues.splice(0, this.repairIssues.length, ...(content.booking.repairIssues as RepairIssue[]));
-    }
+    const [devices, repairIssues] = await Promise.all([
+      this.contentService.loadPublicRows('booking-devices'),
+      this.contentService.loadPublicRows('repair-issues'),
+    ]);
+    this.bookDevices.splice(0, this.bookDevices.length, ...(devices as BookDevice[]));
+    this.repairIssues.splice(0, this.repairIssues.length, ...(repairIssues as RepairIssue[]));
   }
 
   ngAfterViewInit(): void {

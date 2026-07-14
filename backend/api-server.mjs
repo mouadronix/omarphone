@@ -1135,13 +1135,13 @@ const server = createServer(async (request, response) => {
     const resourceName = resourceMatch?.[1] ?? '';
     const resourceTable = CONTENT_RESOURCES[resourceName];
     if (resourceTable) {
-      if (!requireAdmin(request, response)) {
-        return;
-      }
-
       const resourceId = resourceMatch?.[2] ? decodeURIComponent(resourceMatch[2]) : null;
       if (!resourceId && request.method === 'GET') {
         sendJson(response, 200, { resource: resourceName, rows: await readContentTableRows(database, resourceTable) });
+        return;
+      }
+
+      if (!requireAdmin(request, response)) {
         return;
       }
 

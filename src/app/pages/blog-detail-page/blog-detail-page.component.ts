@@ -73,12 +73,11 @@ export class BlogDetailPageComponent {
   }
 
   private async loadBackendContent(): Promise<void> {
-    const content = await this.contentService.load();
-    if (!Array.isArray(content?.blogs?.posts)) {
+    const posts = await this.contentService.loadBlogPosts() as BlogArticle[];
+    if (!posts.length) {
       return;
     }
 
-    const posts = content.blogs.posts as BlogArticle[];
     this.articles.splice(0, this.articles.length, ...posts.map((post) => this.normalizeArticle(post)));
     this.syncSidebarData();
     this.contentRevision.update((value) => value + 1);

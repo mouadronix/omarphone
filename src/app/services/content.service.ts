@@ -97,19 +97,35 @@ function getAdminAuthHeaders(): Record<string, string> {
 @Injectable({ providedIn: 'root' })
 export class ContentService {
   readonly content = signal<SiteContent | null>(null);
-  private contentPromise: Promise<SiteContent | null> | null = null;
+  private blogPostsPromise: Promise<ContentResourceRow[]> | null = null;
+  private rowPromises = new Map<string, Promise<ContentResourceRow[]>>();
 
   load(): Promise<SiteContent | null> {
-    if (!this.contentPromise) {
-      this.contentPromise = this.fetchContent();
-    }
-
-    return this.contentPromise;
+    return Promise.resolve(null);
   }
 
   refresh(): Promise<SiteContent | null> {
-    this.contentPromise = this.fetchContent();
-    return this.contentPromise;
+    this.blogPostsPromise = null;
+    this.rowPromises.clear();
+    this.content.set(null);
+    return Promise.resolve(null);
+  }
+
+  async loadPublicRows(resource: string): Promise<ContentResourceRow[]> {
+    const key = resource.replace(/^\/?api\//, '');
+    if (!this.rowPromises.has(key)) {
+      this.rowPromises.set(key, this.fetchRows(key));
+    }
+
+    return this.rowPromises.get(key) ?? [];
+  }
+
+  async loadBlogPosts(): Promise<ContentResourceRow[]> {
+    if (!this.blogPostsPromise) {
+      this.blogPostsPromise = this.fetchBlogs();
+    }
+
+    return this.blogPostsPromise;
   }
 
   async loadSections(): Promise<ContentSection[]> {
@@ -229,23 +245,39 @@ export class ContentService {
     return result.media;
   }
 
-  private async fetchContent(): Promise<SiteContent | null> {
+  private async fetchRows(resource: string): Promise<ContentResourceRow[]> {
     if (typeof window === 'undefined') {
-      return null;
+      return [];
     }
 
     try {
-      const response = await fetch(`${getApiBaseUrl()}/content`);
+      const response = await fetch(`${getApiBaseUrl()}/${encodeURIComponent(resource)}`);
       if (!response.ok) {
-        throw new Error(`Content API responded with ${response.status}`);
+        throw new Error(`Content resource API responded with ${response.status}`);
       }
 
-      const content = await response.json() as SiteContent;
-      this.content.set(content);
-      return content;
+      const payload = await response.json() as { rows?: ContentResourceRow[] };
+      return payload.rows ?? [];
     } catch {
-      this.content.set(null);
-      return null;
+      return [];
+    }
+  }
+
+  private async fetchBlogs(): Promise<ContentResourceRow[]> {
+    if (typeof window === 'undefined') {
+      return [];
+    }
+
+    try {
+      const response = await fetch(`${getApiBaseUrl()}/blogs`);
+      if (!response.ok) {
+        throw new Error(`Blogs API responded with ${response.status}`);
+      }
+
+      const payload = await response.json() as { rows?: ContentResourceRow[]; posts?: ContentResourceRow[] };
+      return payload.rows ?? payload.posts ?? [];
+    } catch {
+      return [];
     }
   }
 

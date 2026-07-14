@@ -111,12 +111,15 @@ export class HomePageComponent {
   }
 
   private async loadBackendContent(): Promise<void> {
-    const content = await this.contentService.load();
-    if (Array.isArray(content?.home?.services)) {
-      this.services.splice(0, this.services.length, ...(content.home.services as Service[]));
-    }
-    if (Array.isArray(content?.home?.testimonials)) {
-      this.testimonials.splice(0, this.testimonials.length, ...(content.home.testimonials as string[][]));
-    }
+    const [services, testimonials] = await Promise.all([
+      this.contentService.loadPublicRows('home-services'),
+      this.contentService.loadPublicRows('home-testimonials'),
+    ]);
+    this.services.splice(0, this.services.length, ...(services as Service[]));
+    this.testimonials.splice(
+      0,
+      this.testimonials.length,
+      ...testimonials.map((item) => [String(item['name'] ?? ''), String(item['service'] ?? ''), String(item['copy'] ?? '')])
+    );
   }
 }

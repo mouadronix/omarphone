@@ -50,13 +50,12 @@ export class ReviewsPageComponent {
   }
 
   private async loadBackendContent(): Promise<void> {
-    const content = await this.contentService.load();
-    if (Array.isArray(content?.reviews?.stats)) {
-      this.stats.splice(0, this.stats.length, ...(content.reviews.stats as ReviewStat[]));
-    }
-    if (Array.isArray(content?.reviews?.reviews)) {
-      this.reviews.splice(0, this.reviews.length, ...(content.reviews.reviews as Review[]));
-    }
+    const [stats, reviews] = await Promise.all([
+      this.contentService.loadPublicRows('review-stats'),
+      this.contentService.loadPublicRows('reviews'),
+    ]);
+    this.stats.splice(0, this.stats.length, ...(stats as ReviewStat[]));
+    this.reviews.splice(0, this.reviews.length, ...(reviews as Review[]));
   }
 
   setRating(value: number): void {
