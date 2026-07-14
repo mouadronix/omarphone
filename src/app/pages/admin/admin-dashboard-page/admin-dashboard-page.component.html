@@ -33,14 +33,15 @@
     <aside class="admin-sidebar">
       <a class="admin-back-link" href="/"><op-icon name="chevron-left"></op-icon></a>
       <a class="admin-brand" href="/">
-        <span class="logo-mark">OP</span>
+        <div class="admin-user-mini">
+          <img src="/assets/admin/omar-admin.jpeg" alt="OmarPhone Admin">
+        </div>
         <strong>Omar<span>Phone</span></strong>
       </a>
       <nav>
         <button type="button" [class.active]="admin.adminActiveView() === 'dashboard'" (click)="admin.openAdminView('dashboard')"><op-icon name="home"></op-icon> Dashboard</button>
         <button type="button" [class.active]="admin.adminActiveView() === 'orders'" (click)="admin.openAdminView('orders')"><op-icon name="file-text"></op-icon> Repair Orders</button>
         <button type="button" [class.active]="admin.adminActiveView() === 'devices'" (click)="admin.openAdminDevices()"><op-icon name="smartphone"></op-icon> Device Items</button>
-        <a href="/book"><op-icon name="clipboard"></op-icon> Test Booking</a>
         <button type="button" [class.active]="admin.adminActiveView() === 'blogs'" (click)="admin.openAdminView('blogs')"><op-icon name="file-text"></op-icon> Blogs</button>
         <span class="admin-nav-label">Website Content</span>
         <button type="button" [class.active]="admin.adminActiveView() === 'content' && admin.selectedAdminContentKey() === 'home'" (click)="admin.openAdminContent('home')"><op-icon name="home"></op-icon> Home</button>
@@ -52,14 +53,8 @@
         <button type="button" [class.active]="admin.adminActiveView() === 'content' && admin.selectedAdminContentKey() === 'support'" (click)="admin.openAdminContent('support')"><op-icon name="headphones"></op-icon> Support</button>
         <button type="button" (click)="admin.logoutAdmin()"><op-icon name="lock"></op-icon> Lock Admin</button>
       </nav>
-      <!-- <div class="admin-upgrade">
-        <op-icon name="shield"></op-icon>
-        <strong>Database Connected</strong>
-        <p>{{ admin.adminSyncMessage() }}</p>
-        <button type="button" (click)="admin.refreshAdminOrders()">Refresh Now</button>
-      </div> -->
       <div class="admin-user-mini">
-        <img src="/assets/admin/omar-admin.png" alt="OmarPhone Admin">
+        <img src="/assets/admin/omar-admin.jpeg" alt="OmarPhone Admin">
         <div>
           <strong>Omar Dkhissi</strong><br>
           <small>Administrator</small>
