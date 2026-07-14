@@ -800,8 +800,19 @@
                               <tr>
                                 <td class="select-col"><span></span></td>
                                 <td class="admin-row-title">
-                                  <strong>{{ getAdminItemTitle(item, itemIndex) }}</strong>
-                                  <small>#{{ itemIndex + 1 }}</small>
+                                  <div class="admin-item-identity">
+                                    @if (getAdminFieldValue(item, 'image')) {
+                                      <img [src]="getAdminFieldValue(item, 'image')" alt="">
+                                    } @else if (getAdminFieldValue(item, 'avatar')) {
+                                      <img [src]="getAdminFieldValue(item, 'avatar')" alt="">
+                                    } @else {
+                                      <span>{{ getAdminItemTitle(item, itemIndex).slice(0, 1) }}</span>
+                                    }
+                                    <div>
+                                      <strong>{{ getAdminItemTitle(item, itemIndex) }}</strong>
+                                      <small>#{{ itemIndex + 1 }}</small>
+                                    </div>
+                                  </div>
                                 </td>
                                 @for (field of selectedAdminGroupFields(); track field) {
                                   <td [class.image-cell]="isAdminImageField(field)" [class.long-cell]="isAdminLongTextField(field) || isAdminListField(field)">
