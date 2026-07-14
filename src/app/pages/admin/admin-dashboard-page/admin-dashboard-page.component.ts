@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { UiIconComponent } from '../../components/ui-icon/ui-icon.component';
+import { UiIconComponent } from '../../../components/ui-icon/ui-icon.component';
 
 @Component({
   selector: 'app-admin-dashboard-page',

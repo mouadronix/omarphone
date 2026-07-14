@@ -8,7 +8,7 @@ import { NotFoundPage } from './pages/not-found-page/not-found.page';
 import { ReviewsPageComponent } from './pages/reviews-page/reviews-page.component';
 import { ServicesPageComponent } from './pages/services-page/services-page.component';
 import { SupportCenterPageComponent } from './pages/support-center-page/support-center-page.component';
-import { AdminDashboardPageComponent } from './pages/admin-dashboard-page/admin-dashboard-page.component';
+import { AdminDashboardPageComponent } from './pages/admin/admin-dashboard-page/admin-dashboard-page.component';
 import { Language } from './data/translations';
 import { ContentResource, ContentResourceRow, ContentSection, ContentService } from './services/content.service';
 import { TranslationService } from './services/translation.service';
