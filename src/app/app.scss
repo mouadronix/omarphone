@@ -7518,14 +7518,26 @@ h1 {
   padding-top: 18px;
   border-top: 1px solid rgba(148, 163, 184, .18);
 
-  > span {
-    display: grid;
+  > span,
+  > img {
     width: 44px;
     height: 44px;
-    place-items: center;
     border-radius: 50%;
+  }
+
+  > span {
+    display: grid;
+    place-items: center;
     background: var(--brand-grad);
     font-weight: 900;
+  }
+
+  > img {
+    display: block;
+    object-fit: cover;
+    object-position: center 32%;
+    border: 2px solid rgba(255, 255, 255, .18);
+    box-shadow: 0 10px 22px rgba(0, 0, 0, .22);
   }
 
   small {
