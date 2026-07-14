@@ -8,6 +8,7 @@ import { NotFoundPage } from './pages/not-found-page/not-found.page';
 import { ReviewsPageComponent } from './pages/reviews-page/reviews-page.component';
 import { ServicesPageComponent } from './pages/services-page/services-page.component';
 import { SupportCenterPageComponent } from './pages/support-center-page/support-center-page.component';
+import { AdminDashboardPageComponent } from './pages/admin-dashboard-page/admin-dashboard-page.component';
 import { Language } from './data/translations';
 import { ContentResource, ContentResourceRow, ContentSection, ContentService } from './services/content.service';
 import { TranslationService } from './services/translation.service';
@@ -202,12 +203,13 @@ type AdminView = 'dashboard' | 'orders' | 'content' | 'blogs' | 'devices';
 
 @Component({
   selector: 'app-root',
-  imports: [BeforeAfterPage, BlogDetailPageComponent, BlogsPageComponent, HomePageComponent, NotFoundPage, ReviewsPageComponent, ServicesPageComponent, SupportCenterPageComponent, UiIconComponent],
+  imports: [AdminDashboardPageComponent, BeforeAfterPage, BlogDetailPageComponent, BlogsPageComponent, HomePageComponent, NotFoundPage, ReviewsPageComponent, ServicesPageComponent, SupportCenterPageComponent, UiIconComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss',
   encapsulation: ViewEncapsulation.None,
 })
 export class App implements AfterViewInit, OnDestroy {
+  readonly adminPageContext = this;
   private readonly translationService = inject(TranslationService);
   private readonly contentService = inject(ContentService);
   private readonly changeDetector = inject(ChangeDetectorRef);
